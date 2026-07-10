@@ -40,7 +40,7 @@
 | 输入与增长 | Markdown + PDF 都支持,增量更新 |
 | 交互形态 | 批处理流水线 + 网站浏览(无后端、无交互问答) |
 | 跨报告层 | v1 即包含完整跨报告综合层 |
-| 技术路线 | 方案 A:Python 流水线 + Astro/Tailwind/React + **GLM-5-2**(默认,备选 DeepSeek-V4-Pro),provider 抽象可切其他 |
+| 技术路线 | 方案 A:Python 流水线 + Astro/Tailwind/React + **火山引擎 Ark**(模型默认 GLM-5.2,config 切换) |
 | 项目位置 | sibling `D:\量化研报分析\`,不同步回 wiki |
 | 视觉风格 | 量化终端(深色高密度),字体 Plus Jakarta Sans + JetBrains Mono(+ Noto Sans SC) |
 
@@ -201,7 +201,7 @@ D:\量化研报分析\
   ],
   "related_reports": [{"slug":"…","title":"…","relation":"同方法"}],  // 经实体/因子重叠算出
   "confidence": "high",
-  "model_used": "glm-5-2"
+  "model_used": "GLM-5.2"
 }
 ```
 
@@ -300,14 +300,23 @@ python -m pipeline run          # 或 ./run.sh
 
 该命令依次执行:① 增量扫描输入(MD+PDF),只解析新增/改动;② 只分析新增/改动的报告;③ 全量重算跨报告综合层;④ 重建静态站到 `dist/`。**未变动的报告跳过**(省时省 token)。也支持分步子命令(`ingest`/`analyze`/`synthesize`/`build`)单独跑某一层。
 
+**指定单篇更新**(不依赖全量扫描,适合"加了一篇只想更新这一篇"):
+```bash
+python -m pipeline run --file "广发/【广发金工】xxx.md"   # 指定 MD 路径
+python -m pipeline run --file "raw/pdfs/xxx.pdf"          # 指定 PDF
+python -m pipeline run --slug gf-xxx                      # 按已入库 slug
+```
+只解析 + 分析该篇,再重算跨报告层 + 重建站点。
+
 ---
 
 ## 6. Analyze 单篇分析层
 
 ### 6.1 LLM 调用
-- **默认模型:GLM-5-2**(全部任务:抽取/详述/构造/批判/综合);**备选:DeepSeek-V4-Pro**。
-- 通过 `llm/provider.py` 抽象,`config.yaml` 切换 provider 与模型;API key 走环境变量(`GLM_API_KEY`/`DEEPSEEK_API_KEY`)。
-- **两段式调用**(见 6.2):先结构化抽取(轻量),再深度生成长文本(完整);成本由增量 manifest(不重复跑)与两段式调用控制。
+- 走 **火山引擎 Ark**(`volcenginesdkarkruntime`),封装为 `ArkProvider`;**模型在 `config.yaml` 里切换**(默认 `GLM-5.2`,换其他模型只需改 model 字符串)。API key 走环境变量 `ARK_API_KEY`。
+- 只有 **analyze 与 synthesize 两层调用 LLM API**;ingest(解析)与 present(建站)不调用。
+- **两段式调用**(见 6.2):先结构化抽取(轻量、强制 JSON),再深度生成长文本(完整);成本由增量 manifest(未变动报告不重跑)与两段式调用控制。
+- 结构化输出:优先用 Ark 的 JSON mode / tool calls 强制 schema;若不可用则 prompt 约束 + 解析 + 重试。
 
 ### 6.2 Prompt 策略
 - **两段式**:第一段抽取结构化字段(强制 JSON schema,工具调用/structured output);第二段基于抽取结果 + 原文,生成详述/构造/批判性长文本。
@@ -369,14 +378,22 @@ python -m pipeline run          # 或 ./run.sh
 ## 9. LLM 与 Provider 抽象
 
 ```python
-# pipeline/llm/provider.py
-class LLMProvider:
-    def extract(self, doc, schema) -> dict: ...      # 结构化抽取
+# pipeline/llm/provider.py —— 封装火山引擎 Ark,模型在 config 切换
+from volcenginesdkarkruntime import Ark
+import os
+
+class ArkProvider:
+    def __init__(self, model: str):
+        self.client = Ark(api_key=os.environ["ARK_API_KEY"])
+        self.model = model                      # "GLM-5.2" / "DeepSeek-V4-Pro" / …
+    def chat(self, messages, **kw):
+        return self.client.chat.completions.create(model=self.model, messages=messages, **kw)
+    def extract(self, doc, schema) -> dict: ...      # 结构化抽取(JSON mode / tool calls)
     def analyze(self, doc, extracted) -> dict: ...   # 详述+构造+批判
     def synthesize(self, all_analyses) -> dict: ...  # 跨报告综合
 ```
-- 实现:`GLMProvider`(zhipuai SDK,**默认**,glm-5-2)、`DeepSeekProvider`(OpenAI 兼容 SDK,备选,deepseek-v4-pro);接口统一,可扩展 `ClaudeProvider`/`OpenClawProvider`。
-- `config.yaml` 选 provider 与模型;API key 走环境变量(`GLM_API_KEY`/`DEEPSEEK_API_KEY`)。
+- 默认 `ArkProvider`,模型由 `config.yaml` 的 `model` 字段决定(默认 `GLM-5.2`);**换模型只改这一处字符串**(如 `DeepSeek-V4-Pro`)。
+- 接口统一,后续可扩展其他 OpenAI 兼容 provider。
 
 ---
 
@@ -418,4 +435,4 @@ class LLMProvider:
 
 1. **同义因子合并**(已确认需要):跨报告注册表需聚类"大小单资金流""大小单资金流因子"等近义命名。做法:维护一份别名表(`config.yaml`)+ LLM 辅助识别近义条目,人工确认后合并。实现时定具体阈值与流程。
 2. **机构名**:直接用 `Clippings/` 目录名(广发/国信/国泰海通/国联民生…),不做规范化映射。
-3. **GLM/DeepSeek 可用性与 key**:实现时确认 `GLM_API_KEY` 可用;若 GLM 限流/不可用,切 `DEEPSEEK_API_KEY` 跑 DeepSeek-V4-Pro。
+3. **Ark 模型可用性**:确认 `ARK_API_KEY` 可用、`GLM-5.2` 模型字符串正确;换模型(如 `DeepSeek-V4-Pro`)只需改 `config.yaml` 的 `model` 字段(前提是该模型在 Ark 可用)。
