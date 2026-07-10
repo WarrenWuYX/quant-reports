@@ -1,0 +1,11 @@
+vault_path: "D:/知识库/obsidian"
+clippings_dir: "Clippings"
+pdfs_dir: "raw/pdfs"
+data_dir: "data"
+model: "GLM-5.2"
+classification:
+  research_type: ["基本面", "技术面(量价)", "高频·微观结构", "资产配置·风格轮动", "行业轮动", "AI·机器学习", "另类数据"]
+  data_frequency: ["财务(低频)", "日频", "分钟", "盘口", "逐笔(Level-2)", "集合竞价", "隔夜"]
+  factor_family: ["动量", "反转", "波动率", "资金流", "流动性", "价值", "质量", "分析师", "情绪", "红利"]
+  asset_class: ["A股", "港股", "指数增强", "行业轮动", "多资产", "基金"]
+  method: ["统计线性", "树模型", "深度学习", "强化学习", "遗传规划·符号回归", "知识图谱·RAG", "组合优化"]
