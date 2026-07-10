@@ -40,7 +40,7 @@
 | 输入与增长 | Markdown + PDF 都支持,增量更新 |
 | 交互形态 | 批处理流水线 + 网站浏览(无后端、无交互问答) |
 | 跨报告层 | v1 即包含完整跨报告综合层 |
-| 技术路线 | 方案 A:Python 流水线 + Astro/Tailwind/React + Claude API(provider 可切 GLM/OpenClaw) |
+| 技术路线 | 方案 A:Python 流水线 + Astro/Tailwind/React + **GLM-5-2**(默认,备选 DeepSeek-V4-Pro),provider 抽象可切其他 |
 | 项目位置 | sibling `D:\量化研报分析\`,不同步回 wiki |
 | 视觉风格 | 量化终端(深色高密度),字体 Plus Jakarta Sans + JetBrains Mono(+ Noto Sans SC) |
 
@@ -201,7 +201,7 @@ D:\量化研报分析\
   ],
   "related_reports": [{"slug":"…","title":"…","relation":"同方法"}],  // 经实体/因子重叠算出
   "confidence": "high",
-  "model_used": "claude-fable-5"
+  "model_used": "glm-5-2"
 }
 ```
 
@@ -289,16 +289,25 @@ D:\量化研报分析\
 { "files": { "广发/【广发金工】AlphaForge....md": {"hash":"sha256…","analyzed_at":"…","schema_version":"1.0"} } }
 ```
 - 每次运行:计算每个输入文件的 content hash;**跳过** hash 未变且 schema_version 一致的;**只重算**新增/改动/ schema 升级的。
-- 跨报告层:任一单篇变动则标记 registry/landscape 需重算(或按受影响范围增量)。
+- 跨报告层:任一单篇变动则触发 synthesize 层全量重算(v1,见 §7)。
+
+### 5.5 一键运行(增量更新)
+新增/改动报告后,运行单条命令即可全自动更新:
+
+```bash
+python -m pipeline run          # 或 ./run.sh
+```
+
+该命令依次执行:① 增量扫描输入(MD+PDF),只解析新增/改动;② 只分析新增/改动的报告;③ 全量重算跨报告综合层;④ 重建静态站到 `dist/`。**未变动的报告跳过**(省时省 token)。也支持分步子命令(`ingest`/`analyze`/`synthesize`/`build`)单独跑某一层。
 
 ---
 
 ## 6. Analyze 单篇分析层
 
-### 6.1 LLM 调用与分层模型
-- **结构化抽取**(source 元数据、分类标签、绩效指标、实体):**Sonnet** 档(快、便宜,213 篇可承受)。
-- **详述 + 构造细节 + 批判性分析**(需深度推理):**Fable/Opus** 档(质量优先)。
-- 通过 `llm/provider.py` 抽象,默认 Claude API,可切 GLM-4.6 或 OpenClaw 网关;`config.yaml` 配置。
+### 6.1 LLM 调用
+- **默认模型:GLM-5-2**(全部任务:抽取/详述/构造/批判/综合);**备选:DeepSeek-V4-Pro**。
+- 通过 `llm/provider.py` 抽象,`config.yaml` 切换 provider 与模型;API key 走环境变量(`GLM_API_KEY`/`DEEPSEEK_API_KEY`)。
+- **两段式调用**(见 6.2):先结构化抽取(轻量),再深度生成长文本(完整);成本由增量 manifest(不重复跑)与两段式调用控制。
 
 ### 6.2 Prompt 策略
 - **两段式**:第一段抽取结构化字段(强制 JSON schema,工具调用/structured output);第二段基于抽取结果 + 原文,生成详述/构造/批判性长文本。
@@ -362,12 +371,12 @@ D:\量化研报分析\
 ```python
 # pipeline/llm/provider.py
 class LLMProvider:
-    def extract(self, doc, schema) -> dict: ...      # 结构化抽取(Sonnet 档)
-    def analyze(self, doc, extracted) -> dict: ...   # 详述+构造+批判(Fable/Opus 档)
-    def synthesize(self, all_analyses) -> dict: ...  # 跨报告综合(Fable/Opus 档)
+    def extract(self, doc, schema) -> dict: ...      # 结构化抽取
+    def analyze(self, doc, extracted) -> dict: ...   # 详述+构造+批判
+    def synthesize(self, all_analyses) -> dict: ...  # 跨报告综合
 ```
-- 实现:`ClaudeProvider`(anthropic SDK,默认)、`GLMProvider`(zhipuai SDK)、`OpenClawProvider`(Gateway API)。
-- `config.yaml` 选 provider 与模型档位;API key 走环境变量。
+- 实现:`GLMProvider`(zhipuai SDK,**默认**,glm-5-2)、`DeepSeekProvider`(OpenAI 兼容 SDK,备选,deepseek-v4-pro);接口统一,可扩展 `ClaudeProvider`/`OpenClawProvider`。
+- `config.yaml` 选 provider 与模型;API key 走环境变量(`GLM_API_KEY`/`DEEPSEEK_API_KEY`)。
 
 ---
 
@@ -405,8 +414,8 @@ class LLMProvider:
 
 ---
 
-## 13. 开放问题(待实现阶段确认)
+## 13. 待实现阶段确认的细节
 
-1. **LLM provider 默认值**:默认 Claude API;若用户无 Anthropic key,切 GLM-4.6。实现时确认可用 key。
-2. **机构名规范化**:部分目录名带后缀(如"国联民生""国泰海通"),网站显示与注册表需统一简称映射表。
-3. **同义因子合并**:跨报告注册表聚类"大小单资金流"等近义命名,需一份别名表 + LLM 辅助合并,实现时定规则。
+1. **同义因子合并**(已确认需要):跨报告注册表需聚类"大小单资金流""大小单资金流因子"等近义命名。做法:维护一份别名表(`config.yaml`)+ LLM 辅助识别近义条目,人工确认后合并。实现时定具体阈值与流程。
+2. **机构名**:直接用 `Clippings/` 目录名(广发/国信/国泰海通/国联民生…),不做规范化映射。
+3. **GLM/DeepSeek 可用性与 key**:实现时确认 `GLM_API_KEY` 可用;若 GLM 限流/不可用,切 `DEEPSEEK_API_KEY` 跑 DeepSeek-V4-Pro。
