@@ -404,7 +404,7 @@ class ArkProvider:
 - **人工编辑不被覆盖**:若 JSON 中存在 `user_edited: true` 标记且原文未变,重跑时保留人工修改(或提示冲突)。
 - **置信度**:`confidence` 字段 + 批判性段落默认 `[INFERRED]` 语义,提示用户复核。
 - **PDF 解析降级**:OCR 失败的 PDF 标记 `partial: true`,在网站显示"解析不完整"提示。
-- **成本控制**:Sonnet 做抽取、Fable/Opus 只用于深度段落;manifest 增量避免重复花费。
+- **成本控制**:GLM-5.2 两段式调用(抽取轻量、深度完整);manifest 增量避免重复花费。
 
 ---
 
@@ -412,7 +412,7 @@ class ArkProvider:
 
 | 里程碑 | 内容 | 产出 |
 |---|---|---|
-| **M1 解析+单篇分析骨架** | MD 解析、归一化、provider 抽象(Claude)、单篇 schema(精简+详述+构造细节+批判)、manifest | 对 10 篇样本跑通端到端分析 |
+| **M1 解析+单篇分析骨架** | MD 解析、归一化、provider 抽象(Ark)、单篇 schema(精简+详述+构造细节+批判)、manifest | 对 10 篇样本跑通端到端分析 |
 | **M2 网站 MVP** | Astro + Tailwind + 量化终端视觉;报告列表(筛选)+ 报告详情(精简/详述/构造/批判/原文) | 可浏览的静态站 |
 | **M3 跨报告层** | 因子·方法注册表、全景图热力图、研究空白/机会、同主题对比 | 全景图页 + 注册表页 |
 | **M4 PDF + 增量** | PyMuPDF/pdfplumber/PaddleOCR 解析;manifest 增量全量跑 213 篇 | 全量数据 + 增量能力 |
