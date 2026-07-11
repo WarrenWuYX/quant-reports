@@ -1,6 +1,6 @@
 import json
 
-from pipeline.analyze.analyzer import Analyzer
+from pipeline.analyze.analyzer import Analyzer, AnalysisError
 from pipeline.ingest.normalize import NormalizedDoc, DocMetadata
 
 EXTRACT_JSON = json.dumps({
@@ -69,3 +69,12 @@ def test_analyzer_retries_on_bad_json_then_succeeds():
     a = Analyzer(prov, {"research_type": [], "method": []}, model="GLM-5.2")
     out = a.analyze(_doc())
     assert out.slug == "abc123"
+
+
+def test_analyzer_raises_error_after_all_retries_exhausted():
+    import pytest
+    bad = "not json"
+    prov = _ScriptedProvider([bad, bad, bad, bad, bad, bad, bad])
+    a = Analyzer(prov, {"research_type": [], "method": []}, model="GLM-5.2")
+    with pytest.raises(AnalysisError):
+        a.analyze(_doc())
