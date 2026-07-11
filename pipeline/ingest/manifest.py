@@ -1,6 +1,6 @@
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 SCHEMA_VERSION = "1.0"
@@ -36,7 +36,7 @@ class Manifest:
         self.files[source_path] = {
             "hash": content_hash,
             "schema_version": schema_version,
-            "analyzed_at": analyzed_at or datetime.utcnow().isoformat(),
+            "analyzed_at": analyzed_at or datetime.now(timezone.utc).isoformat(),
         }
 
     def save(self, path):
