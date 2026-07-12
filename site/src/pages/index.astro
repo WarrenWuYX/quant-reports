@@ -1,0 +1,69 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const analyses = await getCollection("analyses");
+const ok = analyses.filter(a => a.data.status === "ok");
+const institutions = [...new Set(ok.map(a => a.data.source.institution))];
+const latest = ok.sort((a, b) =>
+  (b.data.source.ingested_at || "").localeCompare(a.data.source.ingested_at || "")
+);
+const totalFactors = ok.reduce((s, a) => s + a.data.entities.filter(e => e.type === "factor").length, 0);
+const totalMethods = ok.reduce((s, a) => s + a.data.entities.filter(e => e.type === "method").length, 0);
+const avgQuality = ok.length > 0 ? (ok.reduce((s, a) => s + a.data.ratings.quality, 0) / ok.length).toFixed(1) : "—";
+---
+
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-8 font-mono">
+      <span class="text-accent-cyan">&gt;</span> Dashboard
+    </h1>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div class="panel p-5">
+        <div class="text-3xl font-bold font-mono text-accent-cyan">{ok.length}</div>
+        <div class="text-xs text-gray-500 mt-1">已分析报告</div>
+      </div>
+      <div class="panel p-5">
+        <div class="text-3xl font-bold font-mono text-accent-green">{institutions.length}</div>
+        <div class="text-xs text-gray-500 mt-1">机构</div>
+      </div>
+      <div class="panel p-5">
+        <div class="text-3xl font-bold font-mono text-accent-amber">{avgQuality}</div>
+        <div class="text-xs text-gray-500 mt-1">平均质量评分</div>
+      </div>
+      <div class="panel p-5">
+        <div class="text-3xl font-bold font-mono text-accent-indigo">{totalFactors + totalMethods}</div>
+        <div class="text-xs text-gray-500 mt-1">因子/方法实体</div>
+      </div>
+    </div>
+
+    <!-- Latest Analyses -->
+    <h2 class="text-lg font-semibold mb-4 font-mono text-gray-300">最新分析</h2>
+    <div class="space-y-3">
+      {latest.map(a => (
+        <a href={`/reports/${a.data.slug}`} class="panel block p-4 hover:border-accent-cyan/30 transition-colors">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-white truncate">{a.data.source.title}</div>
+              <div class="text-xs text-gray-500 mt-1">{a.data.concise.one_liner.slice(0, 120)}</div>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="tag">{a.data.source.institution}</span>
+              <span class="text-xs font-mono text-accent-amber">★ {a.data.ratings.quality}</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <!-- Institutions -->
+    <h2 class="text-lg font-semibold mt-10 mb-4 font-mono text-gray-300">机构分布</h2>
+    <div class="flex flex-wrap gap-2">
+      {institutions.map(inst => (
+        <span class="tag text-sm">{inst}</span>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

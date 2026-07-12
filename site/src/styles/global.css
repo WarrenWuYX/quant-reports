@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+SC:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-bg text-gray-200 font-sans antialiased;
+  }
+
+  body {
+    @apply min-h-screen;
+  }
+
+  ::selection {
+    @apply bg-accent-cyan/30 text-white;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-panel border border-border rounded-lg;
+  }
+
+  .panel-raised {
+    @apply bg-panel-raised border border-border rounded-lg;
+  }
+
+  .tag {
+    @apply inline-block px-2 py-0.5 text-xs rounded font-mono text-accent-cyan bg-accent-cyan/10 border border-accent-cyan/20;
+  }
+}

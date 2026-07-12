@@ -1,0 +1,435 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const analyses = await getCollection("analyses");
+  const ok = analyses.filter(a => a.data.status === "ok");
+  return ok.map(a => ({ params: { slug: a.data.slug } }));
+}
+
+const { slug } = Astro.params;
+const analyses = await getCollection("analyses");
+const a = analyses.find(x => x.data.slug === slug);
+if (!a) {
+  return Astro.redirect("/reports");
+}
+
+const d = a.data;
+const cls = d.classification;
+const det = d.detailed;
+const ct = d.critical;
+const hasConstruction = det.construction && Object.values(det.construction).some(v => v !== null && v !== undefined && (!Array.isArray(v) || v.length > 0));
+---
+
+<BaseLayout>
+  <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-6">
+      <a href="/reports" class="text-xs text-gray-500 hover:text-accent-cyan transition-colors">&larr; 返回列表</a>
+      <h1 class="text-xl font-bold mt-2 text-white">{d.source.title}</h1>
+      <div class="flex flex-wrap items-center gap-3 mt-3 text-xs text-gray-400">
+        <span class="tag">{d.source.institution}</span>
+        {d.source.authors?.map((author: string) => <span>{author}</span>)}
+        {d.source.published && <span class="font-mono">{d.source.published}</span>}
+        <span class="font-mono">置信度: {d.confidence}</span>
+      </div>
+    </div>
+
+    <!-- Ratings bar -->
+    <div class="flex gap-4 mb-6 text-xs font-mono">
+      <div class="panel px-3 py-2 flex items-center gap-2">
+        <span class="text-gray-500">综合质量</span>
+        <span class="text-accent-green text-lg font-bold">{d.ratings.quality}</span>
+        <span class="text-gray-600">/5</span>
+      </div>
+      <div class="panel px-3 py-2 flex items-center gap-2">
+        <span class="text-gray-500">新颖性</span>
+        <span class="text-accent-indigo text-lg font-bold">{d.ratings.novelty}</span>
+        <span class="text-gray-600">/5</span>
+      </div>
+      <div class="panel px-3 py-2 flex items-center gap-2">
+        <span class="text-gray-500">可复现性</span>
+        <span class="text-accent-amber text-lg font-bold">{d.ratings.reusability}</span>
+        <span class="text-gray-600">/5</span>
+      </div>
+    </div>
+
+    <!-- Classification tags -->
+    <div class="panel p-4 mb-6">
+      <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">分类</h3>
+      <div class="flex flex-wrap gap-2">
+        {cls.research_type?.map((t: string) => <span class="tag">{t}</span>)}
+        {cls.data_frequency?.map((t: string) => <span class="tag bg-accent-indigo/10 text-accent-indigo border-accent-indigo/30">{t}</span>)}
+        {cls.factor_family?.map((t: string) => <span class="tag bg-accent-green/10 text-accent-green border-accent-green/30">{t}</span>)}
+        {cls.asset_class?.map((t: string) => <span class="tag bg-accent-amber/10 text-accent-amber border-accent-amber/30">{t}</span>)}
+        {cls.method?.map((t: string) => <span class="tag bg-accent-cyan/10 text-accent-cyan border-accent-cyan/30">{t}</span>)}
+      </div>
+    </div>
+
+    <!-- Concise toggle -->
+    <div class="mb-6">
+      <div class="flex gap-2 mb-4">
+        <button id="btn-concise" class="text-xs px-3 py-1 rounded border border-accent-cyan text-accent-cyan bg-accent-cyan/10">精简</button>
+        <button id="btn-detailed" class="text-xs px-3 py-1 rounded border border-border text-gray-400 hover:text-white">详述</button>
+      </div>
+
+      <!-- Concise view -->
+      <div id="view-concise" class="space-y-4">
+        <div class="panel p-4">
+          <p class="text-sm text-gray-300">{d.concise.one_liner}</p>
+        </div>
+        {d.concise.key_result && (
+          <div class="panel p-4 border-l-2 border-l-accent-green">
+            <h4 class="text-xs font-mono text-accent-green mb-1">关键结论</h4>
+            <p class="text-sm text-gray-300">{d.concise.key_result}</p>
+          </div>
+        )}
+        {d.concise.core_points?.length > 0 && (
+          <div class="panel p-4">
+            <h4 class="text-xs font-mono text-gray-500 mb-2">核心要点</h4>
+            <ul class="list-disc list-inside space-y-1 text-sm text-gray-400">
+              {d.concise.core_points.map((p: string) => <li>{p}</li>)}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <!-- Detailed view -->
+      <div id="view-detailed" class="hidden space-y-6">
+        <!-- Core content -->
+        <div class="panel p-4">
+          <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">核心内容</h3>
+          <p class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{det.core_content}</p>
+        </div>
+
+        <!-- Economic logic -->
+        <div class="panel p-4">
+          <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">经济逻辑</h3>
+          <p class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{det.economic_logic}</p>
+        </div>
+
+        {det.excess_return_logic && (
+          <div class="panel p-4 border-l-2 border-l-accent-green">
+            <h3 class="text-xs font-mono text-accent-green uppercase tracking-wider mb-2">超额收益逻辑</h3>
+            <p class="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{det.excess_return_logic}</p>
+          </div>
+        )}
+
+        <!-- Construction block -->
+        {hasConstruction && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3">
+              构造细节 <span class="text-accent-cyan">[{det.construction.type}]</span>
+            </h3>
+            <div class="space-y-3 text-sm text-gray-300">
+
+              {det.construction.type === "factor" && (
+                <>
+                  {det.construction.factor_definition && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">因子定义</span>
+                      <p class="mt-1 whitespace-pre-line">{det.construction.factor_definition}</p>
+                    </div>
+                  )}
+                  {det.construction.processing_pipeline?.length > 0 && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">处理流程</span>
+                      <ol class="mt-1 list-decimal list-inside space-y-0.5">
+                        {det.construction.processing_pipeline.map((s: string) => <li>{s}</li>)}
+                      </ol>
+                    </div>
+                  )}
+                  {det.construction.parameters?.length > 0 && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">参数</span>
+                      <div class="mt-1 grid grid-cols-2 gap-1">
+                        {det.construction.parameters.map((p: any) => (
+                          <span class="text-xs font-mono text-gray-400">{p.name}: {p.value}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {det.construction.type === "model" && (
+                <>
+                  {det.construction.model_architecture && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">模型架构</span>
+                      <p class="mt-1 whitespace-pre-line">{det.construction.model_architecture}</p>
+                    </div>
+                  )}
+                  {det.construction.inputs?.length > 0 && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">输入</span>
+                      <div class="mt-1 flex flex-wrap gap-1">
+                        {det.construction.inputs.map((s: string) => <span class="tag bg-accent-indigo/10 text-accent-indigo border-accent-indigo/30">{s}</span>)}
+                      </div>
+                    </div>
+                  )}
+                  {det.construction.outputs && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">输出</span>
+                      <p class="mt-1">{det.construction.outputs}</p>
+                    </div>
+                  )}
+                  {det.construction.training && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">训练</span>
+                      <p class="mt-1 whitespace-pre-line">{det.construction.training}</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {det.construction.type === "strategy" && (
+                <>
+                  {det.construction.strategy_logic && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">策略逻辑</span>
+                      <p class="mt-1 whitespace-pre-line">{det.construction.strategy_logic}</p>
+                    </div>
+                  )}
+                  {det.construction.allocation && (
+                    <div>
+                      <span class="text-xs font-mono text-gray-500">分配方式</span>
+                      <p class="mt-1">{det.construction.allocation}</p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {det.construction.data_inputs?.length > 0 && (
+                <div>
+                  <span class="text-xs font-mono text-gray-500">数据输入</span>
+                  <div class="mt-1 grid grid-cols-2 gap-1 text-xs">
+                    {det.construction.data_inputs.map((di: any) => (
+                      <span class="font-mono text-gray-400">{di.name}: {di.type}{di.frequency ? ` (${di.frequency})` : ""}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {det.construction.combination && (
+                <div>
+                  <span class="text-xs font-mono text-gray-500">组合方式</span>
+                  <p class="mt-1">{det.construction.combination}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <!-- Performance -->
+        {det.performance && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">绩效</h3>
+            {det.performance.metrics?.length > 0 && (
+              <div class="grid grid-cols-3 gap-3 mb-3">
+                {det.performance.metrics.map((m: any) => (
+                  <div class="bg-bg rounded p-2 text-center">
+                    <div class="text-lg font-mono font-bold text-accent-cyan">{m.value}</div>
+                    <div class="text-xs text-gray-500">{m.name}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div class="text-xs text-gray-500 space-y-1">
+              {det.performance.benchmark && <div>基准: <span class="font-mono text-gray-400">{det.performance.benchmark}</span></div>}
+              {det.performance.backtest_period && <div>回测期: <span class="font-mono text-gray-400">{det.performance.backtest_period}</span></div>}
+              {det.performance.turnover && <div>换手率: <span class="font-mono text-gray-400">{det.performance.turnover}</span></div>}
+              {det.performance.capacity && <div>容量: <span class="font-mono text-gray-400">{det.performance.capacity}</span></div>}
+              {det.performance.ic_decay && <div>IC衰减: <span class="font-mono text-gray-400">{det.performance.ic_decay}</span></div>}
+            </div>
+            {det.performance.summary && <p class="text-sm text-gray-400 mt-2">{det.performance.summary}</p>}
+          </div>
+        )}
+
+        <!-- Attribution -->
+        {det.attribution && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
+              收益归因
+              {det.attribution.done && <span class="text-accent-green ml-2">✓ 已完成</span>}
+            </h3>
+            {det.attribution.summary && <p class="text-sm text-gray-300 mb-2">{det.attribution.summary}</p>}
+            <div class="text-xs text-gray-500 space-y-1">
+              {det.attribution.method && <div>方法: <span class="font-mono text-gray-400">{det.attribution.method}</span></div>}
+              {det.attribution.gap && <div>缺口: <span class="font-mono text-gray-400">{det.attribution.gap}</span></div>}
+            </div>
+          </div>
+        )}
+
+        <!-- Robustness -->
+        {det.robustness && Object.values(det.robustness).some((v: any) => v) && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">稳健性</h3>
+            <div class="text-xs text-gray-500 space-y-1">
+              {det.robustness.subsample_stability && <div>子样本稳定性: <span class="text-gray-400">{det.robustness.subsample_stability}</span></div>}
+              {det.robustness.style_bias && <div>风格偏差: <span class="text-gray-400">{det.robustness.style_bias}</span></div>}
+              {det.robustness.turnover && <div>换手率: <span class="text-gray-400">{det.robustness.turnover}</span></div>}
+              {det.robustness.capacity && <div>容量: <span class="text-gray-400">{det.robustness.capacity}</span></div>}
+            </div>
+            {det.robustness.summary && <p class="text-sm text-gray-400 mt-2">{det.robustness.summary}</p>}
+          </div>
+        )}
+
+        <!-- Data dependency -->
+        {det.data_dependency && Object.values(det.data_dependency).some((v: any) => v) && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">数据依赖</h3>
+            <div class="text-xs text-gray-500 space-y-1">
+              {det.data_dependency.data_required && <div>所需数据: <span class="text-gray-400">{det.data_dependency.data_required}</span></div>}
+              {det.data_dependency.reproducibility && <div>可复现性: <span class="text-gray-400">{det.data_dependency.reproducibility}</span></div>}
+            </div>
+            {det.data_dependency.summary && <p class="text-sm text-gray-400 mt-2">{det.data_dependency.summary}</p>}
+          </div>
+        )}
+
+        <!-- Prior art -->
+        {det.prior_art?.length > 0 && (
+          <div class="panel p-4">
+            <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">相关研究</h3>
+            <div class="space-y-2">
+              {det.prior_art.map((pa: any) => (
+                <div class="bg-bg rounded p-2 text-sm">
+                  <span class="font-medium text-gray-300">{pa.method}</span>
+                  {pa.relation && <span class="text-gray-500 ml-2">— {pa.relation}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Novelty assessment -->
+        {det.novelty_assessment && (
+          <div class="panel p-4 border-l-2 border-l-accent-indigo">
+            <h3 class="text-xs font-mono text-accent-indigo uppercase tracking-wider mb-2">
+              新颖性评估 <span class="text-gray-500">[{det.novelty_assessment.type}]</span>
+            </h3>
+            <p class="text-sm text-gray-300">{det.novelty_assessment.summary}</p>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Critical four cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <!-- Weaknesses — red left border -->
+      {ct?.weaknesses?.length > 0 && (
+        <div class="panel p-4 border-l-2 border-l-red">
+          <h3 class="text-xs font-mono text-red uppercase tracking-wider mb-2">不足与缺陷</h3>
+          <ul class="list-disc list-inside space-y-1 text-sm text-gray-300">
+            {ct.weaknesses.map((w: string) => <li>{w}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <!-- Useful elements — green left border -->
+      {ct?.useful_elements?.length > 0 && (
+        <div class="panel p-4 border-l-2 border-l-accent-green">
+          <h3 class="text-xs font-mono text-accent-green uppercase tracking-wider mb-2">可复用元素</h3>
+          <ul class="list-disc list-inside space-y-1 text-sm text-gray-300">
+            {ct.useful_elements.map((e: string) => <li>{e}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <!-- Inspirations — blue left border -->
+      {ct?.inspirations?.length > 0 && (
+        <div class="panel p-4 border-l-2 border-l-accent-indigo">
+          <h3 class="text-xs font-mono text-accent-indigo uppercase tracking-wider mb-2">启发</h3>
+          <ul class="list-disc list-inside space-y-1 text-sm text-gray-300">
+            {ct.inspirations.map((i: string) => <li>{i}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <!-- Improvement ideas — amber left border -->
+      {ct?.improvement_ideas?.length > 0 && (
+        <div class="panel p-4 border-l-2 border-l-accent-amber">
+          <h3 class="text-xs font-mono text-accent-amber uppercase tracking-wider mb-2">改进方向</h3>
+          <div class="space-y-2">
+            {ct.improvement_ideas.map((im: any) => (
+              <div class="text-sm">
+                <p class="text-gray-300">{im.idea}</p>
+                <div class="text-xs text-gray-500 mt-0.5 flex gap-3">
+                  {im.based_on && <span>基于: {im.based_on}</span>}
+                  {im.expected_gain && <span>预期收益: {im.expected_gain}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <!-- Replication plan -->
+    {ct?.replication_plan && (
+      <div class="panel p-4 mb-6">
+        <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">复现计划</h3>
+        <p class="text-sm text-gray-300 whitespace-pre-line">{ct.replication_plan}</p>
+      </div>
+    )}
+
+    <!-- Entities -->
+    {d.entities?.length > 0 && (
+      <div class="panel p-4 mb-6">
+        <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">实体</h3>
+        <div class="flex flex-wrap gap-2">
+          {d.entities.map((e: any) => (
+            <span class="tag text-xs">{e.name} <span class="text-gray-500">[{e.type}]</span></span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Related reports -->
+    {d.related_reports?.length > 0 && (
+      <div class="panel p-4 mb-6">
+        <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">相关报告</h3>
+        <div class="space-y-2">
+          {d.related_reports.map((rr: any) => (
+            <a href={`/reports/${rr.slug}`} class="block text-sm text-accent-cyan hover:underline">
+              {rr.title}
+              {rr.relation && <span class="text-gray-500 ml-2">— {rr.relation}</span>}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Source link -->
+    <div class="flex items-center gap-4 text-xs text-gray-500">
+      {d.source.original_url && (
+        <a href={d.source.original_url} target="_blank" rel="noopener noreferrer" class="text-accent-cyan hover:underline">查看原文 &rarr;</a>
+      )}
+      <span>模型: {d.model_used}</span>
+      <span>分析时间: {d.source.ingested_at}</span>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Concise / Detailed toggle
+  const btnConcise = document.getElementById("btn-concise") as HTMLButtonElement;
+  const btnDetailed = document.getElementById("btn-detailed") as HTMLButtonElement;
+  const viewConcise = document.getElementById("view-concise")!;
+  const viewDetailed = document.getElementById("view-detailed")!;
+
+  btnConcise.addEventListener("click", () => {
+    viewConcise.classList.remove("hidden");
+    viewDetailed.classList.add("hidden");
+    btnConcise.className = "text-xs px-3 py-1 rounded border border-accent-cyan text-accent-cyan bg-accent-cyan/10";
+    btnDetailed.className = "text-xs px-3 py-1 rounded border border-border text-gray-400 hover:text-white";
+  });
+
+  btnDetailed.addEventListener("click", () => {
+    viewConcise.classList.add("hidden");
+    viewDetailed.classList.remove("hidden");
+    btnConcise.className = "text-xs px-3 py-1 rounded border border-border text-gray-400 hover:text-white";
+    btnDetailed.className = "text-xs px-3 py-1 rounded border border-accent-cyan text-accent-cyan bg-accent-cyan/10";
+  });
+</script>

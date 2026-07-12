@@ -1,0 +1,150 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const analyses = await getCollection("analyses");
+const ok = analyses.filter(a => a.data.status === "ok");
+
+// Extract all unique facet values
+const facets = {
+  institution: [...new Set(ok.map(a => a.data.source.institution))].sort(),
+  research_type: [...new Set(ok.flatMap(a => a.data.classification.research_type))].sort(),
+  data_frequency: [...new Set(ok.flatMap(a => a.data.classification.data_frequency))].sort(),
+  factor_family: [...new Set(ok.flatMap(a => a.data.classification.factor_family))].sort(),
+  asset_class: [...new Set(ok.flatMap(a => a.data.classification.asset_class))].sort(),
+  method: [...new Set(ok.flatMap(a => a.data.classification.method))].sort(),
+};
+
+const sortOptions = [
+  { key: "quality", label: "质量评分", get: (a: any) => a.data.ratings.quality },
+  { key: "novelty", label: "新颖性", get: (a: any) => a.data.ratings.novelty },
+  { key: "published", label: "发布日期", get: (a: any) => a.data.source.published || "" },
+  { key: "institution", label: "机构", get: (a: any) => a.data.source.institution },
+];
+---
+
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 font-mono">
+      <span class="text-accent-cyan">&gt;</span> 报告列表
+      <span class="text-sm text-gray-500 ml-2">({ok.length} 篇)</span>
+    </h1>
+
+    <div class="flex gap-6">
+      <!-- Facets sidebar -->
+      <aside class="w-56 shrink-0 space-y-5">
+        {Object.entries(facets).map(([key, values]) => (
+          <details class="panel p-3 text-sm" open={key === "institution"}>
+            <summary class="font-mono text-xs text-gray-400 cursor-pointer uppercase tracking-wider">{key.replace("_", " ")}</summary>
+            <div class="mt-2 space-y-1 max-h-48 overflow-y-auto">
+              {values.map(v => (
+                <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-white">
+                  <input type="checkbox" class="facet-checkbox rounded border-border bg-bg text-accent-cyan" data-facet={key} value={v} />
+                  {v}
+                </label>
+              ))}
+            </div>
+          </details>
+        ))}
+      </aside>
+
+      <!-- Report list -->
+      <div class="flex-1">
+        <div class="flex items-center gap-4 mb-4">
+          <select id="sort-select" class="panel text-xs px-3 py-1.5 rounded bg-bg border-border text-gray-300">
+            {sortOptions.map(o => (
+              <option value={o.key}>{o.label}</option>
+            ))}
+          </select>
+          <input type="text" id="search-input" placeholder="搜索标题、机构、摘要..." class="flex-1 panel text-xs px-3 py-1.5 rounded bg-bg border-border text-gray-300 placeholder-gray-600" />
+        </div>
+
+        <div id="report-list" class="space-y-3">
+          {ok.map(a => (
+            <a href={`/reports/${a.data.slug}`}
+               class="panel block p-4 hover:border-accent-cyan/30 transition-colors report-card"
+               data-institution={a.data.source.institution}
+               data-research_type={a.data.classification.research_type.join(",")}
+               data-data_frequency={a.data.classification.data_frequency.join(",")}
+               data-factor_family={a.data.classification.factor_family.join(",")}
+               data-asset_class={a.data.classification.asset_class.join(",")}
+               data-method={a.data.classification.method.join(",")}
+               data-quality={a.data.ratings.quality}
+               data-novelty={a.data.ratings.novelty}
+               data-published={a.data.source.published || ""}>
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-white">{a.data.source.title}</div>
+                  <div class="text-xs text-gray-500 mt-1 line-clamp-2">{a.data.concise.one_liner}</div>
+                  <div class="flex flex-wrap gap-1 mt-2">
+                    <span class="tag">{a.data.source.institution}</span>
+                    {a.data.classification.research_type.slice(0, 2).map(t => <span class="tag">{t}</span>)}
+                    {a.data.classification.factor_family.slice(0, 2).map(t => <span class="tag">{t}</span>)}
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 shrink-0 text-xs font-mono">
+                  <span class="text-accent-green">Q{a.data.ratings.quality}</span>
+                  <span class="text-accent-indigo">N{a.data.ratings.novelty}</span>
+                  <span class="text-accent-amber">R{a.data.ratings.reusability}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Client-side filtering
+  const searchInput = document.getElementById("search-input") as HTMLInputElement;
+  const sortSelect = document.getElementById("sort-select") as HTMLSelectElement;
+  const checkboxes = document.querySelectorAll(".facet-checkbox") as NodeListOf<HTMLInputElement>;
+
+  function filterAndSort() {
+    const cards = document.querySelectorAll(".report-card") as NodeListOf<HTMLElement>;
+    const search = searchInput.value.toLowerCase();
+    const activeFilters: Record<string, Set<string>> = {};
+
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        const facet = cb.dataset.facet!;
+        if (!activeFilters[facet]) activeFilters[facet] = new Set();
+        activeFilters[facet].add(cb.value);
+      }
+    });
+
+    const sorted = Array.from(cards).sort((a, b) => {
+      const key = sortSelect.value;
+      if (key === "quality" || key === "novelty") {
+        return Number(b.dataset[key]) - Number(a.dataset[key]);
+      }
+      if (key === "published") {
+        return (b.dataset.published || "").localeCompare(a.dataset.published || "");
+      }
+      return (a.dataset[key] || "").localeCompare(b.dataset[key] || "");
+    });
+
+    const list = document.getElementById("report-list")!;
+    sorted.forEach(card => {
+      const text = (card.textContent || "").toLowerCase();
+      let match = text.includes(search);
+      if (match) {
+        for (const [facet, values] of Object.entries(activeFilters)) {
+          const cardValues = (card.dataset[facet] || "").split(",");
+          if (!cardValues.some(v => values.has(v))) {
+            match = false;
+            break;
+          }
+        }
+      }
+      card.style.display = match ? "" : "none";
+      list.appendChild(card);
+    });
+  }
+
+  searchInput.addEventListener("input", filterAndSort);
+  sortSelect.addEventListener("change", filterAndSort);
+  checkboxes.forEach(cb => cb.addEventListener("change", filterAndSort));
+</script>
