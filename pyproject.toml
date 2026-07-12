@@ -11,6 +11,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=7.0"]
 
+[tool.setuptools]
+packages = ["pipeline"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
