@@ -1,0 +1,181 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CompareSection from "../../components/CompareSection.astro";
+import CriticalColumn from "../../components/CriticalColumn.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const analyses = await getCollection("analyses");
+  const ok = analyses.filter((a: any) => a.data.status === "ok");
+  const paths: any[] = [];
+  // Generate all pairs
+  for (let i = 0; i < ok.length; i++) {
+    for (let j = i + 1; j < ok.length; j++) {
+      paths.push({
+        params: { a: ok[i].data.slug, b: ok[j].data.slug },
+      });
+    }
+  }
+  return paths;
+}
+
+const { a: slugA, b: slugB } = Astro.params;
+const analyses = await getCollection("analyses");
+const reportA = analyses.find((x: any) => x.data.slug === slugA);
+const reportB = analyses.find((x: any) => x.data.slug === slugB);
+if (!reportA || !reportB) {
+  return Astro.redirect("/reports");
+}
+
+const A = reportA.data;
+const B = reportB.data;
+
+// Jaccard similarity
+function jaccard(a: any, b: any) {
+  const tagsA = new Set([
+    ...a.classification.research_type,
+    ...a.classification.factor_family,
+    ...a.classification.method,
+    ...a.classification.asset_class,
+    ...a.classification.data_frequency,
+  ]);
+  const tagsB = new Set([
+    ...b.classification.research_type,
+    ...b.classification.factor_family,
+    ...b.classification.method,
+    ...b.classification.asset_class,
+    ...b.classification.data_frequency,
+  ]);
+  const intersection = new Set([...tagsA].filter((x) => tagsB.has(x)));
+  const union = new Set([...tagsA, ...tagsB]);
+  return union.size === 0 ? 0 : (intersection.size / union.size * 100).toFixed(0);
+}
+
+const sim = jaccard(A, B);
+
+// Collect all classification keys for comparison
+const clsKeys = ["research_type", "data_frequency", "factor_family", "asset_class", "method"] as const;
+
+---
+
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="mb-6">
+      <a href="/reports" class="text-xs text-gray-500 hover:text-accent-cyan transition-colors">&larr; 返回列表</a>
+      <h1 class="text-xl font-bold mt-2 text-white">报告对比</h1>
+      <div class="text-xs text-gray-500 mt-1">
+        相似度: <span class="font-mono text-accent-cyan">{sim}%</span>
+        <span class="text-gray-600 ml-2">(Jaccard)</span>
+      </div>
+    </div>
+
+    <!-- Side-by-side layout -->
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Left: Report A -->
+      <div class="space-y-4">
+        <div class="panel p-4 border-t-2 border-t-accent-cyan">
+          <h2 class="font-medium text-white text-sm mb-1">{A.source.title}</h2>
+          <span class="tag">{A.source.institution}</span>
+        </div>
+
+        <CompareSection title="评分">
+          <div class="flex gap-4 text-sm font-mono">
+            <span class="text-accent-green">Q{A.ratings.quality}</span>
+            <span class="text-accent-indigo">N{A.ratings.novelty}</span>
+            <span class="text-accent-amber">R{A.ratings.reusability}</span>
+          </div>
+        </CompareSection>
+
+        <CompareSection title="分类">
+          {clsKeys.map((key) => {
+            const vals = A.classification[key] as string[];
+            return vals.length > 0 && (
+              <div class="flex items-baseline gap-2 text-xs mb-1">
+                <span class="text-gray-500 w-24 shrink-0">{key}:</span>
+                <div class="flex flex-wrap gap-1">
+                  {vals.map((v: string) => <span class="tag">{v}</span>)}
+                </div>
+              </div>
+            );
+          })}
+        </CompareSection>
+
+        <CompareSection title="实体">
+          {A.entities?.length > 0 ? (
+            <div class="flex flex-wrap gap-1">
+              {A.entities.map((e: any) => (
+                <span class="tag text-xs">{e.name} <span class="text-gray-500">[{e.type}]</span></span>
+              ))}
+            </div>
+          ) : <span class="text-xs text-gray-500">无</span>}
+        </CompareSection>
+
+        <CompareSection title="构造类型">
+          <span class="tag text-sm">{A.detailed.construction?.type || "未知"}</span>
+        </CompareSection>
+
+        <CompareSection title="关键结论">
+          <p class="text-sm text-gray-300">{A.concise.key_result}</p>
+        </CompareSection>
+      </div>
+
+      <!-- Right: Report B -->
+      <div class="space-y-4">
+        <div class="panel p-4 border-t-2 border-t-accent-indigo">
+          <h2 class="font-medium text-white text-sm mb-1">{B.source.title}</h2>
+          <span class="tag">{B.source.institution}</span>
+        </div>
+
+        <CompareSection title="评分">
+          <div class="flex gap-4 text-sm font-mono">
+            <span class="text-accent-green">Q{B.ratings.quality}</span>
+            <span class="text-accent-indigo">N{B.ratings.novelty}</span>
+            <span class="text-accent-amber">R{B.ratings.reusability}</span>
+          </div>
+        </CompareSection>
+
+        <CompareSection title="分类">
+          {clsKeys.map((key) => {
+            const vals = B.classification[key] as string[];
+            return vals.length > 0 && (
+              <div class="flex items-baseline gap-2 text-xs mb-1">
+                <span class="text-gray-500 w-24 shrink-0">{key}:</span>
+                <div class="flex flex-wrap gap-1">
+                  {vals.map((v: string) => <span class="tag">{v}</span>)}
+                </div>
+              </div>
+            );
+          })}
+        </CompareSection>
+
+        <CompareSection title="实体">
+          {B.entities?.length > 0 ? (
+            <div class="flex flex-wrap gap-1">
+              {B.entities.map((e: any) => (
+                <span class="tag text-xs">{e.name} <span class="text-gray-500">[{e.type}]</span></span>
+              ))}
+            </div>
+          ) : <span class="text-xs text-gray-500">无</span>}
+        </CompareSection>
+
+        <CompareSection title="构造类型">
+          <span class="tag text-sm">{B.detailed.construction?.type || "未知"}</span>
+        </CompareSection>
+
+        <CompareSection title="关键结论">
+          <p class="text-sm text-gray-300">{B.concise.key_result}</p>
+        </CompareSection>
+      </div>
+    </div>
+
+    <!-- Critical comparison -->
+    <div class="grid grid-cols-2 gap-6 mt-6">
+      <CriticalColumn title="不足与缺陷" color="text-red" border="border-l-red" items={A.critical?.weaknesses || []} />
+      <CriticalColumn title="不足与缺陷" color="text-red" border="border-l-red" items={B.critical?.weaknesses || []} />
+      <CriticalColumn title="可复用元素" color="text-accent-green" border="border-l-accent-green" items={A.critical?.useful_elements || []} />
+      <CriticalColumn title="可复用元素" color="text-accent-green" border="border-l-accent-green" items={B.critical?.useful_elements || []} />
+      <CriticalColumn title="启发" color="text-accent-indigo" border="border-l-accent-indigo" items={A.critical?.inspirations || []} />
+      <CriticalColumn title="启发" color="text-accent-indigo" border="border-l-accent-indigo" items={B.critical?.inspirations || []} />
+    </div>
+  </div>
+</BaseLayout>
