@@ -1,0 +1,19 @@
+{
+  "files": {
+    "开源/APM因子模型的进阶版.md": {
+      "hash": "67ac0d13b3d095d18d2774bfc6ec8b71c6c57f742b22c6b6f71c2781c38caf3a",
+      "schema_version": "1.0",
+      "analyzed_at": "2026-07-12T09:52:51.153105+00:00"
+    },
+    "国信/【国信金工】动量类因子全解析.md": {
+      "hash": "3157304a5138a8b0e2e58cbbd767d6d9f7e1ac0aef6a5405f4112ad07ee70f2b",
+      "schema_version": "1.0",
+      "analyzed_at": "2026-07-12T10:00:15.135827+00:00"
+    },
+    "广发/【广发金工】AlphaForge：基于梯度下降的因子挖掘.md": {
+      "hash": "d5c9a1d251ad4c0ed75e79b7b4bdb58f9ede8f982d43b91cbaad460b34a270d5",
+      "schema_version": "1.0",
+      "analyzed_at": "2026-07-12T10:04:54.970682+00:00"
+    }
+  }
+}
