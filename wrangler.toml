@@ -1,0 +1,6 @@
+# Cloudflare Pages configuration
+# Prevents Cloudflare from auto-detecting this as a Python project
+
+[build]
+command = "cd site && npm install && npm run build"
+output_directory = "site/dist"
