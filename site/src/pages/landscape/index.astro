@@ -1,0 +1,127 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import HeatmapChart from "../../components/HeatmapChart.tsx";
+import fs from "node:fs";
+import path from "node:path";
+
+const dataDir = path.resolve("src/data");
+let dimensions: any[] = [];
+let gaps: any[] = [];
+let improvementIdeas: any[] = [];
+try {
+  const raw = fs.readFileSync(path.join(dataDir, "coverage.json"), "utf-8");
+  const data = JSON.parse(raw);
+  dimensions = data.dimensions || [];
+  gaps = data.gaps || [];
+} catch {
+  // coverage.json not yet generated
+}
+
+// Collect improvement ideas from analyses
+import { getCollection } from "astro:content";
+const analyses = await getCollection("analyses");
+const ok = analyses.filter((a: any) => a.data.status === "ok");
+improvementIdeas = ok.flatMap((a: any) =>
+  (a.data.critical?.improvement_ideas || []).map((idea: any) => ({
+    ...idea,
+    reportTitle: a.data.source.title,
+    reportSlug: a.data.slug,
+  }))
+);
+---
+
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 font-mono">
+      <span class="text-accent-cyan">&gt;</span> 全景图
+      <span class="text-sm text-gray-500 ml-2">研究覆盖热力图</span>
+    </h1>
+
+    {dimensions.length === 0 && (
+      <div class="panel p-8 text-center text-gray-500 mb-8">
+        <p class="text-lg mb-2">暂无全景图数据</p>
+        <p class="text-xs">运行 <code class="font-mono text-accent-cyan">python -m pipeline registry</code> 生成覆盖矩阵</p>
+      </div>
+    )}
+
+    <!-- Dimension tabs -->
+    <div id="dim-tabs" class="flex gap-2 mb-6">
+      {dimensions.map((dim: any, i: number) => (
+        <button class={`dim-tab text-xs px-3 py-1.5 rounded border ${i === 0 ? "border-accent-cyan text-accent-cyan bg-accent-cyan/10" : "border-border text-gray-400 hover:text-white"}`} data-dim={i}>
+          {dim.label}
+        </button>
+      ))}
+    </div>
+
+    <!-- Heatmap panels -->
+    {dimensions.map((dim: any, i: number) => (
+      <div class={`dim-panel ${i === 0 ? "" : "hidden"}`} data-dim={i}>
+        <div class="panel p-4 mb-6">
+          <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3">{dim.label}</h3>
+          <HeatmapChart dimension={dim} client:load />
+        </div>
+      </div>
+    ))}
+
+    <!-- Research gaps -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      <div class="panel p-4">
+        <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3">研究空白 ({gaps.length})</h3>
+        {gaps.length === 0 ? (
+          <p class="text-sm text-gray-500">暂无空白 — 所有维度组合均有覆盖</p>
+        ) : (
+          <div class="space-y-1 max-h-64 overflow-y-auto">
+            {gaps.slice(0, 20).map((g: any) => (
+              <div class="text-xs text-gray-400 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-border inline-block shrink-0"></span>
+                <span class="text-gray-500">{g.y}</span>
+                <span>×</span>
+                <span class="text-gray-500">{g.x}</span>
+                <span class="text-gray-600 ml-auto">{g.dimension?.replace(/_/g, " ")}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <!-- Improvement ideas -->
+      <div class="panel p-4">
+        <h3 class="text-xs font-mono text-accent-amber uppercase tracking-wider mb-3">改进机会 ({improvementIdeas.length})</h3>
+        {improvementIdeas.length === 0 ? (
+          <p class="text-sm text-gray-500">暂无改进建议</p>
+        ) : (
+          <div class="space-y-3 max-h-64 overflow-y-auto">
+            {improvementIdeas.map((im: any) => (
+              <div class="text-sm">
+                <p class="text-gray-300">{im.idea}</p>
+                <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
+                  <a href={`/reports/${im.reportSlug}`} class="text-accent-cyan hover:underline truncate">{im.reportTitle}</a>
+                  {im.expected_gain && <span class="text-accent-green">预期: {im.expected_gain}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Dimension tab switching
+  const tabs = document.querySelectorAll(".dim-tab") as NodeListOf<HTMLButtonElement>;
+  const panels = document.querySelectorAll(".dim-panel") as NodeListOf<HTMLElement>;
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const dim = tab.dataset.dim!;
+      tabs.forEach(t => {
+        t.className = "dim-tab text-xs px-3 py-1.5 rounded border border-border text-gray-400 hover:text-white";
+      });
+      tab.className = "dim-tab text-xs px-3 py-1.5 rounded border border-accent-cyan text-accent-cyan bg-accent-cyan/10";
+      panels.forEach(p => {
+        p.classList.toggle("hidden", p.dataset.dim !== dim);
+      });
+    });
+  });
+</script>
