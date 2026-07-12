@@ -3,8 +3,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
 ANALYSES = DATA / "analyses"
-REGISTRY = DATA / "registry"
-LANDSCAPE = DATA / "landscape"
+REGISTRY = DATA / "registry" / "entities.json"
+LANDSCAPE = DATA / "landscape" / "coverage.json"
 MANIFEST = DATA / "manifest.json"
 CONFIG = ROOT / "config.yaml"
 
