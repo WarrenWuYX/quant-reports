@@ -7,8 +7,16 @@ class ArkProvider:
         if client is not None:
             self._client = client
         else:
-            from volcenginesdkarkruntime import Ark  # lazy: real SDK only needed for live calls
-            self._client = Ark(api_key=api_key or os.environ.get("ARK_API_KEY"))
+            key = api_key or os.environ.get("ARK_API_KEY")
+            try:
+                from volcenginesdkarkruntime import Ark
+                self._client = Ark(api_key=key)
+            except ImportError:
+                from openai import OpenAI
+                self._client = OpenAI(
+                    api_key=key,
+                    base_url="https://ark.cn-beijing.volces.com/api/v3",
+                )
 
     def chat(self, messages, **kw) -> str:
         resp = self._client.chat.completions.create(model=self.model, messages=messages, **kw)

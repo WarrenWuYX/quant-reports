@@ -6,6 +6,15 @@ from .schema import Analysis
 from ..ingest.normalize import NormalizedDoc
 
 
+def _strip_code_fence(text: str) -> str:
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[-1] if "\n" in t else ""
+        if t.endswith("```"):
+            t = t[:-3].strip()
+    return t
+
+
 class AnalysisError(Exception):
     pass
 
@@ -34,10 +43,10 @@ class Analyzer:
         last = None
         for mode in ({"response_format": {"type": "json_object"}}, {}):
             for _ in range(self.MAX_RETRIES):
-                content = self.provider.chat(messages, **mode)
-                last = content
                 try:
-                    return json.loads(content)
+                    content = self.provider.chat(messages, **mode)
+                    last = content
+                    return json.loads(_strip_code_fence(content))
                 except Exception:
                     continue
         raise AnalysisError(f"JSON parse failed: {(last or '')[:200]}")
@@ -61,6 +70,15 @@ class Analyzer:
         )
 
     def _assemble(self, doc, extracted, analyzed) -> Analysis:
+        detailed = analyzed.get("detailed", {})
+        # merge extracted fields into detailed when LLM omits them
+        if "performance" not in detailed:
+            detailed["performance"] = extracted.get("performance", {"metrics": []})
+        if "attribution" not in detailed:
+            detailed["attribution"] = extracted.get("attribution", {"done": False, "summary": "未做"})
+        if "novelty_assessment" not in detailed:
+            detailed["novelty_assessment"] = {"type": "待定", "summary": ""}
+
         payload = {
             "slug": doc.slug,
             "source": {
@@ -72,7 +90,7 @@ class Analyzer:
             "classification": extracted.get("classification", {}),
             "ratings": extracted.get("ratings", {"quality": 3, "novelty": 3, "reusability": 3}),
             "concise": analyzed.get("concise", {}),
-            "detailed": analyzed.get("detailed", {}),
+            "detailed": detailed,
             "critical": analyzed.get("critical", {}),
             "entities": extracted.get("entities", []),
             "model_used": self.model,
