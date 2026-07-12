@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+---
+
+<!doctype html>
+<html lang="zh-CN" class="bg-bg text-gray-200">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>量化研报分析</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <nav class="border-b border-border bg-panel/80 backdrop-blur sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center gap-6 text-sm font-medium">
+        <a href="/" class="text-accent-cyan font-bold text-base tracking-tight">QuantReports</a>
+        <a href="/" class="hover:text-white transition-colors">首页</a>
+        <a href="/reports" class="hover:text-white transition-colors">报告</a>
+        <a href="/registry" class="hover:text-white transition-colors">注册表</a>
+        <a href="/about" class="hover:text-white transition-colors">关于</a>
+      </div>
+    </nav>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="border-t border-border bg-panel py-4 text-center text-xs text-gray-500">
+      QuantReports · 量化研报分析平台 · schema v1.0
+    </footer>
+  </body>
+</html>

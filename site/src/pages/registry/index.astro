@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import fs from "node:fs";
+import path from "node:path";
+
+// Load entities from src/data/entities.json at build time
+const dataDir = path.resolve("src/data");
+let factors: any[] = [];
+let methods: any[] = [];
+try {
+  const raw = fs.readFileSync(path.join(dataDir, "entities.json"), "utf-8");
+  const data = JSON.parse(raw);
+  factors = data.factors || [];
+  methods = data.methods || [];
+} catch {
+  // entities.json not yet generated; show empty state
+}
+const allEntities = [...factors.map((f: any) => ({ ...f, entityType: "factor" })), ...methods.map((m: any) => ({ ...m, entityType: "method" }))];
+---
+
+<BaseLayout>
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 font-mono">
+      <span class="text-accent-cyan">&gt;</span> 因子·方法注册表
+      <span class="text-sm text-gray-500 ml-2">({allEntities.length} 个实体)</span>
+    </h1>
+
+    <div class="flex gap-6">
+      <!-- Facets sidebar -->
+      <aside class="w-56 shrink-0 space-y-5">
+        <div class="panel p-3 text-sm">
+          <div class="font-mono text-xs text-gray-400 uppercase tracking-wider mb-2">类型</div>
+          <div class="space-y-1">
+            <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-white">
+              <input type="radio" name="entity-type" class="facet-radio rounded border-border bg-bg text-accent-cyan" value="all" checked />
+              全部
+            </label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-white">
+              <input type="radio" name="entity-type" class="facet-radio rounded border-border bg-bg text-accent-cyan" value="factor" />
+              因子 ({factors.length})
+            </label>
+            <label class="flex items-center gap-2 text-xs cursor-pointer hover:text-white">
+              <input type="radio" name="entity-type" class="facet-radio rounded border-border bg-bg text-accent-cyan" value="method" />
+              方法 ({methods.length})
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Entity list -->
+      <div class="flex-1">
+        <input type="text" id="search-input" placeholder="搜索实体名称..." class="w-full panel text-xs px-3 py-1.5 rounded bg-bg border-border text-gray-300 placeholder-gray-600 mb-4" />
+
+        <div id="entity-list" class="space-y-3">
+          {allEntities.length === 0 && (
+            <div class="panel p-8 text-center text-gray-500">
+              <p class="text-lg mb-2">暂无实体数据</p>
+              <p class="text-xs">运行 <code class="font-mono text-accent-cyan">python -m pipeline registry</code> 生成实体索引</p>
+            </div>
+          )}
+          {allEntities.map((e: any) => (
+            <details class="panel p-4 entity-card" data-type={e.entityType}>
+              <summary class="cursor-pointer flex items-center justify-between">
+                <span class="font-medium text-white">{e.name}</span>
+                <div class="flex items-center gap-3 text-xs">
+                  <span class="tag">{e.report_count} 篇报告</span>
+                  <span class={`tag ${e.entityType === "factor" ? "bg-accent-amber/10 text-accent-amber border-accent-amber/30" : "bg-accent-indigo/10 text-accent-indigo border-accent-indigo/30"}`}>{e.entityType}</span>
+                </div>
+              </summary>
+              <div class="mt-3 pt-3 border-t border-border space-y-2">
+                <div class="flex flex-wrap gap-1">
+                  {e.tags?.map((t: string) => <span class="tag text-xs">{t}</span>)}
+                </div>
+                <div class="text-xs text-gray-400 space-y-1">
+                  <span class="text-gray-500">引用报告：</span>
+                  {e.reports?.map((r: any) => (
+                    <a href={`/reports/${r.slug}`} class="block text-accent-cyan hover:underline ml-2">
+                      [{r.institution}] {r.title}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const searchInput = document.getElementById("search-input") as HTMLInputElement;
+  const radios = document.querySelectorAll(".facet-radio") as NodeListOf<HTMLInputElement>;
+
+  function filter() {
+    const search = searchInput.value.toLowerCase();
+    const activeType = Array.from(radios).find(r => r.checked)?.value || "all";
+    const cards = document.querySelectorAll(".entity-card") as NodeListOf<HTMLElement>;
+    cards.forEach(card => {
+      const text = (card.textContent || "").toLowerCase();
+      const type = card.dataset.type || "";
+      const typeMatch = activeType === "all" || type === activeType;
+      const searchMatch = text.includes(search);
+      card.style.display = typeMatch && searchMatch ? "" : "none";
+    });
+  }
+
+  searchInput.addEventListener("input", filter);
+  radios.forEach(r => r.addEventListener("change", filter));
+</script>
