@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "slug": "22ba320e7a42",
+  "source": {
+    "title": "订单流不平衡性（OFI）的应用初探",
+    "institution": "西部",
+    "authors": [
+      "西部量化团队"
+    ],
+    "published": "2026-05-23",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/0O8VOXoL2f-M-R-hjIk4Lg",
+    "local_path": "西部/订单流不平衡性（OFI）的应用初探.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "高频·微观结构",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "盘口",
+      "分钟",
+      "日频"
+    ],
+    "factor_family": [
+      "资金流"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "统计线性",
+      "深度学习"
+    ],
+    "custom_tags": [
+      "OFI",
+      "高频低频化",
+      "GRU",
+      "主成分分析"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "基于3秒盘口数据构建分钟级订单流不平衡性(OFI)因子，通过统计聚合和GRU模型将其低频化，发现十档ofi的峰度因子及GRU模型对中长期收益具有显著预测能力。",
+    "core_points": [
+      "OFI刻画市场买卖力量对比，经平均挂单深度标准化后与短期收益负相关",
+      "最优档ofi预测能力不及其他档位，5分钟预测优于1分钟，早盘表现较弱",
+      "通过PCA提取集成ofi，计算峰度因子IC达0.054",
+      "使用GRU模型以十档ofi为输入特征，低频化后IC和ICIR分别达0.075和0.579"
+    ],
+    "key_result": "GRU模型预测未来10天收益IC达0.075，ICIR达0.579；集成ofi1峰度因子IC达0.054。"
+  },
+  "detailed": {
+    "core_content": "报告首先定义了基于3秒快照数据的分钟级订单流不平衡性(OFI)，并通过平均挂单深度进行标准化得到ofi。高频测试表明ofi与未来1/5分钟收益负相关，最优档预测能力弱，早盘表现较弱。低频化方面，使用PCA提取主成分构建集成ofi，并计算均值、标准差、偏度、峰度四个统计量，其中集成ofi1的峰度因子IC为0.054。最后采用GRU模型进行低频化，输入十档ofi序列时效果最佳，IC=0.075，ICIR=0.579。",
+    "economic_logic": "OFI反映了买卖力量的对比。短期内ofi与收益率负相关，可能是委买量少预示市价单成交占比高，投资者主动买入意愿强；日内OFI波动高表明投资者分歧大，未来下跌可能大；峰度大表明极端交易行为集中，未来收益率高。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "十档ofi序列",
+          "frequency": "分钟",
+          "source": "3秒盘口快照数据聚合",
+          "preprocessing": "计算十档bOF/aOF，作差得OFI，用十档平均挂单深度标准化得ofi"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2016.01-2024.10",
+        "benchmark": "未来十天收益率(t+1至t+10日)",
+        "rebalance_freq": "日频",
+        "cost": "未提及",
+        "grouping": "未提及"
+      },
+      "combination": "使用十档ofi作为GRU模型的输入特征",
+      "parameters": [
+        {
+          "name": "快照频率",
+          "value": "3秒",
+          "meaning": "盘口数据更新频率"
+        },
+        {
+          "name": "聚合频率",
+          "value": "1分钟",
+          "meaning": "OFI计算的时间间隔"
+        },
+        {
+          "name": "时间窗口",
+          "value": "10:00-11:30, 13:00-14:57",
+          "meaning": "剔除早盘半小时后参与计算的数据时段"
+        },
+        {
+          "name": "PCA主成分数",
+          "value": "5",
+          "meaning": "提取前5个主成分构建集成ofi"
+        }
+      ],
+      "factor_definition": "(1) bOF(t,m) = 1_{P_bid(t,m)>P_bid(t-1,m)}*Q_bid(t,m) + 1_{P_bid(t,m)=P_bid(t-1,m)}*(Q_bid(t,m)-Q_bid(t-1,m)) - 1_{P_bid(t,m)<P_bid(t-1,m)}*Q_bid(t-1,m); aOF同理。 (2) OFI_m = bOF - aOF; (3) ofi_m = OFI_m / D, 其中D为十档平均挂单深度 D = sum(Q_bid(t,m)+Q_ask(t,m)) / (2*M*ΔN(t)); (4) 集成ofi1: 对十档ofi向量做PCA，取第一主成分向量W，集成ofi1 = W^T * ofi向量，W经L1范数标准化。",
+      "processing_pipeline": [
+        "获取3秒盘口快照十档量价数据",
+        "按1分钟聚合，计算各档bOF和aOF",
+        "作差得各档OFI，除以十档平均深度得ofi",
+        "剔除早盘半小时数据(10:00开始)",
+        "对十档ofi进行PCA降维，获取前5个主成分及集成ofi",
+        "计算日频统计量(均值、标准差、偏度、峰度)作为低频因子",
+        "将日内十档ofi序列输入GRU模型预测未来10天收益"
+      ],
+      "model_architecture": "GRU (Gated Recurrent Unit) 循环神经网络，用于处理日内分钟级时间序列数据并提取低频预测特征",
+      "inputs": [
+        "十档ofi分钟序列"
+      ],
+      "outputs": "未来10天收益率预测值",
+      "training": "目标变量为未来10天收益率，使用十档ofi作为输入特征，训练GRU模型。未提供超参数细节，但常规GRU训练需设定隐藏层维度、学习率、Epochs等。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "因子收益来源于买卖力量不平衡带来的微观价格压力。短期看，市价单吃单意愿强于限价单挂单意愿预示价格上涨。中长期看，日内OFI极端值（峰度）反映交易行为集中度，可能蕴含知情交易者信息，从而预测未来收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "IC",
+          "value": "0.075"
+        },
+        {
+          "name": "ICIR",
+          "value": "0.579"
+        },
+        {
+          "name": "IC",
+          "value": "0.054"
+        }
+      ],
+      "benchmark": "未来十天收益率",
+      "backtest_period": "2016.01-2024.10",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "研报基于3秒高频盘口数据构建分钟级订单流不平衡性(OFI)因子。高频测试显示，ofi因子对未来5分钟收益的预测优于1分钟；低频化处理中，集成ofi1的峰度因子IC达0.054；使用GRU模型以十档ofi作为输入特征时效果最佳，IC和ICIR分别达到0.075和0.579。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "研报未进行收益归因分析",
+      "gap": "缺乏对因子收益来源的行业、风格暴露及风险分解分析"
+    },
+    "robustness": {
+      "subsample_stability": "高频ofi因子分年度IC有一定差异，2021年后预测1分钟的最优档IC转负，5分钟预测能力有所下降，可能与量化私募发展有关",
+      "style_bias": "未提及",
+      "turnover": null,
+      "capacity": null,
+      "summary": "分年度稳定性存在波动，尤其是2021年前后受市场微观结构变化影响显著；集成ofi和GRU模型在中长期低频预测上表现出一定的稳定性和有效性"
+    },
+    "data_dependency": {
+      "data_required": "A股3秒级别十档买卖盘口快照数据(量价)",
+      "reproducibility": "hard",
+      "summary": "依赖高质量高频盘口快照数据，数据量大、存储和计算成本高；OFI计算逻辑明确但细节繁杂，GRU模型训练需调参，完全复现难度较大"
+    },
+    "prior_art": [
+      {
+        "method": "Cont等人的订单流不平衡性(OFI)定义及PCA降维",
+        "relation": "沿用Cont的OFI及标准化定义，并参考其使用PCA进行多档位压缩的思路"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将经典微观结构指标OFI结合现代机器学习(GRU)进行低频化处理，探索高频指标在中长期收益预测上的应用，属于方法论的有效组合创新"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "高频OFI的短期预测能力在2021年后出现衰减，表明因子可能受市场结构变化和量化策略拥挤度影响",
+      "研报未提及GRU模型的具体网络结构、超参数设置及防过拟合机制，模型细节不足",
+      "缺乏收益归因分析，未剥离行业、风格等风险因子的影响",
+      "数据要求高，3秒盘口快照数据的获取和算力成本对于一般机构难以实现"
+    ],
+    "useful_elements": [
+      "bOF和aOF的精确数学定义及标准化方法",
+      "剔除早盘半小时以提升因子稳定性的数据处理细节",
+      "使用PCA提取十档ofi第一主成分的计算流程",
+      "发现集成ofi1的峰度因子具有显著选股能力(IC=0.054)"
+    ],
+    "inspirations": [
+      "微观结构因子(OFI)的极端值分布(峰度)比均值具有更好的低频选股能力",
+      "十档深度数据比单一最优档更能反映真实交易意愿，隐藏了算法交易的干扰",
+      "日内时序特征经深度学习(GRU)降维后，能有效转化为日频选股信号"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于成交量分布加权的订单不平衡因子(VWOFI)",
+        "based_on": "相似逻辑：买卖力量不平衡；不同构造：不用等权计算平均挂单深度，而是以各档位成交活跃度或挂单撤单率作为权重进行加权",
+        "expected_gain": "更能过滤虚假挂单，提升因子抗干扰能力和IC稳定性"
+      },
+      {
+        "idea": "结合订单簿斜率的非线性OFI因子",
+        "based_on": "相似逻辑：量价不平衡；不同构造：引入各档价格间距作为特征，构建反映订单簿形态的斜率因子",
+        "expected_gain": "捕捉更深层次的流动性供给变化"
+      }
+    ],
+    "replication_plan": "1. 数据准备：获取A股3秒十档快照数据，清洗并对齐时间戳。2. 因子计算：计算分钟级十档OFI，利用十档平均挂单深度标准化得ofi。3. 低频化处理：剔除9:30-10:00数据，对ofi计算均值、标准差、偏度、峰度；同时对十档ofi进行PCA提取主成分。4. 模型构建：搭建GRU网络，输入日内十档ofi序列，输出未来10天收益预测，调优网络结构和超参数。5. 回测验证：计算因子IC、ICIR，并检验分年度及分时段稳定性。"
+  },
+  "entities": [
+    {
+      "name": "订单流不平衡性",
+      "type": "factor"
+    },
+    {
+      "name": "GRU模型",
+      "type": "model"
+    },
+    {
+      "name": "主成分分析",
+      "type": "method"
+    },
+    {
+      "name": "3秒快照数据",
+      "type": "dataset"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

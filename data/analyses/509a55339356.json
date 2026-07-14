@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0",
+  "slug": "509a55339356",
+  "source": {
+    "title": "【方正金工】OpenClaw赋能金融投研应用进阶：多Agent协作、Token优化、Skills应用与开发——AI Agent赋能金融投研应用系列之四",
+    "institution": "方正",
+    "authors": [
+      "曹春晓"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247513691&idx=1&sn=1e7bfaff05c78c3824fbbf1f11cf10f3&scene=21&poc_token=HI-KQ2qj4NBs-m7iCKPNLBbXDx2KgCYeVJ3-xrf6",
+    "local_path": "方正/【方正金工】OpenClaw赋能金融投研应用进阶：多Agent协作、Token优化、Skills应用与开发——AI Agent赋能金融投研应用系列之四.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习"
+    ],
+    "data_frequency": [],
+    "factor_family": [],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [],
+    "custom_tags": [
+      "AI Agent",
+      "OpenClaw",
+      "多智能体协作",
+      "Token优化",
+      "Skills开发",
+      "金融投研",
+      "自动化"
+    ]
+  },
+  "ratings": {
+    "quality": 5,
+    "novelty": 4,
+    "reusability": 5
+  },
+  "concise": {
+    "one_liner": "本文详细介绍了OpenClaw在金融投研中的进阶应用，提出了多Agent协作架构、四层Token优化方案及四类高频投研Skills组合方案，实现降本增效与流程自动化。",
+    "core_points": [
+      "多Agent协作：通过配置主Agent与不同领域子Agent（工作、研究、编程、娱乐），实现工作空间与记忆隔离，避免上下文污染。",
+      "四层Token优化：通过内置命令（/compact等）、提示词习惯优化、专用Skills（如openclaw-token-memory-optimizer）及多Agent架构分工，最高可节省50%-70%的Token消耗。",
+      "Skills场景应用：针对零门槛数据获取、深度资讯抓取、智能深度投研提供开箱即用的技能组合方案。",
+      "安全防护：推荐事前审查、事中防护与凭证管理三重安全技能组合。"
+    ],
+    "key_result": "通过多Agent架构和Token优化方案，解决了单智能体负荷过重和Token消耗过快的问题，并验证了特定Skills组合可自动化生成结构完整的深度投研报告，提升投研效率。"
+  },
+  "detailed": {
+    "core_content": "报告针对OpenClaw单智能体在复杂任务中上下文易污染、Token消耗大等问题，提出进阶解决方案。1）多Agent协作：在飞书平台配置主Agent与4个子Agent，通过长连接实现任务分发与隔离执行。2）Token优化：从即时操作层（/compact等命令）、日常对话层（精简提示词与结构化输出）、Skills应用层（安装token-memory-optimizer）、架构层（多Agent分工与模型路由）四个层面降低开销。3）Skills应用：根据投研深度递进，给出了从基础数据获取到深度研报生成的三套技能组合，并辅以安全防护技能体系。",
+    "economic_logic": "AI赋能投研的核心经济逻辑在于“降本增效”。通过多Agent架构避免单一上下文过载，通过Token优化技能大幅降低API调用成本（节省50%-70%），通过固化高频工作流为Skills实现“一键执行”，将重复性人力劳动转化为自动化算力执行，从而实现投研流程的规模化与边际成本递减。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "全网新闻与社交媒体内容",
+          "frequency": "不定期",
+          "source": "百度/搜狗/Google/Twitter/小红书等",
+          "preprocessing": "通过multi-search-engine或agent-reach抓取，并使用web-fetch提取全文"
+        },
+        {
+          "field": "A股行情与财务数据",
+          "frequency": "日度/季度",
+          "source": "Akshare/东方财富/Tushare",
+          "preprocessing": "通过akshare-stock或eastmoney系列技能直接调用接口获取结构化数据"
+        }
+      ],
+      "backtest_setup": {
+        "period": "",
+        "benchmark": "",
+        "rebalance_freq": "",
+        "cost": "",
+        "grouping": ""
+      },
+      "combination": "场景1(零门槛): multi-search-engine + agent-reach + akshare-stock; 场景2(进阶抓取): web-search-pro + firecrawl-browser; 场景3(深度投研): eastmoney-financial-data + technical-analyst + stock-research-engine + humanizer-zh; 场景4(安全防护): skill-vetter + clawdefender + openclaw-credential-manager",
+      "parameters": [
+        {
+          "name": "Agent角色配置",
+          "value": "1主4子 (main, work, research, code, entertainment)",
+          "meaning": "主Agent分发任务，子Agent隔离处理特定领域任务"
+        },
+        {
+          "name": "长连接订阅方式",
+          "value": "长连接",
+          "meaning": "飞书事件与回调配置方式，保障机器人实时响应"
+        },
+        {
+          "name": "Token节省比例",
+          "value": "50%-70%",
+          "meaning": "使用openclaw-token-memory-optimizer技能后的平均Token节省效率"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [
+        "步骤1: 在飞书开放平台创建5个自建应用机器人，记录APP ID和Secret",
+        "步骤2: 批量导入权限JSON，配置事件订阅为长连接",
+        "步骤3: 在/root/.openclaw/openclaw.json中为每个Agent配置独立工作空间与路由规则",
+        "步骤4: 重启网关并发布应用，实现多Agent会话隔离",
+        "步骤5: 安装目标Skills组合（如场景3的深度投研组合）",
+        "步骤6: 发送标的名称（如贵州茅台），Agent自动调度Skills获取数据、分析并生成研报"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "",
+    "performance": {
+      "metrics": [
+        {
+          "name": "Token节省比例",
+          "value": "50%-70%"
+        }
+      ],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "文章重点介绍了OpenClaw的多Agent协作和Token优化方案，使用openclaw-token-memory-optimizer等技能后平均可节省约50%-70%的Token消耗。无传统量化策略回测指标。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "报告为AI Agent应用工具类文章，不涉及量化收益归因分析。"
+    },
+    "robustness": {
+      "subsample_stability": "通过多Agent隔离，各细分领域任务互不干扰，避免了长期交互带来的上下文污染误导，提升了任务执行的稳定性。",
+      "style_bias": "",
+      "turnover": null,
+      "capacity": null,
+      "summary": "架构设计上采用空间换稳定性策略，多Agent与技能组合的模块化设计使得单一技能故障或API波动不至于影响全局，整体工作流鲁棒性较好。"
+    },
+    "data_dependency": {
+      "data_required": "飞书开放平台API权限、各搜索引擎与社媒平台的网页访问权限、Akshare/东方财富/Tushare等金融数据接口（部分需API Key）。",
+      "reproducibility": "medium",
+      "summary": "依赖OpenClaw环境和特定Skills生态，虽然报告给出了详细的配置JSON和操作步骤，但涉及多方API密钥申请及飞书平台配置，复现需一定动手能力。"
+    },
+    "prior_art": [
+      {
+        "method": "前期OpenClaw单智能体应用案例（系列报告之二、之三）",
+        "relation": "基础前置。本文是在前期单Agent应用基础上的架构升级，解决了单Agent负载过重的问题。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将多Agent协作机制、Token优化策略与金融投研Skills进行整合应用，属于AI工具在垂直领域的工程化落地创新，而非底层算法创新。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "安全性风险：OpenClaw具备超高系统权限，部署在本机或办公网络存在较高网络漏洞和文件操作风险。",
+      "数据源稳定性：高度依赖第三方爬虫Skills（如agent-reach、firecrawl-browser）和免费金融接口，面临接口失效或反爬封锁风险。",
+      "大模型幻觉：AI生成的深度投研报告可能存在数据不准确或逻辑错误，需人工严格复核。"
+    ],
+    "useful_elements": [
+      "多Agent工作空间隔离配置方法及飞书长连接配置流程",
+      "四个层面的Token消耗优化策略（尤其是提示词优化与内置命令）",
+      "针对不同投研深度需求设计的Skills组合矩阵"
+    ],
+    "inspirations": [
+      "投研流程自动化可通过“拆解工作流+组合专用Skills”的模式实现，无需从零编写复杂代码。",
+      "多智能体架构是解决LLM长上下文记忆污染的有效工程方案。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "构建基于本地开源大模型（如Qwen2.5）的私有化多Agent路由与缓存系统",
+        "based_on": "报告提出的‘模型路由机制’与‘语义缓存层’",
+        "expected_gain": "在保障数据安全不出域的前提下，通过路由简单任务至本地小模型、复杂任务至云端大模型，并缓存常用研报模板与数据提取结果，可进一步降低90%以上的API调用成本与Token消耗。"
+      }
+    ],
+    "replication_plan": "1. 准备一台云服务器并安装OpenClaw；2. 在飞书开放平台创建5个自建应用并获取凭证；3. 按照报告提供的JSON片段配置权限并设为长连接；4. 编辑openclaw.json配置5个Agent的独立工作空间；5. 重启网关并在飞书发布应用；6. 在各子Agent中安装指定Skills（如akshare-stock等）；7. 在群组中@对应Agent测试数据获取与研报生成效果。"
+  },
+  "entities": [
+    {
+      "name": "OpenClaw",
+      "type": "concept"
+    },
+    {
+      "name": "多Agent协作",
+      "type": "concept"
+    },
+    {
+      "name": "Token优化",
+      "type": "method"
+    },
+    {
+      "name": "Skills",
+      "type": "concept"
+    },
+    {
+      "name": "曹春晓",
+      "type": "person"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

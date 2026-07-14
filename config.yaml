@@ -3,6 +3,11 @@ clippings_dir: "Clippings"
 pdfs_dir: "raw/pdfs"
 data_dir: "data"
 model: "glm-5-2-260617"
+llm:
+  max_attempts: 3
+  body_chars: 12000
+  extract_max_tokens: 3500
+  analyze_max_tokens: 7000
 classification:
   research_type: ["基本面", "技术面(量价)", "高频·微观结构", "资产配置·风格轮动", "行业轮动", "AI·机器学习", "另类数据"]
   data_frequency: ["财务(低频)", "日频", "分钟", "盘口", "逐笔(Level-2)", "集合竞价", "隔夜"]

@@ -147,4 +147,16 @@ const sortOptions = [
   searchInput.addEventListener("input", filterAndSort);
   sortSelect.addEventListener("change", filterAndSort);
   checkboxes.forEach(cb => cb.addEventListener("change", filterAndSort));
+
+  // Apply filters linked from the landscape heatmap.
+  const params = new URLSearchParams(window.location.search);
+  let hasQueryFilter = false;
+  checkboxes.forEach(cb => {
+    const expected = params.get(cb.dataset.facet || "");
+    if (expected && cb.value === expected) {
+      cb.checked = true;
+      hasQueryFilter = true;
+    }
+  });
+  if (hasQueryFilter) filterAndSort();
 </script>

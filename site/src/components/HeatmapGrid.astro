@@ -1,0 +1,227 @@
+---
+interface MatrixCell {
+  x: string;
+  y: string;
+  count: number;
+  slugs: string[];
+}
+
+interface Dimension {
+  id: string;
+  label: string;
+  x_axis: string;
+  y_axis: string;
+  x_labels: string[];
+  y_labels: string[];
+  matrix: MatrixCell[];
+}
+
+interface Props {
+  dimension: Dimension;
+}
+
+const { dimension } = Astro.props;
+const cellMap = new Map(dimension.matrix.map((cell) => [`${cell.y}\u0000${cell.x}`, cell]));
+const maxCount = Math.max(1, ...dimension.matrix.map((cell) => cell.count));
+
+function level(count: number) {
+  if (count === 0) return 0;
+  return Math.max(1, Math.ceil((count / maxCount) * 5));
+}
+
+function reportUrl(x: string, y: string) {
+  const query = new URLSearchParams([
+    [dimension.x_axis, x],
+    [dimension.y_axis, y],
+  ]);
+  return `/reports?${query.toString()}`;
+}
+---
+
+<div class="heatmap-shell" role="region" aria-label={`${dimension.label}热力图`} tabindex="0">
+  <table class="heatmap-table">
+    <thead>
+      <tr>
+        <th scope="col" class="axis-corner">{dimension.y_axis.replaceAll("_", " ")} ↓ / {dimension.x_axis.replaceAll("_", " ")} →</th>
+        {dimension.x_labels.map((x) => <th scope="col" class="axis-x">{x}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {dimension.y_labels.map((y) => (
+        <tr>
+          <th scope="row" class="axis-y">{y}</th>
+          {dimension.x_labels.map((x) => {
+            const cell = cellMap.get(`${y}\u0000${x}`) || { x, y, count: 0, slugs: [] };
+            const cellLevel = level(cell.count);
+            return (
+              <td>
+                {cell.count > 0 ? (
+                  <a
+                    href={reportUrl(x, y)}
+                    class={`heat-cell heat-${cellLevel}`}
+                    aria-label={`${y}与${x}：${cell.count}篇报告`}
+                    title={`${y} × ${x}：${cell.count} 篇报告，点击查看`}
+                  >
+                    <strong>{cell.count}</strong>
+                    <span>篇</span>
+                  </a>
+                ) : (
+                  <span class="heat-cell heat-0" aria-label={`${y}与${x}：暂无报告`} title={`${y} × ${x}：研究空白`}>
+                    <strong>0</strong>
+                    <span>空白</span>
+                  </span>
+                )}
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<div class="heat-legend" aria-label="热力强度图例">
+  <span>覆盖少</span>
+  {[1, 2, 3, 4, 5].map((item) => <i class={`heat-${item}`}></i>)}
+  <span>覆盖多</span>
+  <span class="legend-hint">有数据的格子可点击查看报告</span>
+</div>
+
+<style>
+  .heatmap-shell {
+    overflow: auto;
+    max-height: 44rem;
+    border: 1px solid #1e2733;
+    border-radius: 0.5rem;
+    background: #0b0e14;
+    outline: none;
+  }
+
+  .heatmap-shell:focus-visible {
+    box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.55);
+  }
+
+  .heatmap-table {
+    width: 100%;
+    min-width: 52rem;
+    border-collapse: separate;
+    border-spacing: 0.28rem;
+    table-layout: fixed;
+  }
+
+  th {
+    color: #9ca3af;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.25;
+  }
+
+  .axis-corner,
+  .axis-y {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    width: 9.5rem;
+    min-width: 9.5rem;
+    background: #0b0e14;
+    text-align: right;
+    padding-right: 0.6rem;
+  }
+
+  .axis-corner {
+    top: 0;
+    z-index: 4;
+    color: #4b5563;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+  }
+
+  .axis-x {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    height: 4.8rem;
+    padding: 0 0.25rem 0.45rem;
+    background: #0b0e14;
+    vertical-align: bottom;
+    text-align: center;
+  }
+
+  td {
+    height: 3.55rem;
+    padding: 0;
+  }
+
+  .heat-cell {
+    display: flex;
+    min-height: 3.55rem;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 0.32rem;
+    color: #dbeafe;
+    text-decoration: none;
+    transition: transform 180ms ease, border-color 180ms ease, filter 180ms ease;
+  }
+
+  a.heat-cell:hover {
+    transform: translateY(-2px);
+    border-color: rgba(165, 243, 252, 0.75);
+    filter: brightness(1.12);
+  }
+
+  a.heat-cell:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  a.heat-cell:focus-visible {
+    outline: 2px solid #67e8f9;
+    outline-offset: 2px;
+  }
+
+  .heat-cell strong {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .heat-cell span {
+    margin-top: 0.1rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.58rem;
+  }
+
+  .heat-0 { background: #111821; color: #4b5563; }
+  .heat-1 { background: #12333d; }
+  .heat-2 { background: #125063; }
+  .heat-3 { background: #0e6d83; }
+  .heat-4 { background: #0b8da4; }
+  .heat-5 { background: #0aaec1; color: #ecfeff; }
+
+  .heat-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    color: #6b7280;
+    font-size: 0.65rem;
+  }
+
+  .heat-legend i {
+    display: block;
+    width: 1.25rem;
+    height: 0.45rem;
+    border-radius: 0.1rem;
+  }
+
+  .legend-hint {
+    margin-left: auto;
+  }
+
+  @media (max-width: 640px) {
+    .heatmap-table { min-width: 46rem; }
+    .legend-hint { display: none; }
+  }
+</style>

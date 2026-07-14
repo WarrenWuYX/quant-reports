@@ -1,0 +1,240 @@
+{
+  "schema_version": "1.0",
+  "slug": "5b926298636e",
+  "source": {
+    "title": "【方正金工】OpenClaw赋能金融投研：17个高效应用案例详解——AI Agent赋能金融投研应用系列之三",
+    "institution": "方正",
+    "authors": [
+      "曹春晓"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247513336&idx=1&sn=a82e8b6626daf3b2a859f5ef55fd3c38&scene=21&poc_token=HHyKQ2qjJFv34l5Yry01WoMepqxkYLevXtrm5g0Y",
+    "local_path": "方正/【方正金工】OpenClaw赋能金融投研：17个高效应用案例详解——AI Agent赋能金融投研应用系列之三.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "基本面",
+      "技术面(量价)",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "财务(低频)",
+      "日频"
+    ],
+    "factor_family": [
+      "价值",
+      "质量"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "知识图谱·RAG"
+    ],
+    "custom_tags": [
+      "AI Agent",
+      "自动化投研",
+      "工具部署",
+      "OpenClaw"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 5
+  },
+  "concise": {
+    "one_liner": "本文详细介绍了开源AI助手OpenClaw在金融投研中的17个应用案例，包括文件管理、数据API自动化接入、浏览器接管及策略构建，展现了AI Agent在大幅提升投研效率方面的潜力。",
+    "core_points": [
+      "OpenClaw成功将大语言模型的认知能力与本地系统的执行能力融合，实现从“对话”到“做事”的跨越。",
+      "可通过自然语言交互自动化配置同花顺、米筐、Wind等金融数据API接口，并提取行情及公告数据。",
+      "具备接管浏览器进行信息检索与深度研究的能力，可自动生成分析报告及PPT。",
+      "能够协助构建PB-ROE选股、“杯柄”形态选股等量化策略并进行因子挖掘与回测测试。"
+    ],
+    "key_result": "整体测试表明，OpenClaw在投研场景中完成效率和质量都非常高，能有效将投资者从重复性、规则性工作中解放出来。"
+  },
+  "detailed": {
+    "core_content": "报告详细测试了OpenClaw在17个金融投研场景下的应用，涵盖日常办公（邮件管理、文件检索、自动化任务提醒）、AI多媒体生成（绘本、Seedance视频生成）、深度研究（千帆Agent、麦肯锡顾问skill、浏览器插件中继模式）及金融数据接口（同花顺API、米筐API、Wind API）的自动化配置与调用，并演示了基于这些能力的量化策略构建（如经典PB-ROE、杯柄形态选股）与全自动因子挖掘回测。",
+    "economic_logic": "通过AI Agent的自动化执行能力，降低各类金融工具、数据接口及代码编写门槛，将投研人员从重复性、规则性工作中解放出来，使其能更专注于复杂决策与创新策略研发，从而提升整体投研生产力。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "上市公司公告及收盘价",
+          "frequency": "日频/不定期",
+          "source": "同花顺API/问财接口",
+          "preprocessing": "API自动提取与文本解析"
+        },
+        {
+          "field": "高频交易数据",
+          "frequency": "高频",
+          "source": "米筐RQData",
+          "preprocessing": "通过API密钥自动化配置并提取"
+        },
+        {
+          "field": "本地财务报销文件及会议指引",
+          "frequency": "静态",
+          "source": "本地文件系统",
+          "preprocessing": "文件遍历与AI内容检索"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未提供",
+        "benchmark": "未提供",
+        "rebalance_freq": "未提供",
+        "cost": "未提供",
+        "grouping": "未提供"
+      },
+      "combination": "报告摘要提及全自动因子挖掘与回测，但正文未展示具体组合构建逻辑细节。",
+      "parameters": [
+        {
+          "name": "部署环境",
+          "value": "腾讯云LightHouse+QQ/本地Windows+飞书/telegram",
+          "meaning": "OpenClaw运行服务器与交互终端的不同组合方案"
+        },
+        {
+          "name": "心跳机制",
+          "value": "开启",
+          "meaning": "确保智能体在无人值守下保持持续稳定运行并主动反馈状态"
+        },
+        {
+          "name": "浏览器模式",
+          "value": "托管模式 / 插件中继模式",
+          "meaning": "全自动驾驶模式或处理复杂验证码/2FA的接管模式"
+        }
+      ],
+      "factor_definition": "报告提及测试了“经典PB-ROE选股策略”和“杯柄形态选股策略”的构建，但未在截取正文中给出具体因子公式与算子逻辑细节。",
+      "processing_pipeline": [
+        "通过IM平台(QQ/飞书/Telegram)发送自然语言指令",
+        "OpenClaw检索ClawHub并安装所需Skills",
+        "调用特定Skill(API接口/浏览器接管/本地文件系统)",
+        "自动化执行数据提取、信息检索或代码编写",
+        "返回结果文件或生成分析报告"
+      ],
+      "model_architecture": "基于大语言模型的AI Agent架构，包含认知中枢(LLM)、本地系统执行器、ClawHub Skills生态以及心跳维持机制，支持通过API和浏览器插件中继与环境交互。",
+      "inputs": [
+        "自然语言交互指令",
+        "金融数据API账号与授权码",
+        "本地文件系统路径",
+        "Skill的GitHub地址或ClawHub链接"
+      ],
+      "outputs": "整理后的金融数据表格、深度研究报告、分析PPT、邮件、生成的视频或绘本、自动化任务提醒。",
+      "training": "无需本地训练，依赖预训练大语言模型，通过Prompt指令与工具调用实现目标。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "报告为AI工具应用案例测试，未涉及基于该工具构建的策略的具体超额收益逻辑。",
+    "performance": {
+      "metrics": [],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "本报告主要介绍OpenClaw在金融投研中的17个应用案例，涵盖文件管理、API接入、策略构建等。整体完成效率和质量非常高，但未提供量化回测的具体绩效指标。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "报告为AI工具应用案例测试，不涉及收益归因分析。"
+    },
+    "robustness": {
+      "subsample_stability": "未涉及",
+      "style_bias": "未涉及",
+      "turnover": null,
+      "capacity": null,
+      "summary": "工具运行整体稳定，但国内服务器+飞书/QQ在定时任务提醒上可能存在延迟，对时效性要求高的场景建议采用海外服务器+telegram。"
+    },
+    "data_dependency": {
+      "data_required": "需准备腾讯云或本地服务器环境、各金融数据接口的SDK文件及授权秘钥、相关Skill的安装权限。",
+      "reproducibility": "medium",
+      "summary": "配置流程已由OpenClaw大幅简化，但依然需要使用者具备相应的数据账号权限及基础的服务器部署能力。"
+    },
+    "prior_art": [
+      {
+        "method": "传统手工编写Python代码接入Wind/米筐API及处理本地文件",
+        "relation": "OpenClaw通过自然语言交互自动化完成代码编写、API配置与数据提取，替代了传统手工过程。"
+      },
+      {
+        "method": "使用百度千帆、字节Seedance等大模型官方网页端",
+        "relation": "OpenClaw通过安装Skill将这些能力集成到统一对话窗口，实现多工具协同与全自动化调用。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "综述",
+      "summary": "对当前热门开源AI Agent在金融投研领域的应用场景进行了系统性的测试与梳理，属于前沿AI工具在垂直领域的应用指南。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "国内部署的定时任务提醒可能存在一定延迟，影响时效性",
+      "对于复杂的2FA验证或滑块验证码，AI自动登录成功率较低，需依赖插件中继模式介入",
+      "AI大模型生成的结论可能存在错误，金融投研场景下仍需人工复核",
+      "报告正文不完整，未能展示全自动因子挖掘与回测的具体绩效指标和代码细节"
+    ],
+    "useful_elements": [
+      "使用腾讯云LightHouse快速部署OpenClaw并连通飞书/QQ的方案",
+      "通过ClawHub检索与安装各类Skills（如PDF解析、麦肯锡顾问、千帆Agent）的方法",
+      "利用Agent自动配置同花顺/米筐API接口提取数据的实战交互指令",
+      "利用插件中继模式(Extension Relay)绕过复杂验证接管浏览器的技术"
+    ],
+    "inspirations": [
+      "可以利用AI Agent的“心跳机制”构建盘后自动化跑批系统，定时推送异动监控与早报",
+      "利用浏览器接管能力，自动化抓取并解析京东等电商平台的商品评价与价格数据用于消费行业基本面分析",
+      "将多源金融数据API统一授权给Agent，构建基于自然语言的统一投研数据查询入口"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "利用OpenClaw构建闭环的量化策略迭代系统，让其根据回测的IC/IR等绩效指标自动调优因子参数或修改策略代码",
+        "based_on": "报告中提及的“全自动因子挖掘与回测”及“经典PB-ROE选股策略构建”",
+        "expected_gain": "实现从数据清洗、因子构造、回测反馈到参数调优的全自动化，进一步降低量化投研人员的编程门槛并提升迭代效率。"
+      }
+    ],
+    "replication_plan": "1. 准备一台腾讯云LightHouse服务器并部署OpenClaw；2. 选择IM平台(如QQ)并完成与OpenClaw的连通；3. 在IM中发送指令让OpenClaw自行从ClawHub安装browser、email及PDF解析等必要Skills；4. 下载米筐或同花顺的Linux SDK文件上传至服务器；5. 在IM窗口发送API授权码，指令Agent完成接口环境自动配置；6. 发送自然语言指令让Agent提取特定股票数据或构建简单的PB-ROE选股策略代码并运行验证。"
+  },
+  "entities": [
+    {
+      "name": "OpenClaw",
+      "type": "model"
+    },
+    {
+      "name": "PB-ROE选股策略",
+      "type": "method"
+    },
+    {
+      "name": "杯柄形态选股策略",
+      "type": "method"
+    },
+    {
+      "name": "全自动因子挖掘",
+      "type": "method"
+    },
+    {
+      "name": "同花顺API",
+      "type": "dataset"
+    },
+    {
+      "name": "米筐API",
+      "type": "dataset"
+    },
+    {
+      "name": "Wind API",
+      "type": "dataset"
+    },
+    {
+      "name": "Seedance",
+      "type": "model"
+    },
+    {
+      "name": "Deep Research Agent",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

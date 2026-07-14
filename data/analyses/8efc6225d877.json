@@ -1,0 +1,234 @@
+{
+  "schema_version": "1.0",
+  "slug": "8efc6225d877",
+  "source": {
+    "title": "【广发金工】用逐笔订单数据改进分钟频因子：海量Level 2数据因子挖掘系列（六）",
+    "institution": "广发",
+    "authors": [
+      "安宁宁"
+    ],
+    "published": "2026-06-04",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/T98CnhfADk6wIx7Xv8uklw",
+    "local_path": "广发/【广发金工】用逐笔订单数据改进分钟频因子：海量Level 2数据因子挖掘系列（六）.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "高频·微观结构"
+    ],
+    "data_frequency": [
+      "分钟",
+      "逐笔(Level-2)"
+    ],
+    "factor_family": [
+      "资金流",
+      "流动性",
+      "反转"
+    ],
+    "asset_class": [
+      "A股",
+      "指数增强"
+    ],
+    "method": [
+      "统计线性"
+    ],
+    "custom_tags": [
+      "重点时段",
+      "主买主卖",
+      "Level-2因子"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "广发金工基于Level 2逐笔订单数据，将分钟频因子的时段划分逻辑下沉至逐笔级别，构建了涨跌、价格、成交金额、量价协同4大类123个日内重点时段因子。",
+    "core_points": [
+      "采用逐笔订单数据改进传统分钟频重点时段因子",
+      "构建4大类123个KeyPeriod因子，区分主买/主卖及不同阈值",
+      "成交金额类因子表现最佳，大成交金额时段因子RankIC达11.23%"
+    ],
+    "key_result": "在2020-2025年全市场月度换仓回测中，大成交金额时段因子KeyPeriod_amount_top30pct的RankIC均值达11.23%，胜率84.8%。"
+  },
+  "detailed": {
+    "core_content": "报告提出使用Level 2逐笔订单数据改进原有的分钟频重点时段因子。原有逻辑是基于量价指标划分日内重点分钟时段，并统计这些时段的量价特征。改进方法同样划分重点时段，但使用逐笔订单数据计算特征，并引入主买/主卖区分，构建了涨跌、价格、成交金额、量价协同4大类、123个因子。",
+    "economic_logic": "资金在不同时段的交易行为包含不同的信息含量。大成交金额时段通常代表主力资金的意图，而小成交金额或量价背离时段可能蕴含噪音交易者或特定主力的隐蔽操作。通过更细颗粒度的逐笔订单提取这些时段的量价特征并区分主买主卖，能更精准地捕捉知情交易者的行为轨迹，从而预测未来价格走势。大部分因子表现为反转效应（如大成交金额正向，小成交金额负向，横盘负向）。",
+    "construction": {
+      "type": "factor",
+      "data_inputs": [
+        {
+          "field": "逐笔订单数据(时间、价格、数量、金额、买卖方向、订单类别)",
+          "frequency": "Tick/逐笔",
+          "source": "沪深交易所Level-2",
+          "preprocessing": "清洗过滤异常单，提取连续竞价阶段数据"
+        }
+      ],
+      "backtest_setup": {
+        "period": "20200101~20251128",
+        "benchmark": "全市场",
+        "rebalance_freq": "月度/20日",
+        "cost": "未提及",
+        "grouping": "10分档"
+      },
+      "combination": "未提及组合构建，仅进行单因子测试",
+      "parameters": [
+        {
+          "name": "ret_threshold",
+          "value": "0, low5pct",
+          "meaning": "涨跌幅阈值划分标准，如0代表横盘，low5pct代表涨幅处于全日后5%分位的下跌时段"
+        },
+        {
+          "name": "price_threshold",
+          "value": "low5pct",
+          "meaning": "价格分位阈值，low5pct代表价格处于当日最低5%分位的时段"
+        },
+        {
+          "name": "amount_threshold",
+          "value": "top30pct, low50pct",
+          "meaning": "成交金额分位阈值，top30pct代表大成交金额时段，low50pct代表小成交金额时段"
+        },
+        {
+          "name": "sync_threshold",
+          "value": "low50pct",
+          "meaning": "量价协同度阈值，low50pct代表量价协同性低的背离时段"
+        },
+        {
+          "name": "trade_direction",
+          "value": "主买/主卖",
+          "meaning": "主动买入或主动卖出订单区分"
+        }
+      ],
+      "factor_definition": "1. 基础时段划分：将日内连续竞价划分为分钟或逐笔时段，计算每个时段的涨跌幅、价格、成交金额、量价协同度。2. 提取重点时段：涨跌类提取当日涨幅为0的时段或最低5%时段；价格类提取价格最低5%时段；金额类提取金额最高30%或最低50%时段；量价协同类提取协同度最低50%时段。3. 因子计算：对提取出的重点时段内的逐笔订单数据进行特征统计。区分主买/主卖订单，计算这些重点时段内的成交量、成交金额、订单imbalance等特征。最终汇总为当日因子值。",
+      "processing_pipeline": [
+        "1. 数据获取：获取沪深交易所Level-2逐笔订单及成交数据，包含时间、价格、数量、买卖方向等。",
+        "2. 预处理：过滤集合竞价数据及异常订单，保留连续竞价阶段逐笔数据。",
+        "3. 指标计算：按时间窗口（如分钟或Tick）计算各窗口的涨跌幅、价格、成交金额、量价协同度。",
+        "4. 阈值筛选：根据各类因子的阈值参数（如0, low5pct, top30pct等），筛选出当日满足条件的重点时段集合。",
+        "5. 逐笔特征统计：在选出的重点时段内，基于逐笔订单的主买主卖标识，统计相关量价特征（如主买金额、主卖金额、净流入等）。",
+        "6. 因子生成：将统计值汇总为日频因子截面，进行去极值、标准化处理。"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过提取日内特定量价时段的逐笔订单主买卖特征，捕捉了知情交易者在特定行情下的资金操作痕迹。例如大成交金额时段主力资金的流入流出对价格具有更强的指示作用，而低价、下跌、量价背离时段的逐笔特征能反映市场情绪和底部承接力量，进而产生反转或动量溢价。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "KeyPeriod_amount_top30pct RankIC均值",
+          "value": "11.23%"
+        },
+        {
+          "name": "KeyPeriod_amount_low50pct RankIC均值",
+          "value": "-10.50%"
+        },
+        {
+          "name": "KeyPeriod_sync_low50pct RankIC均值",
+          "value": "6.00%"
+        },
+        {
+          "name": "KeyPeriod_price_low5pct RankIC均值",
+          "value": "5.59%"
+        },
+        {
+          "name": "KeyPeriod_ret_low5pct RankIC均值",
+          "value": "5.47%"
+        },
+        {
+          "name": "KeyPeriod_ret_zero RankIC均值",
+          "value": "-5.36%"
+        }
+      ],
+      "benchmark": "全市场月度换仓",
+      "backtest_period": "20200101~20251128",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "本文采用逐笔订单数据改进分钟频因子，构建了涨跌、价格、成交金额、量价协同4大类、123个日内重点时段(Level 2)因子。部分绩优因子在全市场20日换仓的历史RankIC均值最高达11.23%，胜率超84%。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "报告未涉及收益归因分析"
+    },
+    "robustness": {
+      "subsample_stability": "在各大板块内的指数增强表现良好，说明具有一定的跨板块稳定性",
+      "style_bias": "主要表现为微观资金流反转与量价背离效应",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子在2020-2025近6年间RankIC走势单调，10分档分组表现较优，且在各大板块均具增强效果，鲁棒性较强"
+    },
+    "data_dependency": {
+      "data_required": "Level 2逐笔订单数据（包含精确时间、价格、数量、金额、买卖方向、订单类别）",
+      "reproducibility": "medium",
+      "summary": "需要高质量的L2逐笔数据支持，数据量大且处理复杂，但因子构造逻辑清晰，具备复现可行性"
+    },
+    "prior_art": [
+      {
+        "method": "基于分钟频数据构建重点时段因子",
+        "relation": "本报告在此基础上将数据频率下沉至逐笔级别，并引入主买主卖维度"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "结合了分钟级时段划分思想与Tick级主买主卖数据，属于数据与逻辑的新组合"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "报告未给出具体的逐笔特征统计算子公式（如具体是计算金额差还是比例），可复现性仍需部分推断",
+      "因子数量多达123个，存在较高的过拟合风险，未提及因子间相关性及降维处理",
+      "未详细说明交易成本对高频换仓因子的影响"
+    ],
+    "useful_elements": [
+      "日内重点时段的阈值划分逻辑（0, top30pct, low5pct等）",
+      "将分钟频特征下沉至逐笔主买主卖维度的改进思路"
+    ],
+    "inspirations": [
+      "量价协同性低（背离）时段蕴含的微观交易信息具有显著的选股能力",
+      "大成交金额时段的微观资金流方向具有最强的预测能力"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于量价波动率状态划分重点时段并计算微观主买卖Imbalance",
+        "based_on": "原报告基于涨跌幅/价格/金额划分时段",
+        "expected_gain": "根据波动率状态区分高波/低波时段，能更好剥离知情交易与流动性需求的噪音，提升因子单调性"
+      }
+    ],
+    "replication_plan": "1. 获取A股Level-2逐笔成交与委托数据。2. 按连续竞价时间计算每分钟（或Tick聚合）的涨跌幅、价格、成交额、量价相关系数。3. 依据阈值（如0, top30pct, low5pct）筛选每日重点时段。4. 对重点时段内的逐笔成交，依据买卖方向标记主买/主卖，计算净成交金额占比作为基础因子值。5. 按月度换仓回测RankIC与10分组超额收益。"
+  },
+  "entities": [
+    {
+      "name": "安宁宁",
+      "type": "person"
+    },
+    {
+      "name": "陈原文",
+      "type": "person"
+    },
+    {
+      "name": "林涛",
+      "type": "person"
+    },
+    {
+      "name": "逐笔订单数据",
+      "type": "dataset"
+    },
+    {
+      "name": "KeyPeriod因子",
+      "type": "factor"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

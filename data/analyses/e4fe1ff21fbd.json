@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0",
+  "slug": "e4fe1ff21fbd",
+  "source": {
+    "title": "微信公众平台",
+    "institution": "国金",
+    "authors": [],
+    "published": "2026-06-11",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/mp/wappoc_appmsgcaptcha?poc_token=HFtrKmqjkLHODbuwQONEMe-j041eh4em2ZxJJoQv&target_url=https%3A%2F%2Fmp.weixin.qq.com%2Fs%3F__biz%3DMzkzNTIxNTkzMA%3D%3D%26mid%3D2247500015%26idx%3D1%26sn%3D6dd0ef1b27c960fcfa2ce3f21eda1010%26chksm%3Dc2b3d6baf5c45facaf82670327285297451dd7536579554ebafbcfabafda8ffa8d9e66086afc%26scene%3D178%26cur_album_id%3D2675772689629904900%26search_click_id%3D#rd",
+    "local_path": "国金/微信公众平台.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [],
+    "data_frequency": [],
+    "factor_family": [],
+    "asset_class": [],
+    "method": [],
+    "custom_tags": []
+  },
+  "ratings": {
+    "quality": 1,
+    "novelty": 1,
+    "reusability": 1
+  },
+  "concise": {
+    "one_liner": "无法解析有效内容——研报正文为腾讯验证码页面HTML片段，无任何实质性研究内容",
+    "core_points": [
+      "正文内容仅为验证码iframe标签及'尝试太多'的提示文字",
+      "未包含任何投资逻辑、因子构建、实证结果或数据说明",
+      "原始信息抽取结果全为空，质量/新颖性/可复用性均评为最低分1"
+    ],
+    "key_result": "无可提取结果，无法形成任何研究结论"
+  },
+  "detailed": {
+    "core_content": "研报正文内容为：'<iframe frameborder=\"0\" src=\"https://captcha.gtimg.com/static/template/drag_ele.905b763f.html\"></iframe> 尝试太多了 2s后自动为您刷新验证码'。这表明数据获取阶段被腾讯验证码拦截，实际研报内容未被采集到。因此，无法进行任何实质性分析。",
+    "economic_logic": "无经济逻辑可提取——正文无任何投资逻辑或实证分析内容",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "",
+          "frequency": "",
+          "source": "",
+          "preprocessing": ""
+        }
+      ],
+      "backtest_setup": {
+        "period": "",
+        "benchmark": "",
+        "rebalance_freq": "",
+        "cost": "",
+        "grouping": ""
+      },
+      "combination": "",
+      "parameters": [
+        {
+          "name": "",
+          "value": "",
+          "meaning": ""
+        }
+      ],
+      "factor_definition": "无因子定义——研报正文被验证码页面覆盖，未含任何因子构造逻辑",
+      "processing_pipeline": [],
+      "model_architecture": "无模型架构——研报正文被验证码页面覆盖，未含任何模型构建细节",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "无超额收益逻辑可提取——正文无任何收益归因或策略逻辑",
+    "performance": {
+      "metrics": [
+        {
+          "name": "",
+          "value": ""
+        }
+      ],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": ""
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "无子样本稳定性信息",
+      "style_bias": "无风格偏倚信息",
+      "turnover": null,
+      "capacity": null,
+      "summary": "研报正文被验证码页面拦截，无任何稳健性检验内容可供分析"
+    },
+    "data_dependency": {
+      "data_required": "无数据需求信息",
+      "reproducibility": "hard",
+      "summary": "由于正文实质内容缺失（仅验证码HTML），无可复现性可言，标记为hard以反映当前不可复现状态"
+    },
+    "prior_art": [],
+    "novelty_assessment": {
+      "type": "综述",
+      "summary": "无法评估新颖性——正文无实质研究内容，类型标记为综述仅为占位，实际应为'不可判定'"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "研报正文被腾讯验证码拦截，实际内容完全缺失",
+      "数据采集流程缺乏对验证码/反爬机制的容错处理，导致整篇研报信息全损",
+      "原始抽取信息全为默认空值，说明自动化解析链路未能在源端拦截无效内容",
+      "从标题'微信公众平台'推断这可能是公众号文章而非正式机构研报，来源可信度存疑"
+    ],
+    "useful_elements": [
+      "唯一有信息的元素是iframe的src URL，可识别为腾讯验证码(gcaptcha)资源，可用于反爬识别"
+    ],
+    "inspirations": [
+      "数据采集pipeline应在入库前增加验证码/反爬页面识别层，对包含captcha.gtimg.com等特征的页面直接标记为'采集失败'并触发重试",
+      "对于微信公众号来源的研报，应使用专门的公众号文章采集方案（如基于移动端UA、cookie池、或Selenium模拟）绕过验证码拦截"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "在数据采集层引入验证码识别与页面有效性校验：相似逻辑（过滤无效HTML）+ 不同构造（基于DOM特征分类器自动识别captcha/error/empty页面并打标）",
+        "based_on": "本次研报因验证码拦截导致全文内容丢失的现象",
+        "expected_gain": "预期可减少因反爬/验证码导致的无效入库，提升后续分析pipeline的输入质量"
+      },
+      {
+        "idea": "针对微信公众号研报来源，改用Selenium/Playwright等浏览器自动化方案配合Cookie池重试，相似逻辑（获取研报正文文本）+ 不同构造（动态渲染+滑动验证码处理而非静态抓取）",
+        "based_on": "当前captcha.gtimg.com拦截表明静态请求被识别",
+        "expected_gain": "预期可绕过验证码拦截，成功获取原始研报正文，使后续分析成为可能"
+      }
+    ],
+    "replication_plan": "无法复现——当前研报无实质内容。若要复现研报分析，第一步须重新采集原始研报正文：(1)识别真实研报URL；(2)使用Playwright/Selenium渲染页面并处理验证码；(3)对返回内容做有效性校验（排除仅含captcha iframe的页面）；(4)获取到真实正文后，方可进入正常的研报解析流程。在获取到有效正文前，所有construction字段均无法填充。"
+  },
+  "entities": [],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

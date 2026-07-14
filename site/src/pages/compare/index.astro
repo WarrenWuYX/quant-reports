@@ -1,0 +1,346 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const analyses = await getCollection("analyses");
+const reports = analyses
+  .filter((entry) => entry.data.status === "ok")
+  .map((entry) => {
+    const d = entry.data;
+    return {
+      slug: d.slug,
+      source: {
+        title: d.source.title,
+        institution: d.source.institution,
+        published: d.source.published,
+      },
+      classification: d.classification,
+      ratings: d.ratings,
+      concise: d.concise,
+      entities: d.entities,
+      detailed: {
+        economic_logic: d.detailed.economic_logic,
+        construction: d.detailed.construction,
+        performance: d.detailed.performance,
+        data_dependency: d.detailed.data_dependency,
+        novelty_assessment: d.detailed.novelty_assessment,
+      },
+      critical: {
+        weaknesses: d.critical?.weaknesses || [],
+        useful_elements: d.critical?.useful_elements || [],
+        inspirations: d.critical?.inspirations || [],
+      },
+    };
+  })
+  .sort((a, b) => a.source.title.localeCompare(b.source.title, "zh-CN"));
+
+const serializedReports = JSON.stringify(reports).replaceAll("<", "\\u003c");
+---
+
+<BaseLayout title="报告对比工作台 · 量化研报分析" description="查找相似研报，或任选两篇报告对比研究逻辑、构造与绩效。">
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <header class="mb-8 max-w-3xl">
+      <p class="text-xs font-mono text-accent-cyan mb-2">COMPARE WORKSPACE / {reports.length} REPORTS</p>
+      <h1 class="text-3xl font-semibold tracking-tight text-white">报告对比工作台</h1>
+      <p class="text-sm leading-6 text-gray-400 mt-3">从一篇报告寻找最接近的研究，或者任选两篇并排检查方法、数据、回测口径和结论差异。</p>
+    </header>
+
+    <div class="mode-switch" role="tablist" aria-label="对比模式">
+      <button id="mode-similar" class="mode-button active" type="button" role="tab" aria-selected="true" aria-controls="similar-panel">查找相似报告</button>
+      <button id="mode-pair" class="mode-button" type="button" role="tab" aria-selected="false" aria-controls="pair-panel">任选两篇对比</button>
+    </div>
+
+    <section id="similar-panel" class="workspace-panel" role="tabpanel" aria-labelledby="mode-similar">
+      <div class="selector-block">
+        <label for="base-report">以哪篇报告为起点</label>
+        <select id="base-report" class="report-select">
+          <option value="">选择一篇报告</option>
+        </select>
+        <p>相似度由分类、因子/方法实体、数据频率和构造类型在本地计算，不调用 LLM。</p>
+      </div>
+      <div id="similar-empty" class="empty-state">选择报告后，这里会展示最相近的 8 篇报告及匹配原因。</div>
+      <div id="similar-results" class="similar-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="pair-panel" class="workspace-panel hidden" role="tabpanel" aria-labelledby="mode-pair">
+      <div class="pair-selectors">
+        <div class="selector-block">
+          <label for="left-report">报告 A</label>
+          <select id="left-report" class="report-select"><option value="">选择第一篇报告</option></select>
+        </div>
+        <div class="pair-mark" aria-hidden="true">⇄</div>
+        <div class="selector-block">
+          <label for="right-report">报告 B</label>
+          <select id="right-report" class="report-select"><option value="">选择第二篇报告</option></select>
+        </div>
+      </div>
+      <div id="pair-empty" class="empty-state">选择两篇不同的报告后生成对比。</div>
+      <div id="pair-result" class="hidden" aria-live="polite">
+        <div class="similarity-summary">
+          <div>
+            <span class="summary-label">结构化相似度</span>
+            <strong id="pair-score">0%</strong>
+          </div>
+          <div id="pair-reasons" class="reason-list"></div>
+        </div>
+        <div id="comparison-table" class="comparison-table"></div>
+      </div>
+    </section>
+  </div>
+
+  <script id="compare-data" type="application/json" set:html={serializedReports}></script>
+</BaseLayout>
+
+<script>
+  import { compareSimilarity, rankSimilar } from "../../lib/similarity";
+
+  type Report = {
+    slug: string;
+    source: { title: string; institution: string; published?: string | null };
+    classification: Record<string, string[]>;
+    ratings: { quality: number; novelty: number; reusability: number };
+    concise: { one_liner: string; key_result: string };
+    entities: Array<{ name: string; type: string }>;
+    detailed: any;
+    critical: { weaknesses: string[]; useful_elements: string[]; inspirations: string[] };
+  };
+
+  const dataNode = document.getElementById("compare-data");
+  const reports: Report[] = JSON.parse(dataNode?.textContent || "[]");
+  const bySlug = new Map(reports.map((report) => [report.slug, report]));
+
+  const baseSelect = document.getElementById("base-report") as HTMLSelectElement;
+  const leftSelect = document.getElementById("left-report") as HTMLSelectElement;
+  const rightSelect = document.getElementById("right-report") as HTMLSelectElement;
+  const similarResults = document.getElementById("similar-results")!;
+  const similarEmpty = document.getElementById("similar-empty")!;
+  const pairEmpty = document.getElementById("pair-empty")!;
+  const pairResult = document.getElementById("pair-result")!;
+
+  function node<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+  }
+
+  function reportLabel(report: Report) {
+    return `[${report.source.institution}] ${report.source.title}`;
+  }
+
+  function fillSelect(select: HTMLSelectElement) {
+    const fragment = document.createDocumentFragment();
+    for (const report of reports) {
+      const option = document.createElement("option");
+      option.value = report.slug;
+      option.textContent = reportLabel(report);
+      fragment.append(option);
+    }
+    select.append(fragment);
+  }
+
+  [baseSelect, leftSelect, rightSelect].forEach(fillSelect);
+
+  function reasonTags(reasons: string[]) {
+    const container = node("div", "reason-list");
+    (reasons.length ? reasons : ["暂无明显的结构化重合"]).forEach((reason) => container.append(node("span", "reason-tag", reason)));
+    return container;
+  }
+
+  function link(label: string, href: string, secondary = false) {
+    const anchor = node("a", secondary ? "text-link" : "action-link", label);
+    anchor.href = href;
+    return anchor;
+  }
+
+  function renderSimilar() {
+    similarResults.replaceChildren();
+    const base = bySlug.get(baseSelect.value);
+    similarEmpty.classList.toggle("hidden", Boolean(base));
+    if (!base) return;
+
+    for (const item of rankSimilar(base, reports, 8)) {
+      const card = node("article", "similar-card");
+      const top = node("div", "similar-card-top");
+      const score = node("strong", "similar-score", `${item.score}%`);
+      const identity = node("div");
+      identity.append(node("p", "institution", item.report.source.institution));
+      identity.append(node("h2", "similar-title", item.report.source.title));
+      top.append(score, identity);
+      card.append(top, node("p", "similar-summary", item.report.concise.one_liner), reasonTags(item.reasons));
+      const actions = node("div", "card-actions");
+      actions.append(
+        link("查看报告", `/reports/${item.report.slug}`, true),
+        link("对比详情", `/compare?left=${encodeURIComponent(base.slug)}&right=${encodeURIComponent(item.report.slug)}`),
+      );
+      card.append(actions);
+      similarResults.append(card);
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("report", base.slug);
+    url.searchParams.delete("left");
+    url.searchParams.delete("right");
+    history.replaceState({}, "", url);
+  }
+
+  function textList(value: unknown) {
+    if (Array.isArray(value)) return value.filter(Boolean).join("、") || "—";
+    if (value && typeof value === "object") {
+      return Object.entries(value as Record<string, unknown>)
+        .filter(([, item]) => item !== null && item !== "" && (!Array.isArray(item) || item.length))
+        .map(([key, item]) => `${key}: ${Array.isArray(item) ? item.join("、") : String(item)}`)
+        .join("；") || "—";
+    }
+    return value ? String(value) : "—";
+  }
+
+  function metrics(report: Report) {
+    return (report.detailed.performance?.metrics || []).map((item: any) => `${item.name}: ${item.value}`).join("；") || "—";
+  }
+
+  function construction(report: Report) {
+    const value = report.detailed.construction || {};
+    return [
+      value.factor_definition,
+      value.model_architecture,
+      value.strategy_logic,
+      value.training,
+    ].filter(Boolean).join("\n") || "—";
+  }
+
+  function addComparisonRow(label: string, left: unknown, right: unknown) {
+    const row = node("section", "comparison-row");
+    row.append(node("h3", "comparison-label", label));
+    const leftCell = node("div", "comparison-cell");
+    leftCell.textContent = textList(left);
+    const rightCell = node("div", "comparison-cell");
+    rightCell.textContent = textList(right);
+    row.append(leftCell, rightCell);
+    document.getElementById("comparison-table")!.append(row);
+  }
+
+  function renderPair() {
+    const left = bySlug.get(leftSelect.value);
+    const right = bySlug.get(rightSelect.value);
+    const valid = Boolean(left && right && left.slug !== right.slug);
+    pairEmpty.classList.toggle("hidden", valid);
+    pairEmpty.textContent = left && right && left.slug === right.slug ? "请选择两篇不同的报告。" : "选择两篇不同的报告后生成对比。";
+    pairResult.classList.toggle("hidden", !valid);
+    if (!valid || !left || !right) return;
+
+    const similarity = compareSimilarity(left, right);
+    document.getElementById("pair-score")!.textContent = `${similarity.score}%`;
+    document.getElementById("pair-reasons")!.replaceWith(reasonTags(similarity.reasons));
+    const replacementReasons = document.querySelector("#pair-result .reason-list")!;
+    replacementReasons.id = "pair-reasons";
+
+    const table = document.getElementById("comparison-table")!;
+    table.replaceChildren();
+    addComparisonRow("报告", reportLabel(left), reportLabel(right));
+    addComparisonRow("核心观点", left.concise.one_liner, right.concise.one_liner);
+    addComparisonRow("关键结论", left.concise.key_result, right.concise.key_result);
+    addComparisonRow("评分 Q / N / R", `${left.ratings.quality} / ${left.ratings.novelty} / ${left.ratings.reusability}`, `${right.ratings.quality} / ${right.ratings.novelty} / ${right.ratings.reusability}`);
+    addComparisonRow("因子家族", left.classification.factor_family, right.classification.factor_family);
+    addComparisonRow("研究方法", left.classification.method, right.classification.method);
+    addComparisonRow("数据频率", left.classification.data_frequency, right.classification.data_frequency);
+    addComparisonRow("资产范围", left.classification.asset_class, right.classification.asset_class);
+    addComparisonRow("构造逻辑", construction(left), construction(right));
+    addComparisonRow("回测设置", left.detailed.construction?.backtest_setup, right.detailed.construction?.backtest_setup);
+    addComparisonRow("绩效指标", metrics(left), metrics(right));
+    addComparisonRow("经济逻辑", left.detailed.economic_logic, right.detailed.economic_logic);
+    addComparisonRow("不足与风险", left.critical.weaknesses, right.critical.weaknesses);
+    addComparisonRow("可复用元素", left.critical.useful_elements, right.critical.useful_elements);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("left", left.slug);
+    url.searchParams.set("right", right.slug);
+    url.searchParams.delete("report");
+    history.replaceState({}, "", url);
+  }
+
+  const modeSimilar = document.getElementById("mode-similar")!;
+  const modePair = document.getElementById("mode-pair")!;
+  const similarPanel = document.getElementById("similar-panel")!;
+  const pairPanel = document.getElementById("pair-panel")!;
+
+  function setMode(mode: "similar" | "pair") {
+    const isSimilar = mode === "similar";
+    modeSimilar.classList.toggle("active", isSimilar);
+    modePair.classList.toggle("active", !isSimilar);
+    modeSimilar.setAttribute("aria-selected", String(isSimilar));
+    modePair.setAttribute("aria-selected", String(!isSimilar));
+    similarPanel.classList.toggle("hidden", !isSimilar);
+    pairPanel.classList.toggle("hidden", isSimilar);
+  }
+
+  modeSimilar.addEventListener("click", () => setMode("similar"));
+  modePair.addEventListener("click", () => setMode("pair"));
+  baseSelect.addEventListener("change", renderSimilar);
+  leftSelect.addEventListener("change", renderPair);
+  rightSelect.addEventListener("change", renderPair);
+
+  const params = new URLSearchParams(window.location.search);
+  const leftParam = params.get("left");
+  const rightParam = params.get("right");
+  const reportParam = params.get("report");
+  if (leftParam && rightParam && bySlug.has(leftParam) && bySlug.has(rightParam)) {
+    leftSelect.value = leftParam;
+    rightSelect.value = rightParam;
+    setMode("pair");
+    renderPair();
+  } else if (reportParam && bySlug.has(reportParam)) {
+    baseSelect.value = reportParam;
+    setMode("similar");
+    renderSimilar();
+  }
+</script>
+
+<style>
+  .mode-switch { display: inline-flex; gap: 0.25rem; padding: 0.25rem; border: 1px solid #1e2733; border-radius: 0.55rem; background: #0e1219; }
+  .mode-button { padding: 0.6rem 0.9rem; border-radius: 0.35rem; color: #9ca3af; font-size: 0.78rem; transition: color 180ms ease, background 180ms ease; }
+  .mode-button:hover { color: white; }
+  .mode-button:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+  .mode-button.active { background: #17212b; color: #67e8f9; }
+  .workspace-panel { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid #1e2733; border-radius: 0.75rem; background: #0e1219; }
+  .selector-block { min-width: 0; }
+  .selector-block label { display: block; margin-bottom: 0.45rem; color: #d1d5db; font-size: 0.75rem; font-weight: 600; }
+  .selector-block p { margin-top: 0.45rem; color: #6b7280; font-size: 0.68rem; }
+  .report-select { width: 100%; min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid #273343; border-radius: 0.4rem; background: #0b0e14; color: #e5e7eb; font-size: 0.78rem; }
+  .report-select:focus { border-color: #22d3ee; outline: none; box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.16); }
+  .empty-state { margin-top: 1.25rem; padding: 3.5rem 1rem; border: 1px dashed #273343; border-radius: 0.55rem; color: #6b7280; text-align: center; font-size: 0.78rem; }
+  .similar-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1.25rem; }
+  :global(.similar-card) { display: flex; min-height: 13rem; flex-direction: column; padding: 1rem; border: 1px solid #1e2733; border-radius: 0.55rem; background: #0b0e14; }
+  :global(.similar-card-top) { display: grid; grid-template-columns: 3.25rem 1fr; gap: 0.8rem; align-items: start; }
+  :global(.similar-score) { color: #67e8f9; font-family: "JetBrains Mono", monospace; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+  :global(.institution) { color: #6b7280; font-size: 0.64rem; }
+  :global(.similar-title) { margin-top: 0.2rem; color: #f3f4f6; font-size: 0.82rem; font-weight: 600; line-height: 1.45; }
+  :global(.similar-summary) { margin: 0.8rem 0; color: #9ca3af; font-size: 0.72rem; line-height: 1.55; }
+  :global(.reason-list) { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  :global(.reason-tag) { padding: 0.18rem 0.38rem; border: 1px solid #273343; border-radius: 0.22rem; color: #9ca3af; background: #111821; font-size: 0.61rem; }
+  :global(.card-actions) { display: flex; align-items: center; gap: 0.8rem; margin-top: auto; padding-top: 0.9rem; }
+  :global(.action-link) { padding: 0.42rem 0.65rem; border-radius: 0.32rem; background: #155e75; color: #ecfeff; font-size: 0.68rem; font-weight: 600; transition: background 180ms ease, transform 180ms ease; }
+  :global(.action-link:hover) { background: #0e7490; }
+  :global(.action-link:active) { transform: scale(0.98); }
+  :global(.text-link) { color: #67e8f9; font-size: 0.68rem; }
+  :global(.text-link:hover) { text-decoration: underline; }
+  .pair-selectors { display: grid; grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr); gap: 0.75rem; align-items: end; }
+  .pair-mark { display: flex; height: 2.75rem; align-items: center; justify-content: center; color: #22d3ee; font-family: "JetBrains Mono", monospace; }
+  .similarity-summary { display: grid; grid-template-columns: 8rem 1fr; gap: 1rem; align-items: center; margin: 1.25rem 0 0.8rem; padding: 1rem; border: 1px solid #164e63; border-radius: 0.55rem; background: rgba(8, 145, 178, 0.08); }
+  .summary-label { display: block; color: #6b7280; font-size: 0.62rem; }
+  #pair-score { display: block; margin-top: 0.2rem; color: #67e8f9; font-family: "JetBrains Mono", monospace; font-size: 1.5rem; }
+  .comparison-table { overflow: hidden; border: 1px solid #1e2733; border-radius: 0.55rem; }
+  :global(.comparison-row) { display: grid; grid-template-columns: 8rem minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid #1e2733; }
+  :global(.comparison-row:last-child) { border-bottom: 0; }
+  :global(.comparison-label), :global(.comparison-cell) { padding: 0.8rem; white-space: pre-line; }
+  :global(.comparison-label) { background: #111821; color: #6b7280; font-family: "JetBrains Mono", monospace; font-size: 0.64rem; font-weight: 500; }
+  :global(.comparison-cell) { border-left: 1px solid #1e2733; color: #d1d5db; font-size: 0.72rem; line-height: 1.6; }
+  @media (max-width: 760px) {
+    .similar-grid { grid-template-columns: 1fr; }
+    .pair-selectors { grid-template-columns: 1fr; }
+    .pair-mark { height: auto; transform: rotate(90deg); }
+    .similarity-summary { grid-template-columns: 1fr; }
+    :global(.comparison-row) { grid-template-columns: 1fr; }
+    :global(.comparison-cell) { border-top: 1px solid #1e2733; border-left: 0; }
+  }
+</style>

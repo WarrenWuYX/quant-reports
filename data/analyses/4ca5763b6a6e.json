@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0",
+  "slug": "4ca5763b6a6e",
+  "source": {
+    "title": "【广发金工】2024精选深度报告系列之十五：集合竞价相关因子",
+    "institution": "广发",
+    "authors": [
+      "广发金融工程"
+    ],
+    "published": "2026-06-11",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/WF8jOpAM6urJ-_p1nxDN0A",
+    "local_path": "广发/【广发金工】2024精选深度报告系列之十五：集合竞价相关因子.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "高频·微观结构"
+    ],
+    "data_frequency": [
+      "逐笔(Level-2)",
+      "集合竞价"
+    ],
+    "factor_family": [
+      "资金流"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "统计线性"
+    ],
+    "custom_tags": [
+      "Level2数据",
+      "撤单比例",
+      "多路径回测"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "基于Level2逐笔订单数据构建集合竞价期间的成交与撤单比例因子，挖掘出具有显著选股能力的微观结构因子。",
+    "core_points": [
+      "利用Level2逐笔数据提取开盘/收盘集合竞价阶段的委托、成交、撤单信息",
+      "构建了15个集合竞价相关的微观结构因子",
+      "买单方向的成交/撤单比例因子和收盘集合竞价卖单成交比例因子表现较好",
+      "回测显示Top组合具有显著超额收益，且与主流大小单及Barra因子相关性低"
+    ],
+    "key_result": "买单成交比例因子(09:15~09:25) RankIC均值-10.10%，买单撤单比例因子(09:15~09:20) Top-30超额年化收益率达11.88%。"
+  },
+  "detailed": {
+    "core_content": "研报基于A股Level2逐笔订单数据，针对开盘集合竞价(09:15~09:25)和收盘集合竞价(14:57~15:00)的不同阶段特性，提取买单、卖单方向的委托、成交、撤单数据，构建了15个集合竞价相关因子。在深证A指成分股中，利用5日滚动均值，每20日换仓进行回测，实证表明部分因子具有显著的单调性和超额收益。",
+    "economic_logic": "集合竞价是全天交易的起点和终点，反映了主力资金或知情交易者的意图。09:15~09:20可撤单阶段，虚假挂单和撤单行为反映了市场操纵或试探情绪，买单撤单比例高意味着买盘支撑较弱，未来看空；09:20~09:25不可撤单阶段，成交比例反映了真实资金意图；收盘集合竞价卖单成交比例越大，说明主力资金在尾盘坚决出货，未来看空概率大。",
+    "construction": {
+      "type": "factor",
+      "data_inputs": [
+        {
+          "field": "订单时间",
+          "frequency": "逐笔Tick",
+          "source": "Level 2数据",
+          "preprocessing": "筛选特定时间段(如09:15:00-09:20:00)的数据"
+        },
+        {
+          "field": "订单类别(委托/成交/撤单)",
+          "frequency": "逐笔Tick",
+          "source": "Level 2数据",
+          "preprocessing": "区分买单与卖单方向"
+        },
+        {
+          "field": "订单数量/金额",
+          "frequency": "逐笔Tick",
+          "source": "Level 2数据",
+          "preprocessing": "按类别和方向加总"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2019年3月~2024年5月",
+        "benchmark": "深证A指",
+        "rebalance_freq": "每20个交易日",
+        "cost": "双边千分之三（卖出时收取）",
+        "grouping": "Top-K (K=30, 50, 100, 150, 200)"
+      },
+      "combination": "采用因子值的5日滚动均值作为最终因子值进行排序选股",
+      "parameters": [
+        {
+          "name": "回看天数",
+          "value": "5",
+          "meaning": "计算因子5日滚动均值"
+        },
+        {
+          "name": "持仓周期",
+          "value": "20",
+          "meaning": "每20个交易日换仓"
+        },
+        {
+          "name": "交易费率",
+          "value": "0.003",
+          "meaning": "卖出时收取双边千分之三手续费"
+        },
+        {
+          "name": "买入价格",
+          "value": "t+1日均价",
+          "meaning": "次日均价买入"
+        },
+        {
+          "name": "卖出价格",
+          "value": "t+21日均价",
+          "meaning": "21日后均价卖出"
+        }
+      ],
+      "factor_definition": "基础变量定义(针对个股每日特定时段T内)：\nBuy_Order_Vol_T = T时段内买单委托总数量\nSell_Order_Vol_T = T时段内卖单委托总数量\nBuy_Transaction_Vol_T = T时段内买单成交总数量\nSell_Transaction_Vol_T = T时段内卖单成交总数量\nBuy_Withdrew_Vol_T = T时段内买单撤单总数量\nSell_Withdrew_Vol_T = T时段内卖单撤单总数量\n\n因子定义示例：\n1. BuyTransaction_BuyOrder_ratio_09150920 (T=09:15~09:20)\n   = Buy_Transaction_Vol_T / Buy_Order_Vol_T\n   取5日滚动均值。\n\n2. BuyWithdrew_BuyOrder_ratio_09150920 (T=09:15~09:20)\n   = Buy_Withdrew_Vol_T / Buy_Order_Vol_T\n   取5日滚动均值。\n\n3. Transaction_Order_ratio_09200925 (T=09:20~09:25)\n   = (Buy_Transaction_Vol_T + Sell_Transaction_Vol_T) / (Buy_Order_Vol_T + Sell_Order_Vol_T)\n   取5日滚动均值。\n（注：T时段通过逐笔订单时间戳过滤，撤单订单通过Level2逐笔数据中的订单类别字段标识。）",
+      "processing_pipeline": [
+        "1. 数据获取：获取个股Level2逐笔订单数据，提取时间戳、订单类别(新增/成交/撤单)、方向(买/卖)、数量字段。",
+        "2. 时段过滤：按时间戳筛选特定时段(如09:15:00-09:20:00, 09:20:00-09:25:00, 14:57:00-15:00:00)的数据。",
+        "3. 变量计算：对每个时段，分别累加买单委托量、卖单委托量、买单成交量、卖单成交量、买单撤单量、卖单撤单量。",
+        "4. 因子计算：根据公式计算当日原始因子值，例如买单成交量 / 买单委托量。",
+        "5. 平滑处理：对当日原始因子值计算过去5个交易日的滚动均值。",
+        "6. 截面处理：对深证A指成分股(剔除摘牌、ST/*ST、涨跌停、上市未满一年)进行截面标准化或排序。",
+        "7. 组合构建：根据因子值排序选Top-K股票，t+1日均价买入，t+21日均价卖出。"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "集合竞价尤其是可撤单阶段(09:15~09:20)，由于允许撤单，往往存在大量虚假申报以试探市场或诱导跟风盘。买单撤单比例高说明买方支撑多为虚假，空头实质占优，预示未来下跌；收盘竞价(14:57~15:00)卖单成交比例高表明资金尾盘坚决卖出，预示次日或未来下跌。由于这些行为反映了知情交易者的真实意图或市场博弈结果，因此能有效预测未来收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "买单方向成交比例因子(09:15~09:25) RankIC均值",
+          "value": "-10.10%"
+        },
+        {
+          "name": "卖单方向成交比例因子(14:57~15:00) RankIC均值",
+          "value": "-9.60%"
+        },
+        {
+          "name": "BuyWithdrew_BuyOrder_ratio_09150920 Top-30超额年化收益率",
+          "value": "11.88%"
+        }
+      ],
+      "benchmark": "深证A指",
+      "backtest_period": "2019年3月~2024年5月",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "基于Level2逐笔订单构建了15个集合竞价因子。表现较好的买单方向和撤单因子20日平滑换仓RankIC均值在-5%至-10%之间，Top-30组合超额年化收益率最高达11.88%。与大小单因子及Barra风格因子相关性较低。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "研报未进行收益归因分析，仅统计了因子与大小单因子、长短单因子及Barra风格因子的相关性。",
+      "gap": "缺少因子收益归因分析"
+    },
+    "robustness": {
+      "subsample_stability": "回测区间长达5年(2019.3-2024.5)，跨越多种市场风格，因子整体表现出较稳定的负向RankIC，分档收益单调性良好。",
+      "style_bias": "与Barra风格因子相关性在-7%~29%之间，与大小单因子(-13%~11%)及长短单因子(-30%~30%)相关性较低，显示出高度的独立性和正交性。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子在长周期、多风格市场环境下表现稳健，且不依赖传统量价或微观结构因子，具备增量Alpha价值。"
+    },
+    "data_dependency": {
+      "data_required": "A股全市场Level 2逐笔订单数据(包含毫秒级时间戳、订单类别代码、买卖方向、价格、数量等)",
+      "reproducibility": "medium",
+      "summary": "依赖高质量的Level 2逐笔订单数据，需要较大的存储和计算资源进行逐笔聚合与时段筛选。逻辑明确，有中等复现难度。"
+    },
+    "prior_art": [
+      {
+        "method": "大小单因子/长短单因子",
+        "relation": "同为Level 2数据衍生的微观结构因子，但集合竞价因子聚焦特定时间段及委托/撤单/成交比例，相关性低，互补性强。"
+      },
+      {
+        "method": "Barra风格因子",
+        "relation": "传统风格因子，集合竞价因子与其相关性较低，可作为正交增量因子。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "利用Level2数据挖掘集合竞价特定时段(可撤单/不可撤单/收盘)的委托、成交、撤单比例，虽然所用的数据源常见，但组合特定时间段与特定行为(撤单/成交)构建的微观逻辑具有一定新颖性。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "仅展示了深证A指成分股的回测结果，虽提到覆盖沪深全市场，但未给出全市场实证数据。",
+      "因子定义缺乏完整的公式列表，部分因子构造逻辑只能靠因子名称推断。",
+      "回测使用多路径均值，但未说明多路径的具体构建方式，可能存在路径优化。",
+      "未进行收益归因分析，不清楚超额收益的具体来源。",
+      "对于09:20-09:25双向成交比例因子，RankIC为负且看空，但缺乏经济学逻辑解释。"
+    ],
+    "useful_elements": [
+      "基于集合竞价可撤单与不可撤单时段划分数据的思路非常实用。",
+      "撤单比例和成交比例的构建方式简洁有效。",
+      "利用5日滚动均值平滑微观结构噪音，提升因子稳定性的处理手段。",
+      "回测框架(双边千三费用、T+1均价买入、T+21均价卖出、次新ST剔除)规范严谨。"
+    ],
+    "inspirations": [
+      "集合竞价阶段的行为特征包含丰富的主力资金意图，可以通过对Level 2数据的时段拆分构建更多微观结构因子。",
+      "撤单行为是衡量市场情绪和虚假挂单的优良指标，可推广至连续竞价阶段的特定时段。",
+      "买卖盘力量的不对称性（如买单撤单vs卖单撤单，买单成交vs卖单成交）对未来股价具有显著预测力。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "引入委托价格偏离度构建相似逻辑的因子",
+        "based_on": "买单撤单/成交比例因子",
+        "expected_gain": "单纯数量比例未考虑价格意图，可计算撤单委托价格与最终成交价的偏离度，偏离度越大的撤单越可能是虚假挂单，预期可提升对虚假交易的捕捉精度，增加RankIC绝对值。"
+      }
+    ],
+    "replication_plan": "1. 获取2019.3-2024.5期间深证A指成分股的Level2逐笔订单数据。\n2. 编写解析脚本，提取每笔订单的时间戳、类别(新增、成交、撤单)、方向(买、卖)、价格、数量。\n3. 按时间戳划分四个时段：09:15-09:20，09:20-09:25，09:15-09:25，14:57-15:00。\n4. 统计各时段内买单委托量、卖单委托量、买单成交量、卖单成交量、买单撤单量、卖单撤单量。\n5. 按推断公式计算15个原始因子值，并计算5日滚动均值。\n6. 剔除ST、涨跌停、次新股，进行截面标准化。\n7. 按20日频率换仓，取Top-30至Top-200，使用t+1均价买入，t+21均价卖出，双边扣费千三进行回测，核对RankIC及超额年化收益。"
+  },
+  "entities": [
+    {
+      "name": "BuyTransaction_BuyOrder_ratio_09150920",
+      "type": "factor"
+    },
+    {
+      "name": "BuyWithdrew_BuyOrder_ratio_09150920",
+      "type": "factor"
+    },
+    {
+      "name": "Transaction_Order_ratio_09200925",
+      "type": "factor"
+    },
+    {
+      "name": "Level 2数据",
+      "type": "dataset"
+    },
+    {
+      "name": "深证A指成分股",
+      "type": "dataset"
+    },
+    {
+      "name": "集合竞价因子",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

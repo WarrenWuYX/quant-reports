@@ -1,0 +1,305 @@
+{
+  "schema_version": "1.0",
+  "slug": "0f109e28c542",
+  "source": {
+    "title": "即插即用LLM因子挖掘：MMR、RAG与自反馈机制",
+    "institution": "国金",
+    "authors": [
+      "高智威"
+    ],
+    "published": "2026-05-13",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=MzkzNTIxNTkzMA==&mid=2247521935&idx=1&sn=471bcc98a8a44b7af6a4d705be793e7c&chksm=c2b380daf5c409cc6242500bfd02e168b89981c3622908e094c25af30012b521f54af824e29a&scene=178&cur_album_id=2675772689629904900&search_click_id=#rd",
+    "local_path": "国金/即插即用LLM因子挖掘：MMR、RAG与自反馈机制.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [],
+    "asset_class": [
+      "A股",
+      "指数增强"
+    ],
+    "method": [
+      "树模型",
+      "知识图谱·RAG"
+    ],
+    "custom_tags": [
+      "LLM因子挖掘",
+      "MMR",
+      "自反馈机制",
+      "DeepSeek-R1"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "提出基于MMR、RAG与自反馈机制的即插即用LLM因子挖掘框架，通过模块化迭代提升因子质量与多样性，在全A及宽基指增策略中表现优异。",
+    "core_points": [
+      "模块化框架：包含MMR相关性筛选、RAG现有因子库启发、反思机制自适应反馈，支持灵活组合。",
+      "LLM驱动：采用DeepSeek-R1满血版API，结合近30个量价算子，生成高可解释性因子表达式。",
+      "合成与增强：LLM因子与Alpha158因子互补（相关性0.66），利用LightGBM合成，显著提升指增策略超额收益。"
+    ],
+    "key_result": "全A组合IC提升至14.26%，多空年化64.23%；沪深300、中证500、中证1000指增年化超额分别为7.64%、9.97%、12.98%，IR均超1.6。"
+  },
+  "detailed": {
+    "core_content": "研报构建了一个模块化的LLM因子挖掘框架，旨在解决传统自动化挖掘（如遗传规划）可解释性差以及现有LLM挖掘因子相关性高、创新与经验不平衡、反馈单一等问题。框架通过随机生成初始因子，利用MMR算法平衡因子IC与多样性进行筛选。随后迭代调用随机改进、RAG启发改进（检索Alpha158因子库）和反思改进（构建idea pool并检索Top-5相关经验）模块优化因子，每步改进后均接入MMR控制相关性。最终保留89个因子，与Alpha158因子结合使用LightGBM合成训练，应用于全A选股及宽基指数增强策略。",
+    "economic_logic": "传统量价因子往往面临衰减和拥挤问题，LLM具备强大的逻辑推理和泛化能力，能够在人类专家经验（Alpha158等）的基础上探索出非线性和新颖的因子组合。RAG机制使得生成的因子不脱离已有金融逻辑，而反思机制和MMR分别从时间维度（迭代改进经验）和截面维度（因子正交性）保证了因子的有效性和独立性，从而在资产定价中提供增量的Alpha信息。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "开盘价(open)",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "最高价",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "最低价",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "收盘价",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "均价",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "成交量",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "成交额",
+          "frequency": "日频",
+          "source": "未明确(常规行情数据库)",
+          "preprocessing": "对齐时间轴，缺失值处理"
+        },
+        {
+          "field": "未来20日收益率",
+          "frequency": "日频",
+          "source": "计算生成",
+          "preprocessing": "作为LLM因子评估与LightGBM训练的标签"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2015-01-01至2025-04-30",
+        "benchmark": "沪深300、中证500、中证1000",
+        "rebalance_freq": "未明确(推测为月频或双周频，因目标收益为未来20日)",
+        "cost": "未明确提及具体交易成本设置",
+        "grouping": "未明确提及分组回测，主要展示合成因子表现"
+      },
+      "combination": "LLM挖掘的89个因子与微软Qlib的Alpha158因子库利用LightGBM进行合成，等权或加权合成以优化指标。",
+      "parameters": [
+        {
+          "name": "保留因子数量",
+          "value": "80-100 (最终89)",
+          "meaning": "每轮MMR后保留的因子规模"
+        },
+        {
+          "name": "MMR权重参数λ",
+          "value": "0-1之间",
+          "meaning": "权衡因子IC相关性与多样性，控制因子库正交性"
+        },
+        {
+          "name": "Idea检索数量",
+          "value": "5",
+          "meaning": "反思机制中从idea pool中检索最相关的改进经验条数"
+        },
+        {
+          "name": "未来收益预测周期",
+          "value": "20日",
+          "meaning": "因子评估与模型训练的目标收益率标签"
+        },
+        {
+          "name": "LLM模型",
+          "value": "DeepSeek-R1 满血版API",
+          "meaning": "负责因子公式生成、分析、反思与改进的推理引擎"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [
+        "1. 初始化生成：基于日频量价数据和近30个算子(截面和时序)，由LLM随机生成初始因子表达式。",
+        "2. MMR筛选：计算因子IC和Spearman相关性，根据公式MMR(fi)=λ*IC(fi)-(1-λ)*max(Rel(fi,fj))筛选因子构成初始库。",
+        "3. 随机/RAG启发改进：LLM随机调整算子，或使用Embedding将因子公式编码并在Faiss中检索Alpha158最相似因子，LLM分析差异后改进。",
+        "4. 评估与反思：对比改进前后因子IC，将表达式、解释、IC输入LLM，LLM反思表现变化原因，存入idea pool。",
+        "5. 反思改进：对待优化因子，检索idea pool中Top-5相关反思经验，指导LLM进行新一轮改进。",
+        "6. 迭代与最终筛选：重复改进与MMR筛选，最终保留89个有效且低相关的因子。",
+        "7. 模型合成：将89个LLM因子与Alpha158因子拼接，使用LightGBM预测未来20日收益率，输出合成因子值。"
+      ],
+      "model_architecture": "基于模块化LLM的因子挖掘框架 + LightGBM合成模型。1) LLM生成模块：DeepSeek-R1；2) 向量检索单元：LLM Embedding模型 + Faiss向量数据库；3) 反馈单元：Idea Pool构建与检索；4) 筛选单元：MMR算法；5) 合成模型：LightGBM树模型。",
+      "inputs": [
+        "日频OHLCV、Vwap、Amount数据",
+        "Alpha158因子库",
+        "Idea Pool反思经验库"
+      ],
+      "outputs": "89个LLM挖掘的因子表达式及计算值，以及最终LightGBM输出的合成因子值",
+      "training": "使用2015-2025年日频数据，以未来20日收益率为标签，利用LightGBM对LLM因子与Alpha158因子的拼接特征进行监督学习训练。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "LLM因子挖掘框架结合了人类专家难以穷尽的非线性量价组合能力与逻辑推理能力。通过RAG汲取Alpha158的成功经验，确保因子符合金融逻辑；通过反思机制建立自适应反馈闭环，使得模型能够'学习'过去的成功与失败经验；通过MMR控制相关性，避免了因子同质化。这种机制挖掘出的因子不仅具有可解释性，且与传统因子相关性低（0.66），提供了传统量化方法难以覆盖的增量Alpha信息。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "全A组合IC",
+          "value": "14.26%"
+        },
+        {
+          "name": "全A多空年化收益",
+          "value": "64.23%"
+        },
+        {
+          "name": "沪深300指增年化超额",
+          "value": "7.64%"
+        },
+        {
+          "name": "中证500指增年化超额",
+          "value": "9.97%"
+        },
+        {
+          "name": "中证1000指增年化超额",
+          "value": "12.98%"
+        },
+        {
+          "name": "信息比率",
+          "value": ">1.6"
+        },
+        {
+          "name": "跟踪误差",
+          "value": "3.92%-6.20%"
+        },
+        {
+          "name": "最大回撤",
+          "value": "5.03%-8.83%"
+        }
+      ],
+      "benchmark": "沪深300、中证500、中证1000",
+      "backtest_period": "2015-01-01至2025-04-30",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "LLM挖掘因子结合Alpha158因子利用LightGBM合成，全A组合多空年化收益达64.23%，各宽基指数增强策略年化超额收益在7.64%至12.98%之间，信息比率均超1.6，且策略在跟踪误差和回撤控制方面表现稳健。"
+    },
+    "attribution": {
+      "done": true,
+      "method": "相关性控制(MMR)与反思机制",
+      "summary": "通过MMR算法在因子相关性和多样性间取得平衡，利用RAG机制检索现有因子库进行启发式改进，并通过反思机制将改进经验存入idea pool形成自适应反馈，动态调整挖掘策略。",
+      "gap": "归因主要依赖于因子表现的统计提升和相关性的数学控制，缺乏对挖掘出的因子背后更深层次经济逻辑和基本面驱动因素的深度剖析。"
+    },
+    "robustness": {
+      "subsample_stability": "在沪深300、中证500、中证1000不同市值的宽基指数上均取得正向超额，说明因子在不同市值分层中具备一定的普适性。",
+      "style_bias": "未明确分析具体的风格暴露，但由于LLM因子多基于量价数据生成，推测对动量、波动率等量价风格有一定暴露。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "策略在跟踪误差（3.92%-6.20%）和回撤（5.03%-8.83%）控制上表现稳健，不同宽基指数IR均超1.6，具备较好的样本外稳定性和实盘可用性。"
+    },
+    "data_dependency": {
+      "data_required": "日频OHLCV、Vwap、Amount量价数据；Alpha158因子库公式及数据；DeepSeek-R1 API及Embedding模型服务。",
+      "reproducibility": "medium",
+      "summary": "输入数据为基础量价数据，获取容易，算法逻辑清晰。但复现难点在于：1) LLM生成的随机性导致结果难以精确一致；2) 需调用商用DeepSeek-R1满血版API，成本较高；3) 近30个算子定义未完全在文中列出；4) Prompt工程细节未完全公开。"
+    },
+    "prior_art": [
+      {
+        "method": "遗传规划(GP)因子挖掘",
+        "relation": "对比方法。GP覆盖空间广但可解释性差，LLM框架通过自然语言解释弥补了这一痛点。"
+      },
+      {
+        "method": "OpenFE框架",
+        "relation": "对比方法。OpenFE采用'先扩张后缩减'的机器学习批量生成，LLM则利用推理能力逐个生成与改进。"
+      },
+      {
+        "method": "微软Qlib Alpha158",
+        "relation": "基础与启发。Alpha158作为成熟的因子库，不仅作为合成模型的部分输入，还作为RAG检索的参考知识库指导LLM改进。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "创新点在于将LLM因子挖掘过程模块化，首次将推荐系统中的MMR算法应用于因子相关性控制，并结合RAG机制引入既有金融知识库，更重要的是设计了基于反思机制的自适应Idea Pool，实现了类似人类研究员经验的积累与调用，解决了LLM挖掘因子容易陷入随机游走和同质化的问题。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "未公开LLM具体的Prompt设计模板，这是LLM因子挖掘复现的核心黑盒。",
+      "近30个截面和时序算子未给出完整列表，无法精确复现因子生成空间。",
+      "LLM大模型生成具有随机性，每次运行挖掘出的89个因子可能不同，策略稳定性存疑。",
+      "依赖DeepSeek-R1满血版API，挖掘与反思过程调用频繁，实际运算成本与耗时较高，未探讨7x24小时运行的成本效益比。",
+      "未对挖掘出的LLM因子进行深度的风格归因分析，无法确认超额收益是否源于未知风险溢价。"
+    ],
+    "useful_elements": [
+      "MMR应用于因子筛选的公式设计：有效平衡了单因子预测能力(IC)与因子库多样性的矛盾，可直接复用。",
+      "基于Faiss的因子表达式向量检索RAG机制：为将静态因子库转化为动态生成指导提供了可行路径。",
+      "Idea Pool反思机制：将因子改进前后的表现变化输入LLM提炼经验，为量化研究引入了'元学习'思想，高度创新且可落地。"
+    ],
+    "inspirations": [
+      "不仅因子公式可以做RAG检索，金融研报文本、新闻事件也可以通过类似机制向量化，让LLM在生成量价因子时参考基本面逻辑。",
+      "反思机制可以进一步扩展为Agent架构，让LLM自主决定何时调用RAG、何时调用反思经验，甚至自主编写Python代码回测因子。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "引入研报文本RAG与多模态因子挖掘",
+        "based_on": "现有RAG机制仅局限于检索Alpha158等量价公式库。可构建金融研报语料库的向量库，在LLM生成或改进因子时，检索相关的研究逻辑（如'量价齐升'、'尾盘异常成交'等描述），让LLM将自然语言逻辑转化为量价算子组合。",
+        "expected_gain": "提升因子的经济学逻辑深度，挖掘出更具基本面支撑的非线性量价因子，进一步降低与传统量价因子的相关性，预期IC提升10%-15%。"
+      }
+    ],
+    "replication_plan": "1) 收集全A股日频OHLCV数据；2) 利用Qlib生成Alpha158因子库并提取公式文本；3) 使用Embedding模型将公式文本向量化并存入Faiss；4) 设计DeepSeek-R1的系统Prompt，包含近30个算子定义和输出格式约束；5) 编写Python调度脚本，实现'LLM生成->公式解析计算->计算IC与MMR打分->RAG检索改进->反思生成->Idea Pool存储'的闭环；6) 迭代生成约90个因子；7) 使用LightGBM将LLM因子与Alpha158合成，设定未来20日收益率为标签；8) 按沪深300、中证500、中证1000成分股进行指数增强回测，设置月频调仓。"
+  },
+  "entities": [
+    {
+      "name": "高智威",
+      "type": "person"
+    },
+    {
+      "name": "DeepSeek-R1",
+      "type": "model"
+    },
+    {
+      "name": "MMR",
+      "type": "method"
+    },
+    {
+      "name": "RAG",
+      "type": "method"
+    },
+    {
+      "name": "LightGBM",
+      "type": "model"
+    },
+    {
+      "name": "Alpha158",
+      "type": "dataset"
+    },
+    {
+      "name": "自反馈机制",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

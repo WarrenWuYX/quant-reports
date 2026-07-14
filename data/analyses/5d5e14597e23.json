@@ -1,0 +1,223 @@
+{
+  "schema_version": "1.0",
+  "slug": "5d5e14597e23",
+  "source": {
+    "title": "【广发金工】从知识库到知识图谱：DeepSeek&GraphRAG",
+    "institution": "广发",
+    "authors": [
+      "安宁宁"
+    ],
+    "published": "2026-06-11",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/YEbVTTW_pk_ulS0mtp0Wwg",
+    "local_path": "广发/【广发金工】从知识库到知识图谱：DeepSeek&GraphRAG.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习",
+      "基本面"
+    ],
+    "data_frequency": [
+      "财务(低频)"
+    ],
+    "factor_family": [],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "知识图谱·RAG"
+    ],
+    "custom_tags": [
+      "DeepSeek",
+      "大模型",
+      "GraphRAG",
+      "金融知识图谱",
+      "本地化部署"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "广发金工详述了DeepSeek本地化部署流程，并结合微软开源GraphRAG框架与DeepSeek-R1模型，在金融研报数据上构建金融知识图谱，实现投研实体关系的有效梳理。",
+    "core_points": [
+      "使用Ollama框架快速本地部署DeepSeek模型并给出显存估算公式M=((P*4)/(32/Q))*1.2",
+      "介绍GraphRAG流程及检索模式，克服传统RAG无法全局关联实体与复杂推理的缺点",
+      "基于微软开源GraphRAG与DeepSeek-R1，将金融研报转化为知识图谱，有效梳理公司并购关系与投资逻辑"
+    ],
+    "key_result": "测试表明，GraphRAG生成的社区报告和实体关系表能准确无误地呈现研报关键信息，适合后续投研筛选处理工作。"
+  },
+  "detailed": {
+    "core_content": "本文主要介绍了如何使用Ollama在本地部署DeepSeek大模型，以及如何使用微软开源的GraphRAG框架结合大模型从金融研报中提取实体、构建知识图谱并生成社区摘要，解决传统RAG难以处理全局关系和复杂推理的问题。",
+    "economic_logic": "投研文本数据中蕴含丰富的实体关联（公司、产品、人物等），通过GraphRAG将其结构化为知识图谱，降低信息检索遗漏，提升投研决策的信息完备度与准确性。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "金融研报文本",
+          "frequency": "不定期",
+          "source": "外部研究报告（传媒游戏板块、计算机个股等）",
+          "preprocessing": "文本单元切分"
+        }
+      ],
+      "backtest_setup": {
+        "period": "",
+        "benchmark": "",
+        "rebalance_freq": "",
+        "cost": "",
+        "grouping": ""
+      },
+      "combination": "使用 DeepSeek-R1 作为 LLM 进行实体关系提取与生成，结合微软 GraphRAG 框架与 Leiden 算法进行层次聚类",
+      "parameters": [
+        {
+          "name": "显存估算公式",
+          "value": "M = ((P * 4) / (32 / Q)) * 1.2",
+          "meaning": "P为模型参数量，Q为参数精度，M为所需显存(GB)"
+        },
+        {
+          "name": "Ollama默认端口",
+          "value": "11434",
+          "meaning": "本地模型调用端口"
+        },
+        {
+          "name": "API Base Url",
+          "value": "http://localhost:11434/v1",
+          "meaning": "供其他应用调用本地Ollama模型的接口地址"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [
+        "1. 本地部署大模型：使用Ollama下载并运行DeepSeek模型，配置API接口(base_url: http://localhost:11434/v1)",
+        "2. 文本单元切分：将输入的研报文本切割为可分析的Text Units",
+        "3. 实体与关系提取：DeepSeek模型从Text Units中提取实体、关系和关键声明",
+        "4. 实体消解：合并代表同一实体但名称不同的节点",
+        "5. 图构建与聚类：使用Leiden算法对实体进行层次化聚类，构建知识图谱",
+        "6. 社区总结：自底向上生成每个社区及其成员的总结报告",
+        "7. 检索查询：通过全局搜索、局部搜索或DRIFT搜索进行提问回答"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "无直接的超额收益量化逻辑，但通过提升投研信息检索的全面性和准确性（特别是产业链上下游、公司并购关系等复杂实体网络），辅助投资决策，间接提升研究转化效率。",
+    "performance": {
+      "metrics": [],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "无量化回测。报告主要介绍DeepSeek本地部署方法及基于微软开源GraphRAG与DeepSeek-R1结合构建金融知识图谱的实践，测试表明模型在梳理公司关系和投资逻辑方面回答质量较高。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "未涉及收益归因分析"
+    },
+    "robustness": {
+      "subsample_stability": "高度依赖大语言模型自身的提取能力及文本质量",
+      "style_bias": "对长逻辑链和复杂关联文本提取效果较好，简单事件提取无显著偏向",
+      "turnover": null,
+      "capacity": null,
+      "summary": "系统稳定性受限于大模型上下文窗口限制和文本语料质量，若文本本身具有误导性或遗漏，会直接影响图谱准确性。"
+    },
+    "data_dependency": {
+      "data_required": "金融研报文本、DeepSeek模型权重",
+      "reproducibility": "easy",
+      "summary": "可通过pip install graphrag及Ollama部署DeepSeek快速复现，文本数据无特殊数据源要求，常规公开研报即可。"
+    },
+    "prior_art": [
+      {
+        "method": "Langchain RAG",
+        "relation": "GraphRAG是对传统RAG的扩展，解决了RAG基于文本块检索无法处理全局与复杂实体关系的缺陷。"
+      },
+      {
+        "method": "DB-GPT (蚂蚁)",
+        "relation": "类似架构，均通过LLM提取三元组写入图库，并利用子图遍历生成答案，本文为微软版GraphRAG在金融场景的实践。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将最新开源的DeepSeek-R1模型与微软GraphRAG框架结合，并落地于金融二级市场投研（研报梳理）场景，属于前沿工具的早期实践应用组合。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "无量化回测，缺乏基于知识图谱构建的具体量化选股策略与收益验证",
+      "大模型提取实体和关系存在幻觉风险，图谱准确性难以量化评估",
+      "构建知识图谱（尤其是全局索引）的Token成本依然较高，增量更新机制在金融高频数据下的效果未验证"
+    ],
+    "useful_elements": [
+      "大模型本地化部署的显存估算公式",
+      "GraphRAG的完整构建Pipeline和部署命令（如ollama、graphrag init等）",
+      "金融实体关系分类（机构、产品、人物、行业及对应关系）",
+      "GraphRAG的工作流程及相比传统RAG的优势点剖析"
+    ],
+    "inspirations": [
+      "知识图谱能有效捕捉投研实体间的复杂网络，可用于产业链传导分析或事件驱动策略的股票溢出标的寻找",
+      "利用GraphRAG的图聚类算法可以将股票按业务实际关联（而非简单行业分类）进行动态聚类，构建新型关联因子",
+      "增量索引机制可用于财报季高频更新企业关联关系，捕捉基本面边际变化"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "利用GraphRAG提取的实体关系网络，结合K线波动率/收益率相关性，构建事件驱动型因子（如'供应链网络中心度因子'）",
+        "based_on": "GraphRAG实体和关系提取",
+        "expected_gain": "将非结构化文本知识图谱转化为可量化的关联度因子，预测供应链核心/节点公司的收益表现，提供全新Alpha源"
+      }
+    ],
+    "replication_plan": "1. 硬件准备：依据公式M=((P*4)/(32/Q))*1.2准备足够显存的GPU。\n2. 环境部署：安装Ollama并运行 `ollama run deepseek-r1:14b`；安装Python库 `pip install graphrag`。\n3. 项目初始化：创建 `./ragtest/input` 目录，运行 `graphrag init --root ./ragtest`，修改 `settings.yaml` 中的 API Key 和 Base URL 指向本地Ollama端口。\n4. 数据准备：准备几篇个股或行业研报txt放入input目录。\n5. 构建图谱：运行 `graphrag index --root ./ragtest` 自动进行切分、实体提取和社区聚类。\n6. 测试验证：使用 `graphrag query` 进行局部或全局搜索，测试公司并购关系、产业链上下游等投研问题的回答情况。"
+  },
+  "entities": [
+    {
+      "name": "DeepSeek-R1",
+      "type": "model"
+    },
+    {
+      "name": "DeepSeek-V3",
+      "type": "model"
+    },
+    {
+      "name": "GraphRAG",
+      "type": "method"
+    },
+    {
+      "name": "RAG",
+      "type": "method"
+    },
+    {
+      "name": "Langchain",
+      "type": "model"
+    },
+    {
+      "name": "Ollama",
+      "type": "model"
+    },
+    {
+      "name": "Leiden算法",
+      "type": "method"
+    },
+    {
+      "name": "DB-GPT",
+      "type": "model"
+    },
+    {
+      "name": "FR2KG",
+      "type": "dataset"
+    },
+    {
+      "name": "知识图谱",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

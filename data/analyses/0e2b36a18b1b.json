@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "slug": "0e2b36a18b1b",
+  "source": {
+    "title": "Harness Engineering：构建自主进化的金融Agent | 国联民生金工",
+    "institution": "国联民生",
+    "authors": [
+      "叶尔乐"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=MzkzNzQyMDg5Nw==&mid=2247510723&idx=1&sn=0b4f00722535aab57f212189855abb1f&chksm=c28d5bcdf5fad2dba3a238000b958e571d6c9797a5df532aa0be1a047801e9ae078cc05b2819&scene=178&cur_album_id=2741365540920967171&search_click_id=#rd",
+    "local_path": "国联民生/Harness Engineering：构建自主进化的金融Agent  国联民生金工.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [
+      "动量",
+      "反转"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "知识图谱·RAG",
+      "深度学习"
+    ],
+    "custom_tags": [
+      "Agent",
+      "Harness Engineering",
+      "Wyckoff",
+      "GEPA",
+      "LLM"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 5,
+    "reusability": 3
+  },
+  "concise": {
+    "one_liner": "基于Harness Engineering思想，构建了包含预测、批判、反思、进化四个子Agent的威科夫技术分析Agent，实现自主进化的金融投研决策。",
+    "core_points": [
+      "Harness Engineering是提升Agent可靠性的核心，包含Agent Loop、记忆、优化、熵管理四大模块",
+      "构建Wyckoff Agent，通过Predictor、Critic、Reflector、Evolver实现预测-批判-反思-进化闭环",
+      "引入GEPA算法，用自然语言反思替代标量奖励信号，让Agent明白为何失败",
+      "Agent能自适应学习不同股票特征（银行股均值回复，科技股趋势跟随）"
+    ],
+    "key_result": "Agent在银行股上快速学到短期均值回复特征，在科技股上学到趋势跟随逻辑，验证了Agent Learning范式在金融任务中的适用性。"
+  },
+  "detailed": {
+    "core_content": "报告系统阐述了Harness Engineering的概念及四大核心模块（Agent Loop、Agent记忆、Agent优化、Agent熵管理），并基于此构建了可自主进化的Wyckoff Agent。系统通过Predictor、Critic、Reflector、Evolver四个子Agent结构化JSON协作，以程序化的威科夫分析快照作为客观内核，以情境记忆与GEPA反思式提示词进化作为可迭代的软外壳，并配套笔记冲突解决、压缩合并、跨股票权重、笔记吸收等多重熵管理机制保证进化的有序收敛。",
+    "economic_logic": "技术分析的本质是用标准模型动态解读不标准市场并推演未来。由于市场存在变种，需加入演绎和联想进行经验积累。但纯主观分析存在回看归因和自利偏差。通过Agent系统，将主观逻辑判断与客观评价标准结合，通过自动反馈与修正（反思式进化）克服主观偏差，实现经验的有效积累和策略的动态适配，从而捕捉不同情境下的市场Pattern。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "威科夫形态快照",
+          "frequency": "日频",
+          "source": "A股行情数据",
+          "preprocessing": "程序化计算市场阶段、阶段概率、点数图目标、波浪、事件等，生成纯文本字符串"
+        },
+        {
+          "field": "未来股票实际表现",
+          "frequency": "日频",
+          "source": "A股行情数据",
+          "preprocessing": "用于Critic Agent评价预测准确性"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未明确",
+        "benchmark": "未明确",
+        "rebalance_freq": "未明确",
+        "cost": "未明确",
+        "grouping": "按行业/股票独立进化（如银行、科技）"
+      },
+      "combination": "四个子Agent通过结构化JSON协作，形成闭环",
+      "parameters": [
+        {
+          "name": "Wyckoff快照内容",
+          "value": "市场阶段、阶段概率、点数图目标、最近波浪、最近威科夫事件",
+          "meaning": "作为Predictor的客观输入"
+        },
+        {
+          "name": "熵管理机制",
+          "value": "笔记冲突解决、压缩合并、跨股票权重、笔记吸收",
+          "meaning": "保证进化的有序收敛，避免系统腐化"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [],
+      "model_architecture": "四子Agent架构：1.Predictor（基于Wyckoff快照预测未来方向）；2.Critic（查看未来实际表现，对预测进行文字和打分评价）；3.Reflector（总结错误判断原因，采用GEPA算法阅读执行轨迹、定位根因、生成改进提示词）；4.Evolver（根据诊断报告修正和进化预测器）。通过结构化JSON协作。",
+      "inputs": [
+        "Wyckoff形态快照(纯文本字符串)",
+        "历史预测与实际表现轨迹",
+        "当前Prompt/笔记记忆"
+      ],
+      "outputs": "方向性预测判断、反思诊断报告、进化后的策略提示词",
+      "training": "采用GEPA反思式提示词进化算法替代标量奖励。积累足够多预测+批判后，Reflector阅读执行轨迹定位失败根因生成改进提示词，经验证集回测与新旧策略融合后确认进化。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过AI Agent的自适应学习能力，捕捉不同股票在不同市场环境下的特定模式（如银行股的短期均值回复、科技股的趋势跟随），这种根据情境动态切换或学习交易逻辑的灵活性是静态规则难以实现的，从而产生超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "银行股进化效果",
+          "value": "学到短期均值回复特征"
+        },
+        {
+          "name": "科技股进化效果",
+          "value": "学到趋势跟随逻辑"
+        }
+      ],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "定性验证了Agent在股票上的自适应学习能力，缺乏具体量化回测指标。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "报告侧重于Agent架构设计与思想探讨，未进行收益归因分析。",
+      "gap": "未提及策略的收益归因与风险拆解。"
+    },
+    "robustness": {
+      "subsample_stability": "具备情境敏感性，不同股票（如银行vs科技）进化出不同特征逻辑，说明其针对不同子样本有自适应能力。",
+      "style_bias": "倾向于捕捉均值回复或趋势跟随等特定技术形态的动量或反转风格。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "通过GEPA反思式进化与熵管理机制（如笔记冲突解决、压缩合并等），确保进化的有序收敛，避免系统熵增导致性能下降，具有一定的鲁棒性。"
+    },
+    "data_dependency": {
+      "data_required": "威科夫技术分析形态快照、股票历史行情数据、LLM执行轨迹",
+      "reproducibility": "hard",
+      "summary": "威科夫快照依赖复杂的形态计算和量化表达，GEPA进化算法和多Agent协作涉及大量提示词工程和LLM调用，复现门槛较高。"
+    },
+    "prior_art": [
+      {
+        "method": "GEPA (Stanford NLP)",
+        "relation": "作为反思式提示词进化算法，替代传统强化学习标量奖励，用自然语言反思优化Agent"
+      },
+      {
+        "method": "Meta-Harness (Stanford & MIT)",
+        "relation": "提供AI自动优化Harness的思路，诊断信息比分数更重要"
+      },
+      {
+        "method": "Hermes-Agent",
+        "relation": "提供自我进化闭环和熵管理（如Hermes Curator清理机制）的设计参考"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "将大模型领域的Harness Engineering、Agent自进化机制（GEPA、Meta-Harness等）与金融技术分析（Wyckoff）深度结合，提出了一种“主观逻辑判断+客观Harness评价与进化”的Agent Learning新范式，区别于传统量化梯度下降范式。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "报告缺乏具体量化回测指标（如收益率、夏普比率等），仅为定性验证",
+      "复现难度极高，威科夫快照的生成、多Agent的提示词工程、GEPA进化的具体参数均未完全披露",
+      "过度依赖大模型推理能力，可能带来较高的计算成本和延迟",
+      "回测周期及样本未明，进化是否会导致过拟合历史噪音存疑"
+    ],
+    "useful_elements": [
+      "Harness Engineering四大模块设计框架（Loop、记忆、优化、熵管理）",
+      "GEPA反思式提示词进化算法在金融预测中的应用",
+      "“预测-批判-反思-进化”的四Agent闭环架构",
+      "熵管理（冲突解决、压缩合并）在自进化系统中的重要性"
+    ],
+    "inspirations": [
+      "Agent Learning范式可作为传统量化策略开发的有效补充，尤其适用于Pattern显著但情境敏感的金融任务",
+      "用自然语言反思替代标量奖励，能提供更丰富的诊断信息，利于针对性优化",
+      "进化与清理的孪生设计是保持系统长期有效性的关键"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于量价微观结构特征构建多模态快照Agent",
+        "based_on": "当前使用Wyckoff形态快照作为Predictor输入",
+        "expected_gain": "将快照从纯文本扩展为包含订单簿失衡、成交量分布等多模态数据，或能提升高频/日内场景下的预测精度"
+      },
+      {
+        "idea": "引入跨资产横截面对比机制",
+        "based_on": "当前Agent主要针对个股的时间序列进行预测和进化",
+        "expected_gain": "利用同行业或相关资产的Wyckoff阶段对比，可能提升对主力资金轮动判断的准确性"
+      }
+    ],
+    "replication_plan": "1. 复现Wyckoff形态量化识别算法，生成日频快照文本；2. 搭建四子Agent框架，使用LangChain或类似框架编排Predictor、Critic、Reflector、Evolver；3. 设计GEPA提示词模板，定义Critic评价标准和Reflector反思逻辑；4. 选取银行和科技股样本进行前向测试，记录预测轨迹与Evolver输出；5. 对比进化前后的预测胜率及收益表现，并验证熵管理机制效果。"
+  },
+  "entities": [
+    {
+      "name": "Wyckoff Agent",
+      "type": "method"
+    },
+    {
+      "name": "Harness Engineering",
+      "type": "concept"
+    },
+    {
+      "name": "GEPA",
+      "type": "method"
+    },
+    {
+      "name": "Meta-Harness",
+      "type": "method"
+    },
+    {
+      "name": "Hermes-Agent",
+      "type": "method"
+    },
+    {
+      "name": "Wyckoff技术分析",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
+import { rankSimilar } from "../../lib/similarity";
 
 export async function getStaticPaths() {
   const analyses = await getCollection("analyses");
@@ -20,6 +21,9 @@ const cls = d.classification;
 const det = d.detailed;
 const ct = d.critical;
 const hasConstruction = det.construction && Object.values(det.construction).some(v => v !== null && v !== undefined && (!Array.isArray(v) || v.length > 0));
+
+const otherOk = analyses.filter((x: any) => x.data.slug !== slug && x.data.status === "ok");
+const similarReports = rankSimilar(d as any, otherOk.map((entry: any) => entry.data), 5);
 ---
 
 <BaseLayout>
@@ -409,6 +413,31 @@ const hasConstruction = det.construction && Object.values(det.construction).some
       <span>模型: {d.model_used}</span>
       <span>分析时间: {d.source.ingested_at}</span>
     </div>
+
+    <!-- Similar reports -->
+    {similarReports.length > 0 && (
+      <section class="mt-8 pt-6 border-t border-border">
+        <div class="flex items-end justify-between gap-4 mb-3">
+          <div>
+            <p class="text-[10px] font-mono text-accent-cyan mb-1">LOCAL SIMILARITY</p>
+            <h2 class="text-base font-semibold text-white">相似报告</h2>
+          </div>
+          <a href={`/compare?report=${slug}`} class="text-xs text-accent-cyan hover:underline">查看全部相似报告 →</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {similarReports.map((item) => (
+            <article class="panel p-3 flex gap-3 items-start">
+              <span class="text-sm font-mono text-accent-cyan tabular-nums w-10 shrink-0">{item.score}%</span>
+              <div class="min-w-0 flex-1">
+                <a href={`/reports/${item.report.slug}`} class="block text-xs font-medium text-gray-200 hover:text-white line-clamp-2">{item.report.source.title}</a>
+                <p class="text-[10px] text-gray-500 mt-1 line-clamp-1">{item.reasons.join(" · ") || "结构化标签重合较少"}</p>
+                <a href={`/compare?left=${slug}&right=${item.report.slug}`} class="inline-block text-[10px] text-accent-cyan mt-2 hover:underline">对比详情</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
   </div>
 </BaseLayout>
 

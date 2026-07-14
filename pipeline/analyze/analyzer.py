@@ -20,41 +20,60 @@ class AnalysisError(Exception):
 
 
 class Analyzer:
-    MAX_RETRIES = 3
-    BODY_TRUNC = 12000
-
-    def __init__(self, provider, taxonomy: dict, model: str = "GLM-5.2"):
+    def __init__(
+        self,
+        provider,
+        taxonomy: dict,
+        model: str = "GLM-5.2",
+        max_attempts: int = 3,
+        body_chars: int = 12000,
+        extract_max_tokens: int = 3500,
+        analyze_max_tokens: int = 7000,
+    ):
         self.provider = provider
         self.tax = taxonomy
         self.model = model
+        self.max_attempts = max(1, min(max_attempts, 3))
+        self.body_chars = max(2000, body_chars)
+        self.extract_max_tokens = extract_max_tokens
+        self.analyze_max_tokens = analyze_max_tokens
 
     def analyze(self, doc: NormalizedDoc) -> Analysis:
         extracted = self._call_json([
             {"role": "system", "content": prompts.EXTRACT_SYSTEM},
             {"role": "user", "content": self._extract_prompt(doc)},
-        ])
+        ], max_tokens=self.extract_max_tokens)
         analyzed = self._call_json([
             {"role": "system", "content": prompts.ANALYZE_SYSTEM},
             {"role": "user", "content": self._analyze_prompt(doc, extracted)},
-        ])
+        ], max_tokens=self.analyze_max_tokens)
         return self._assemble(doc, extracted, analyzed)
 
-    def _call_json(self, messages) -> dict:
+    def _call_json(self, messages, max_tokens: int) -> dict:
         last = None
-        for mode in ({"response_format": {"type": "json_object"}}, {}):
-            for _ in range(self.MAX_RETRIES):
-                try:
-                    content = self.provider.chat(messages, **mode)
-                    last = content
-                    return json.loads(_strip_code_fence(content))
-                except Exception:
-                    continue
-        raise AnalysisError(f"JSON parse failed: {(last or '')[:200]}")
+        last_error = None
+        for attempt in range(self.max_attempts):
+            # Most Ark chat models support JSON mode. The final attempt falls
+            # back to prompt-constrained JSON for models that do not.
+            mode = {"response_format": {"type": "json_object"}} if attempt < self.max_attempts - 1 else {}
+            try:
+                content = self.provider.chat(
+                    messages,
+                    temperature=0.1,
+                    max_tokens=max_tokens,
+                    **mode,
+                )
+                last = content
+                return json.loads(_strip_code_fence(content))
+            except Exception as exc:
+                last_error = exc
+        detail = f"; last error: {type(last_error).__name__}: {last_error}" if last_error else ""
+        raise AnalysisError(f"JSON parse failed after {self.max_attempts} attempts: {(last or '')[:200]}{detail}")
 
     def _extract_prompt(self, doc):
         return prompts.extract_user(
             title=doc.metadata.title, institution=doc.metadata.institution,
-            body=doc.clean_text[:self.BODY_TRUNC],
+            body=doc.clean_text[:self.body_chars],
             research_type=self.tax.get("research_type", []),
             data_frequency=self.tax.get("data_frequency", []),
             factor_family=self.tax.get("factor_family", []),
@@ -65,7 +84,7 @@ class Analyzer:
     def _analyze_prompt(self, doc, extracted):
         return prompts.analyze_user(
             title=doc.metadata.title, institution=doc.metadata.institution,
-            body=doc.clean_text[:self.BODY_TRUNC],
+            body=doc.clean_text[:self.body_chars],
             extracted_json=json.dumps(extracted, ensure_ascii=False),
         )
 

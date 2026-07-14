@@ -1,0 +1,233 @@
+{
+  "schema_version": "1.0",
+  "slug": "9a4d448eeb2d",
+  "source": {
+    "title": "openclaw用同花顺官方skill进行选股",
+    "institution": "Clippings",
+    "authors": [
+      "子晓聊技术关注股票AI量化，全网同名"
+    ],
+    "published": "2026-04-10",
+    "source_type": "wechat",
+    "original_url": "https://zhuanlan.zhihu.com/p/2024448170592141393",
+    "local_path": "openclaw用同花顺官方skill进行选股.md",
+    "ingested_at": "2026-07-12"
+  },
+  "classification": {
+    "research_type": [
+      "基本面",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "财务(低频)",
+      "日频"
+    ],
+    "factor_family": [
+      "价值",
+      "质量",
+      "资金流"
+    ],
+    "asset_class": [
+      "A股",
+      "港股",
+      "多资产",
+      "基金"
+    ],
+    "method": [
+      "知识图谱·RAG"
+    ],
+    "custom_tags": [
+      "AI选股",
+      "自然语言处理",
+      "同花顺",
+      "问财SkillHub",
+      "工具平台"
+    ]
+  },
+  "ratings": {
+    "quality": 2,
+    "novelty": 3,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "介绍同花顺问财SkillHub平台，支持通过自然语言多条件筛选进行AI选股并兼容主流AI助手。",
+    "core_points": [
+      "自然语言多条件筛选A股、港股、美股等全品类资产",
+      "覆盖选股、研报、事件驱动、模拟交易等投研全链路",
+      "兼容OpenClaw、Claude、ChatGPT等主流AI平台",
+      "内置官方及社区海量金融AI技能"
+    ],
+    "key_result": "实现了从复杂量化条件到一句话自然语言选股的转化，但未提供任何具体策略的回测绩效数据。"
+  },
+  "detailed": {
+    "core_content": "同花顺推出问财SkillHub，核心是将金融数据库与AI自然语言处理能力结合。用户输入自然语言即可完成多条件选股及全链路投研分析。平台支持官方技能与社区技能，可通过Prompt或CLI方式集成进主流大模型工具，实现选股、研究、跟踪、监控、模拟交易等闭环。",
+    "economic_logic": "通过降低数据获取和条件筛选的门槛，提高投研效率。其本身不直接产生超额收益，而是加速经典基本面因子（价值、质量、成长）的筛选和组合过程，依托大模型提升信息处理效率。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "ROE(净资产收益率)",
+          "frequency": "财务(低频)",
+          "source": "同花顺金融数据库",
+          "preprocessing": "提取最新财报数据，条件筛选大于15%"
+        },
+        {
+          "field": "市盈率(PE)",
+          "frequency": "日频",
+          "source": "同花顺金融数据库",
+          "preprocessing": "实时计算，条件筛选低于20"
+        },
+        {
+          "field": "营收增速",
+          "frequency": "财务(低频)",
+          "source": "同花顺金融数据库",
+          "preprocessing": "同比增速，条件筛选超30%"
+        },
+        {
+          "field": "北向资金流入",
+          "frequency": "日频",
+          "source": "同花顺金融数据库",
+          "preprocessing": "统计最近三天资金净流入情况"
+        }
+      ],
+      "backtest_setup": {
+        "period": "无(本文未提供回测数据)",
+        "benchmark": "无",
+        "rebalance_freq": "无",
+        "cost": "无",
+        "grouping": "无"
+      },
+      "combination": "采用自然语言多条件交集过滤，例如输入'ROE大于15%、市盈率低于20、营收增速超30%的非ST股票'，系统对各个条件取并集或交集（通常为交集）直接输出股票池。",
+      "parameters": [
+        {
+          "name": "ROE阈值",
+          "value": ">15%",
+          "meaning": "质量因子筛选门槛"
+        },
+        {
+          "name": "PE阈值",
+          "value": "<20",
+          "meaning": "价值因子筛选门槛"
+        },
+        {
+          "name": "营收增速阈值",
+          "value": ">30%",
+          "meaning": "成长因子筛选门槛"
+        }
+      ],
+      "factor_definition": "布尔过滤法选股。定义股票池 S = { stock | ROE(stock) > 15% AND PE(stock) < 20 AND RevenueGrowth(stock) > 30% AND ST(stock) == False }。不涉及因子加权打分，仅保留满足所有硬性阈值的标的。",
+      "processing_pipeline": [
+        "1. Prompt输入: 用户在AI助手中输入自然语言条件组合",
+        "2. 意图解析: 问财SkillHub通过NLP解析提取财务、估值等结构化指标及阈值",
+        "3. 数据查询: 访问同花顺数据库，获取全市场实时行情及最新财报数据",
+        "4. 条件过滤: 对全市场股票应用解析出的因子阈值，计算交集",
+        "5. 结果输出: 返回符合条件的股票代码、最新价、涨跌幅及相关指标数据表"
+      ],
+      "model_architecture": "无(不涉及自建模型，本质为基于大模型意图识别的工具调用配置)",
+      "inputs": [
+        "自然语言Prompt",
+        "同花顺金融数据库"
+      ],
+      "outputs": "符合筛选条件的股票列表及相关行情/财务数据表格",
+      "training": "无",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "研报本身不探讨超额收益逻辑，核心在于工具赋能。若从示例条件（高ROE、低PE、高营收增速）推断，其依赖的是经典的价值、质量、成长因子溢价，即市场对基本面稳健且被低估的成长型公司的错误定价修复。",
+    "performance": {
+      "metrics": [],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "本文为同花顺问财SkillHub产品功能介绍，未提供任何具体的量化策略回测绩效数据或指标。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "无归因分析。",
+      "gap": "文章未涉及任何收益归因方法或相关讨论。"
+    },
+    "robustness": {
+      "subsample_stability": "未提及。基于经典财务因子的策略在中长期具有一般稳定性，但受市场风格切换影响大。",
+      "style_bias": "价值风格、成长风格、质量风格",
+      "turnover": null,
+      "capacity": null,
+      "summary": "工具筛选结果高度依赖于用户输入的条件，样本外稳定性取决于所选因子在特定市场环境下的表现。"
+    },
+    "data_dependency": {
+      "data_required": "同花顺全市场行情数据、财务报表数据、资金流向数据及宏观/事件数据。",
+      "reproducibility": "easy",
+      "summary": "通过问财官方接口或平台可直接复现，数据源高度依赖同花顺自有体系，若脱离该平台需接入Wind等其他金融终端替代。"
+    },
+    "prior_art": [
+      {
+        "method": "传统量化多因子选股",
+        "relation": "文中描述的'ROE>15%, PE<20'本质是传统多因子模型中的阈值法筛选，问财将其封装为自然语言交互。"
+      },
+      {
+        "method": "LangChain Agent工具调用",
+        "relation": "SkillHub兼容OpenClaw等平台，底层逻辑类似于Agent根据Prompt意图调用外部API获取金融数据。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将传统金融数据库API与大模型的自然语言交互能力深度整合，通过Prompt配置即可在通用AI助手中调用专业金融技能，降低了投研工具的使用门槛。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "仅为产品介绍，缺乏任何量化策略的历史回测数据和绩效指标支撑。",
+      "未探讨自然语言解析的准确性及歧义处理机制（如'估值处于历史低位'的具体量化定义）。",
+      "未考虑因子衰减、多重共线性及过拟合问题，简单阈值筛选难以形成稳健的Alpha策略。"
+    ],
+    "useful_elements": [
+      "提供了基于自然语言的金融数据查询范式，大幅降低投研工具使用门槛。",
+      "覆盖了从宏观、行业、选股到模拟交易的全链路AI技能生态，功能全面。",
+      "兼容主流AI平台的集成方案（Prompt/CLI），具备良好的开放性和可扩展性。"
+    ],
+    "inspirations": [
+      "LLM Agent结合垂直领域API是降低量化投研门槛的有效路径，可应用于自动生成研报、策略监控等场景。",
+      "将复杂的因子计算过程隐藏在自然语言交互之后，便于非技术投研人员快速验证投研逻辑。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "将自然语言阈值筛选改进为多因子打分模型，并引入回测模块验证Alpha收益",
+        "based_on": "文中提及的'ROE大于15%、市盈率低于20、营收增速超30%'的硬性阈值筛选",
+        "expected_gain": "从简单的股票过滤升级为可验证的量化策略，通过因子加权融合获取更稳健的风险溢价收益，并降低单一阈值过拟合风险。"
+      }
+    ],
+    "replication_plan": "1. 获取同花顺问财SkillHub使用权限并配置Prompt；2. 在OpenClaw或Claude环境中输入目标条件（如ROE>15%且PE<20）；3. 记录AI返回的股票池；4. 提取条件对应的因子数据，在第三方量化平台（如聚宽/米筐）编写代码复现该选股逻辑，并加入回测框架以验证策略历史收益和稳健性。"
+  },
+  "entities": [
+    {
+      "name": "问财 SkillHub",
+      "type": "model"
+    },
+    {
+      "name": "ROE",
+      "type": "factor"
+    },
+    {
+      "name": "市盈率",
+      "type": "factor"
+    },
+    {
+      "name": "营收增速",
+      "type": "factor"
+    },
+    {
+      "name": "资金流向",
+      "type": "factor"
+    },
+    {
+      "name": "自然语言多条件筛选",
+      "type": "method"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "slug": "5b0f9aca7c29",
+  "source": {
+    "title": "【广发金融工程】2025年量化精选——AI量化及基本面量化系列专题报告",
+    "institution": "广发",
+    "authors": [
+      "广发金融工程"
+    ],
+    "published": "2026-06-04",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/w_WGEyXi1aC60uhWfdmtoQ",
+    "local_path": "广发/【广发金融工程】2025年量化精选——AI量化及基本面量化系列专题报告.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "基本面",
+      "技术面(量价)",
+      "高频·微观结构",
+      "行业轮动",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "财务(低频)",
+      "日频",
+      "分钟"
+    ],
+    "factor_family": [
+      "反转",
+      "价值"
+    ],
+    "asset_class": [
+      "A股",
+      "指数增强",
+      "行业轮动",
+      "基金"
+    ],
+    "method": [
+      "深度学习",
+      "强化学习",
+      "知识图谱·RAG"
+    ],
+    "custom_tags": [
+      "研报目录合集"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 3,
+    "reusability": 2
+  },
+  "concise": {
+    "one_liner": "广发金融工程AI量化及基本面量化系列专题报告合集目录，涵盖深度学习、强化学习、知识图谱等前沿量化技术。",
+    "core_points": [
+      "AI量化系列包含26篇报告，覆盖深度学习选股、期货日内交易、ETF轮动、Transformer、液态神经网络及DeepSeek投研赋能等前沿方向。",
+      "基本面量化系列包含8篇报告，聚焦财务指标选股、景气盈利轮动、转债风险监控及长线选股策略。"
+    ],
+    "key_result": "本研报为目录合集，未提供具体策略的业绩表现数据。"
+  },
+  "detailed": {
+    "core_content": "本研报汇总了广发金融工程团队的AI量化系列（26篇）和基本面量化系列（8篇）专题报告目录。AI系列侧重于深度学习、强化学习及多种神经网络架构（如CNN、Transformer、液态神经网络等）在因子挖掘、选股、择时及高频数据中的应用，并包含大模型（DeepSeek、GraphRAG）在投研提效中的实践。基本面量化系列侧重于财务指标选股、行业景气轮动、转债退市/信用风险监控等基本面与量价结合的策略。",
+    "economic_logic": "无具体经济逻辑，本研报为目录集合，反映了研究团队在AI与基本面量化领域的探索轨迹：从传统深度学习挖掘Alpha，到引入前沿架构（Transformer、ODE、液态神经网络），再到结合大语言模型进行投研赋能和知识图谱构建，以及基本面景气度的量化映射。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "研报目录文本",
+          "frequency": "不适用",
+          "source": "广发金融工程",
+          "preprocessing": "无"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未提供",
+        "benchmark": "未提供",
+        "rebalance_freq": "未提供",
+        "cost": "未提供",
+        "grouping": "未提供"
+      },
+      "combination": "未提供，本研报为目录合集，未涉及具体策略组合构建细节。",
+      "parameters": [
+        {
+          "name": "无",
+          "value": "无",
+          "meaning": "目录合集无具体参数"
+        }
+      ],
+      "factor_definition": "本研报为目录合集，未提供具体因子定义和算子逻辑，无法达到可复现级别。相关报告涉及深度学习Alpha因子、高频数据因子、基本面财务指标因子等。",
+      "processing_pipeline": [
+        "步骤1：解析研报文本，提取AI量化系列与基本面量化系列报告标题。",
+        "步骤2：对标题涉及的方法论与资产类别进行分类归纳。"
+      ],
+      "model_architecture": "本研报为目录合集，未提供具体网络结构。提及的模型架构包括：卷积神经网络(CNN)、Transformer、条件随机场(CRF)、隐马尔科夫模型(HMM)、Visibility Graph-CNN、神经常微分方程(NODE)、液态神经网络(Liquid Neural Network)等。",
+      "inputs": [
+        "未提供具体输入特征，目录推断涉及量价数据、高频数据、财务指标、宏观基本面数据等"
+      ],
+      "outputs": "未提供，目录推断涉及选股信号、择时信号、Alpha因子、ETF轮动信号等",
+      "training": "未提供具体训练细节，目录提及《机器学习选股训练手册》等报告，涉及梯度下降的因子挖掘(AlphaForge)与强化学习训练。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "无具体超额收益逻辑，研报为目录合集，仅提示了通过深度学习挖掘非线性Alpha、多周期机器学习选股、基本面景气轮动等获取超额收益的路径。",
+    "performance": {
+      "metrics": [],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "本研报为AI量化及基本面量化系列专题报告的合集目录，未提供具体策略的业绩表现数据。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "研报为目录合集，未涉及具体的收益归因分析。",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "未提供",
+      "style_bias": "未提供",
+      "turnover": null,
+      "capacity": null,
+      "summary": "目录合集未包含策略稳健性测试信息。"
+    },
+    "data_dependency": {
+      "data_required": "根据目录推断，后续单篇报告可能需要分钟级/日级行情数据、财务报表数据、ETF/指数成分数据及新闻文本数据。",
+      "reproducibility": "hard",
+      "summary": "当前目录不可复现。即使获取单篇报告，因涉及深度学习、高频微观结构及液态神经网络等前沿架构，复现难度较大。"
+    },
+    "prior_art": [
+      {
+        "method": "深度学习/强化学习选股与择时",
+        "relation": "业界主流AI量化方法框架"
+      },
+      {
+        "method": "Transformer与多模态模型",
+        "relation": "前沿NLP/CV架构在金融时间序列预测上的跨学科应用"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "综述",
+      "summary": "本报告为系列专题合集目录，梳理了团队在AI量化和基本面量化领域的研究脉络，涵盖从传统深度学习到大模型应用的完整演进。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "本研报仅为目录合集，未提供任何实质性策略细节、公式、网络架构图或回测数据，无法直接用于复现或验证。",
+      "缺乏各单篇报告核心结论的摘要，难以快速评估各篇报告的研究深度与实际效果。"
+    ],
+    "useful_elements": [
+      "提供了广发金融工程在AI量化领域的完整研究框架和演进路径，可作为量化研究的选题指南。",
+      "列示了多个创新切入点，如Visibility Graph-CNN、神经常微分方程、液态神经网络在股价预测中的应用，具有较高的参考价值。"
+    ],
+    "inspirations": [
+      "AI量化的研究趋势正从单纯的量价模型向多模态、多尺度以及结合大语言模型（DeepSeek、GraphRAG）的投研赋能方向发展。",
+      "基本面量化与景气轮动依然是量化策略的基础底仓，结合反转效应和细分行业景气度可增强策略稳健性。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于Transformer架构结合基本面文本数据进行多模态多尺度选股因子挖掘",
+        "based_on": "《系列十七：Transformer 架构下的量价选股策略》与《系列二十：股价预测之多模态多尺度》",
+        "expected_gain": "利用大语言模型提取研报/财报文本的情感与预期因子，与量价Transformer特征在多尺度上进行融合，预期可提升传统量价模型在基本面拐点处的预测能力，降低换手率并提升超额收益的稳健性。"
+      }
+    ],
+    "replication_plan": "由于本研报为目录合集，无直接复现计划。后续可针对目录中感兴趣的特定单篇报告（如《系列十七》或《系列二十四》）寻找原文进行细节复现，重点梳理其特征工程、网络结构设计及损失函数定义。"
+  },
+  "entities": [
+    {
+      "name": "深度学习",
+      "type": "method"
+    },
+    {
+      "name": "强化学习",
+      "type": "method"
+    },
+    {
+      "name": "知识图谱·RAG",
+      "type": "method"
+    },
+    {
+      "name": "卷积神经网络",
+      "type": "model"
+    },
+    {
+      "name": "Transformer",
+      "type": "model"
+    },
+    {
+      "name": "DeepSeek",
+      "type": "model"
+    },
+    {
+      "name": "液态神经网络",
+      "type": "model"
+    },
+    {
+      "name": "基本面量化",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

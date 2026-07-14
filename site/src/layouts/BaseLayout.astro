@@ -1,5 +1,28 @@
 ---
 import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "量化研报分析",
+  description = "量化研报的结构化分析、研究全景与方法对比。",
+} = Astro.props;
+const pathname = Astro.url.pathname;
+const navItems = [
+  { href: "/", label: "首页", exact: true },
+  { href: "/reports", label: "报告" },
+  { href: "/registry", label: "注册表" },
+  { href: "/landscape", label: "全景图" },
+  { href: "/compare", label: "对比" },
+  { href: "/about", label: "关于" },
+];
+
+function isActive(item: (typeof navItems)[number]) {
+  return item.exact ? pathname === item.href : pathname.startsWith(item.href);
+}
 ---
 
 <!doctype html>
@@ -7,21 +30,25 @@ import "../styles/global.css";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>量化研报分析</title>
+    <title>{title}</title>
+    <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="min-h-screen flex flex-col">
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
     <nav class="border-b border-border bg-panel/80 backdrop-blur sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center gap-6 text-sm font-medium">
-        <a href="/" class="text-accent-cyan font-bold text-base tracking-tight">QuantReports</a>
-        <a href="/" class="hover:text-white transition-colors">首页</a>
-        <a href="/reports" class="hover:text-white transition-colors">报告</a>
-        <a href="/registry" class="hover:text-white transition-colors">注册表</a>
-        <a href="/landscape" class="hover:text-white transition-colors">全景图</a>
-        <a href="/about" class="hover:text-white transition-colors">关于</a>
+      <div class="max-w-7xl mx-auto px-4 h-12 flex items-center gap-5 text-sm font-medium overflow-x-auto">
+        <a href="/" class="text-accent-cyan font-bold text-base tracking-tight shrink-0">QuantReports</a>
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            aria-current={isActive(item) ? "page" : undefined}
+            class={`nav-link ${isActive(item) ? "nav-link-active" : ""}`}
+          >{item.label}</a>
+        ))}
       </div>
     </nav>
-    <main class="flex-1">
+    <main id="main-content" class="flex-1">
       <slot />
     </main>
     <footer class="border-t border-border bg-panel py-4 text-center text-xs text-gray-500">
@@ -29,3 +56,37 @@ import "../styles/global.css";
     </footer>
   </body>
 </html>
+
+<style>
+  .nav-link {
+    flex: none;
+    color: #9ca3af;
+    transition: color 180ms ease;
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-link:focus-visible { outline: 2px solid #22d3ee; outline-offset: 4px; border-radius: 0.15rem; }
+  .nav-link-active { color: #f3f4f6; }
+  .nav-link-active::after {
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin-top: 0.18rem;
+    background: #22d3ee;
+    content: "";
+  }
+  .skip-link {
+    position: fixed;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 60;
+    transform: translateY(-150%);
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.3rem;
+    background: #22d3ee;
+    color: #061014;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: transform 160ms ease;
+  }
+  .skip-link:focus { transform: translateY(0); }
+</style>

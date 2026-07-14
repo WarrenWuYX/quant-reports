@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0",
+  "slug": "1869818667e5",
+  "source": {
+    "title": "【方正金工】ChatGPT在投资研究工作中的应用初探——ChatGPT应用探讨系列之一",
+    "institution": "方正",
+    "authors": [
+      "曹春晓 刘洋 邓璐"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247501446&idx=1&sn=75de8b7daf9bfa23a8d5346292b06dd6&chksm=ce2aa91bf95d200d151c5f371d06f837c4f3bab6b6c4299d98ae107aeaf13bcca85450b883f6&scene=21#wechat_redirect",
+    "local_path": "方正/【方正金工】ChatGPT在投资研究工作中的应用初探——ChatGPT应用探讨系列之一.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [
+      "动量",
+      "反转"
+    ],
+    "asset_class": [
+      "A股",
+      "基金"
+    ],
+    "method": [
+      "深度学习"
+    ],
+    "custom_tags": [
+      "ChatGPT",
+      "大语言模型",
+      "Python代码生成",
+      "投研工具",
+      "自动化办公"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 5
+  },
+  "concise": {
+    "one_liner": "本报告探讨了ChatGPT在量化投研工作中的应用，涵盖了文本与表格交互、利用大模型生成Python代码进行数据获取、分析与策略回测等场景，并展示了具体的代码生成及运行结果。",
+    "core_points": [
+      "ChatGPT能够通过文本和表格交互辅助研究员完成精炼文本、生成点评等日常工作。",
+      "利用ChatGPT生成Python代码，可实现Wind API调用、底层数据库连接及PDF文本数据的自动化提取。",
+      "ChatGPT可生成完整的数据分析与回测代码，如计算基金绩效指标（年化收益率、波动率、最大回撤等）和股票动量/反转策略分组测算。",
+      "通过API接口可实现批量问答和大规模数据处理，Auto-GPT和GitHub Copilot等衍生工具进一步拓展了AI在投研中的应用边界。"
+    ],
+    "key_result": "在生成的股票动量/反转策略案例中，根据月涨跌幅分10组测算发现高收益组与低收益组收益差为-0.03，呈现明显的反转效应；基金收益分析案例计算得某基金年化收益率-5.56%、年化波动率20.18%、最大回撤15.03%、年化夏普-0.56。"
+  },
+  "detailed": {
+    "core_content": "本报告主要介绍ChatGPT在投资研究工作中的具体应用方法。首先，利用ChatGPT的文本和表格交互能力，可以快速完成文本观点精炼、相似文本生成和基金点评等工作。其次，针对复杂问题和庞大数据，通过ChatGPT生成Python代码进行本地运行，实现了包括Wind API数据获取、PDF文本提取、批量数据处理、基金收益分析、股票动量/反转策略回测及动态可视化等任务。最后，探讨了通过API接口进行大规模数据批处理，以及Auto-GPT和GitHub Copilot等工具在自动思考和编程辅助方面的潜力。",
+    "economic_logic": "基于股票历史收益率的反转效应：即过去表现较差的股票在未来表现相对较好。通过将股票按月涨跌幅分10组，做多低收益组并做空高收益组，利用市场过度反应后的价格修复获取超额收益。",
+    "construction": {
+      "type": "strategy",
+      "data_inputs": [
+        {
+          "field": "S_INFO_WINDCODE (股票代码), TRADE_DT (交易日), S_DQ_ADJCLOSE (复权收盘价), S_DQ_ADJOPEN (复权开盘价)",
+          "frequency": "日频",
+          "source": "Wind (A股日度行情.feather)",
+          "preprocessing": "提取每只股票每月月底的复权收盘价数据"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未明确",
+        "benchmark": "无",
+        "rebalance_freq": "月频",
+        "cost": "未提及",
+        "grouping": "按月涨跌幅从小到大分10组"
+      },
+      "combination": "无",
+      "parameters": [
+        {
+          "name": "组数",
+          "value": "10",
+          "meaning": "按月涨跌幅排序分组的数量"
+        }
+      ],
+      "factor_definition": "月涨跌幅 = 月末复权收盘价 / 上月复权收盘价 - 1",
+      "processing_pipeline": [
+        "1. 读取A股日度行情数据(feather格式)",
+        "2. 筛选出每只股票每月月底的交易数据",
+        "3. 计算每只股票的月涨跌幅：月末收盘价 / 上月收盘价 - 1",
+        "4. 根据当月月涨跌幅将所有股票从小到大分为10组",
+        "5. 计算下个月这10组股票收益率的平均值",
+        "6. 比较高收益组（第10组）与低收益组（第1组）的收益差，验证反转效应"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过识别股票价格的动量或反转效应，构建多空组合（做多过去表现较差的股票，做空过去表现较好的股票），利用价格向均值回归的特性获取超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "高收益组与低收益组收益差",
+          "value": "-0.03"
+        },
+        {
+          "name": "基金年化收益率",
+          "value": "-5.56%"
+        },
+        {
+          "name": "基金年化波动率",
+          "value": "20.18%"
+        },
+        {
+          "name": "基金最大回撤",
+          "value": "15.03%"
+        },
+        {
+          "name": "基金年化夏普指标",
+          "value": "-0.56"
+        }
+      ],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "本文展示了利用ChatGPT辅助生成Python代码进行投研分析的案例。在股票策略分析中，根据月涨跌幅分10组测算动量/反转效应，发现高收益组与低收益组收益差为-0.03，存在明显反转效应；在基金收益分析中，计算得到某基金的年化收益率为-5.56%，年化波动率为20.18%，最大回撤为15.03%，年化夏普为-0.56。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "本文属于工具应用探讨，未涉及具体的收益归因分析。"
+    },
+    "robustness": {
+      "subsample_stability": "报告中未涉及子样本稳定性检验，反转效应在不同市场环境下的表现可能存在差异。",
+      "style_bias": "反转策略天然偏向持有前期跌幅较大的股票，可能暴露于价值因子或小盘股因子。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "报告仅展示了特定样本和时间段内的简单测试结果，未进行详细的稳健性检验、风格因子剥离及风险控制，仅作为代码生成能力的演示。"
+    },
+    "data_dependency": {
+      "data_required": "A股日度行情数据（含复权开收盘价）、基金复权单位净值数据、电子行业股票指标数据等，主要依赖Wind底层数据库或API接口。",
+      "reproducibility": "medium",
+      "summary": "数据获取渠道清晰（Wind），处理逻辑明确，具备中等可复现性；但由于回测时间段、样本过滤规则（如ST股、停牌股、次新股剔除）未详细说明，完全复现报告图表存在一定难度。"
+    },
+    "prior_art": [
+      {
+        "method": "传统动量/反转策略",
+        "relation": "本文使用的策略逻辑与学术界经典的动量/反转策略（如Jegadeesh and Titman）一致，仅作为展示ChatGPT代码生成能力的载体。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "报告本身不属于新的量化模型或因子挖掘，而是将大语言模型（ChatGPT）与传统的量化投研流程相结合，创新性地使用AI进行代码生成和数据处理流程自动化。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "报告仅为工具应用初探，展示的量化策略回测极其简陋，未考虑交易成本、未剔除异常股票（如停牌、ST、涨跌停）、未进行严格的统计检验。",
+      "依赖大语言模型生成代码，虽然提高了初始编写效率，但存在代码逻辑隐蔽错误的风险，必须依赖人工进行代码审查和结果验证。",
+      "数据获取和清洗过程未提及标准化处理，直接用于回测可能存在严重的生存者偏差和前视偏差。"
+    ],
+    "useful_elements": [
+      "提供了一套利用ChatGPT生成Wind API、底层数据库及PDF读取代码的实用模板。",
+      "展示了通过Typora将Excel转为Markdown格式输入给大模型进行表格交互的技巧。",
+      "给出了使用Python计算基金年化收益、波动率、最大回撤和夏普比率的代码思路。"
+    ],
+    "inspirations": [
+      "可以利用大语言模型快速处理非结构化数据（如基金年报PDF中的投资策略文本），并将其结构化用于后续定量分析。",
+      "将重复性的数据批处理脚本编写工作交给大模型生成，研究员可以更专注于策略逻辑的设计与验证。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于相似反转逻辑，在因子构造环节加入行业与市值中性化处理，并剔除极端收益样本。",
+        "based_on": "报告中原始的月涨跌幅分组策略",
+        "expected_gain": "原始反转效应可能来源于微盘股的异常波动或行业聚集。通过行业市值中性化及剔除极端值，可以获得更纯粹、换手更低的反转超额收益，提升策略稳健性。"
+      }
+    ],
+    "replication_plan": "1. 使用Wind API获取全A股日频复权收盘价数据；2. 聚合得到月末收盘价并计算月收益率；3. 剔除当月上市新股、ST股及停牌股；4. 按月收益率将股票分为10组；5. 计算下月各组等权平均收益率；6. 统计多空收益差并绘制累计收益曲线验证反转效应。"
+  },
+  "entities": [
+    {
+      "name": "ChatGPT",
+      "type": "model"
+    },
+    {
+      "name": "GPT-4",
+      "type": "model"
+    },
+    {
+      "name": "Auto-GPT",
+      "type": "model"
+    },
+    {
+      "name": "GitHub Copilot",
+      "type": "model"
+    },
+    {
+      "name": "Wind API",
+      "type": "dataset"
+    },
+    {
+      "name": "Wind底层数据库",
+      "type": "dataset"
+    },
+    {
+      "name": "动量/反转策略",
+      "type": "method"
+    },
+    {
+      "name": "大语言模型",
+      "type": "concept"
+    },
+    {
+      "name": "Python代码生成",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

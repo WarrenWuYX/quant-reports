@@ -73,7 +73,7 @@ def test_main_with_mocked_analyzer(tmp_path, monkeypatch):
 
     monkeypatch.setattr("pipeline.analyze.analyzer.Analyzer.analyze", fake_analyze)
 
-    code = main(["run"])
+    code = main(["run", "--no-build"])
     assert code == 0
     outs = list((tmp_path / "data" / "analyses").glob("*.json"))
     assert len(outs) == 1

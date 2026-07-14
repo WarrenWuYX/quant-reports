@@ -1,5 +1,4 @@
 import argparse
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -11,6 +10,7 @@ from .config import load_config
 from .ingest.manifest import Manifest, SCHEMA_VERSION
 from .ingest.markdown import parse_markdown_file
 from .llm.provider import ArkProvider
+from .publish import prepare_site_data
 from .registry.aggregator import save_all
 
 
@@ -23,10 +23,21 @@ def _resolve_targets(cfg, args):
         return [p]
     if args.slug:
         for md in sorted(clip.rglob("*.md")):
+            if _is_hidden(md, clip):
+                continue
             if parse_markdown_file(md, cfg).slug == args.slug:
                 return [md]
         raise SystemExit(f"slug not found: {args.slug}")
-    return sorted(clip.rglob("*.md"))
+    return [md for md in sorted(clip.rglob("*.md")) if not _is_hidden(md, clip)]
+
+
+def _is_hidden(path: Path, base: Path) -> bool:
+    """Check if any path component relative to base starts with '.'."""
+    try:
+        rel = path.resolve().relative_to(base.resolve())
+    except ValueError:
+        return False
+    return any(part.startswith(".") for part in rel.parts)
 
 
 def _save(analysis: Analysis):
@@ -36,34 +47,19 @@ def _save(analysis: Analysis):
 
 
 def _build_site() -> int:
-    """Copy analysis JSONs into Astro content dir, generate registry, and run astro build."""
+    """Prepare canonical data and run the Astro production build."""
     site_root = io_paths.paths.root / "site"
-    content_dir = site_root / "src" / "content" / "analyses"
-    content_dir.mkdir(parents=True, exist_ok=True)
-
-    # Step 1: Copy all JSONs from data/analyses to site content directory
-    copied = 0
-    for json_path in sorted(io_paths.paths.analyses.glob("*.json")):
-        dst = content_dir / json_path.name
-        shutil.copy2(json_path, dst)
-        copied += 1
-    print(f"Copied {copied} analysis JSON(s) to {content_dir}")
-
-    # Step 2: Generate registry + landscape JSONs
-    from .registry.aggregator import save_all
-    save_all(io_paths.paths.analyses, io_paths.paths.registry, io_paths.paths.landscape)
+    stats = prepare_site_data(
+        root=io_paths.paths.root,
+        analyses_dir=io_paths.paths.analyses,
+        registry_path=io_paths.paths.registry,
+        landscape_path=io_paths.paths.landscape,
+    )
+    print(f"Prepared {stats['copied']} analysis JSON(s); removed {stats['removed']} stale file(s)")
     print(f"Registry saved → {io_paths.paths.registry}")
     print(f"Landscape saved → {io_paths.paths.landscape}")
-
-    # Step 3: Copy registry/landscape JSONs into site src/data dir
-    data_dir = site_root / "src" / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(io_paths.paths.registry, data_dir / "entities.json")
-    shutil.copy2(io_paths.paths.landscape, data_dir / "coverage.json")
-
-    # Step 4: Run npm run build
     npm = "npm.cmd" if sys.platform == "win32" else "npm"
-    result = subprocess.run([npm, "run", "build"], cwd=str(site_root))
+    result = subprocess.run([npm, "run", "build:astro"], cwd=str(site_root))
     if result.returncode != 0:
         print(f"npm run build failed with exit code {result.returncode}")
         return result.returncode
@@ -80,10 +76,12 @@ def main(argv=None) -> int:
     run = sub.add_parser("run")
     run.add_argument("--file")
     run.add_argument("--slug")
+    run.add_argument("--no-build", action="store_true", help="Analyze only; skip registry and site build")
     # build
     build = sub.add_parser("build", help="Build the Astro static site")
     # registry
     reg = sub.add_parser("registry", help="Generate registry entities and landscape coverage JSON")
+    sub.add_parser("prepare", help="Synchronize analysis and derived JSON into the Astro site")
     args = parser.parse_args(argv)
 
     if args.cmd == "registry":
@@ -92,13 +90,32 @@ def main(argv=None) -> int:
         print(f"Landscape saved → {io_paths.paths.landscape}")
         return 0
 
+    if args.cmd == "prepare":
+        stats = prepare_site_data(
+            root=io_paths.paths.root,
+            analyses_dir=io_paths.paths.analyses,
+            registry_path=io_paths.paths.registry,
+            landscape_path=io_paths.paths.landscape,
+        )
+        print(f"Prepared {stats['copied']} analysis JSON(s); removed {stats['removed']} stale file(s)")
+        return 0
+
     if args.cmd == "build":
         return _build_site()
 
     cfg = load_config()
     provider = ArkProvider(model=cfg["model"])
     manifest = Manifest.load(io_paths.paths.manifest)
-    analyzer = Analyzer(provider, cfg["classification"], model=cfg["model"])
+    llm_cfg = cfg.get("llm", {})
+    analyzer = Analyzer(
+        provider,
+        cfg["classification"],
+        model=cfg["model"],
+        max_attempts=llm_cfg.get("max_attempts", 3),
+        body_chars=llm_cfg.get("body_chars", 12000),
+        extract_max_tokens=llm_cfg.get("extract_max_tokens", 3500),
+        analyze_max_tokens=llm_cfg.get("analyze_max_tokens", 7000),
+    )
 
     clip = io_paths.paths.clippings(cfg)
     targets = _resolve_targets(cfg, args)
@@ -122,7 +139,14 @@ def main(argv=None) -> int:
         print(f"[OK] {rel} -> {analysis.slug}.json")
     manifest.save(io_paths.paths.manifest)
     print(f"analyzed {changed} report(s); {len(targets)} scanned")
-    return 0
+    usage = getattr(provider, "usage_totals", None)
+    if usage and usage.get("total_tokens"):
+        print(
+            "Ark usage: "
+            f"input={usage['prompt_tokens']}, output={usage['completion_tokens']}, "
+            f"total={usage['total_tokens']} tokens"
+        )
+    return 0 if args.no_build else _build_site()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,208 @@
+{
+  "schema_version": "1.0",
+  "slug": "25b47f817946",
+  "source": {
+    "title": "【方正金工】不同大语言模型产品操作性能及进阶应用比较——ChatGPT应用探讨系列之三",
+    "institution": "方正",
+    "authors": [
+      "曹春晓 刘洋 邓璐"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247502036&idx=1&sn=e60c1a8cac960f2b9ca8fce0f3a0fcb1&chksm=ce2aa749f95d2e5febeda7cc89180ed206a3b2b460759d23d9e7cb33a36c85aafb6239ac1f46&scene=21#wechat_redirect",
+    "local_path": "方正/【方正金工】不同大语言模型产品操作性能及进阶应用比较——ChatGPT应用探讨系列之三.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [
+      "动量"
+    ],
+    "asset_class": [
+      "A股",
+      "基金"
+    ],
+    "method": [],
+    "custom_tags": [
+      "大语言模型",
+      "代码生成",
+      "模型对比",
+      "ChatGPT"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 3
+  },
+  "concise": {
+    "one_liner": "报告对比了GPT3.5、GPT4、文心一言、讯飞星火、Bard和New Bing在表格分析、文本模仿及代码生成等量化研究场景中的能力，发现GPT4与New Bing在代码生成任务中表现最优。",
+    "core_points": [
+      "各模型在输入输出限制、多模态支持及中文语境处理上存在差异，用户需根据场景选择",
+      "在表格数据分析与文本风格模仿任务中，多数模型能完成基本要求，GPT系列表现更佳",
+      "在Wind API调用、动量策略计算、基金收益分析等代码生成任务中，GPT4和New Bing能一次性生成可运行代码，其他模型常出现模块导入或逻辑错误"
+    ],
+    "key_result": "GPT4和New Bing在处理各项代码生成任务中均能正常运行并得到正确结果，显著优于其他模型；其他模型在特定任务中存在读取数据或计算逻辑错误。"
+  },
+  "detailed": {
+    "core_content": "本报告系统评测了6种大语言模型在量化金融常见任务中的表现，包括表格数据分析（计算收益率）、文本模仿生成点评、以及代码生成（Wind数据下载、动量策略回测、基金收益指标计算）。结果表明，GPT4在各项任务中表现最佳但存在交互频次限制，New Bing次之，两者在理解复杂数据结构和生成可执行Python代码方面具有明显优势。",
+    "economic_logic": "无直接经济逻辑，属大语言模型应用能力评测",
+    "construction": {
+      "type": "strategy",
+      "data_inputs": [
+        {
+          "field": "A股日度行情数据",
+          "frequency": "日频",
+          "source": "本地feather文件",
+          "preprocessing": "包含字段：S_INFO_NEW BINGCODE(股票代码), TRADE_DT(交易日), S_DQ_ADJCLOSE(复权收盘价), S_DQ_ADJOPEN(复权开盘价)"
+        },
+        {
+          "field": "基金净值数据",
+          "frequency": "日频",
+          "source": "本地nav.xlsx文件",
+          "preprocessing": "包含字段：日期(日期格式), 复权单位净值"
+        }
+      ],
+      "backtest_setup": {
+        "period": "无",
+        "benchmark": "无",
+        "rebalance_freq": "月频",
+        "cost": "无",
+        "grouping": "10组"
+      },
+      "combination": "无",
+      "parameters": [],
+      "factor_definition": "无",
+      "processing_pipeline": [
+        "1. 使用pandas读取A股日度行情.feather文件",
+        "2. 按股票代码和交易日排序，提取每只股票每月最后一个交易日的数据",
+        "3. 计算月涨跌幅：月末复权收盘价 / 上月月末复权收盘价 - 1",
+        "4. 根据当月月涨跌幅从小到大将所有股票分为10组",
+        "5. 计算下个月这10组股票收益率的平均值，分析动量策略效果"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "无",
+    "performance": {
+      "metrics": [
+        {
+          "name": "代码生成正确率",
+          "value": "GPT4与New Bing较高"
+        },
+        {
+          "name": "文本模仿成功率",
+          "value": "GPT3.5、GPT4和New Bing较高"
+        }
+      ],
+      "benchmark": "无",
+      "backtest_period": "无",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "报告对比了GPT3.5、GPT4、文心一言、讯飞星火、Bard和New Bing在表格分析、文本模仿及代码生成（Wind API调用、动量策略、基金收益分析）方面的能力。结果表明，GPT4和New Bing在代码生成任务中表现最优，能够一次性生成正确可运行的代码；其他模型在不同任务中存在导入模块、读取数据或计算逻辑的错误。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "报告未涉及收益归因分析，仅测试了各语言模型的代码生成能力及基本操作性能。"
+    },
+    "robustness": {
+      "subsample_stability": "大模型存在随机性，每次生成答案可能不同",
+      "style_bias": "测试主要针对代码生成与操作性能，未涵盖中文语境问答交互优势",
+      "turnover": null,
+      "capacity": null,
+      "summary": "由于大语言模型的随机性和版本迭代，测试结果存在时效性，且不同模型在不同任务上的表现可能随提示词改变而波动。"
+    },
+    "data_dependency": {
+      "data_required": "A股日度行情数据、基金净值数据、Wind API接口权限",
+      "reproducibility": "easy",
+      "summary": "所需数据均为常规量化研究基础数据，获取难度低，结合报告中提供的Prompt描述可轻松复现代码生成测试。"
+    },
+    "prior_art": [
+      {
+        "method": "ChatGPT在择时、风格、行业、选股中的应用实践",
+        "relation": "同系列前作，探讨ChatGPT在量化投研中的具体应用"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "综述",
+      "summary": "对2023年主流大语言模型在金融量化代码生成场景的能力进行了早期横向对比评测，提供了具体的应用案例与Prompt参考。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "评测为单次随机测试，样本量极小，缺乏统计学意义上的稳健性",
+      "模型版本更新极快，报告基于2023年5月的测试结果，结论时效性极差",
+      "未构建标准化的代码质量评价体系（如时间复杂度、空间复杂度、边界处理），仅以能否运行为准"
+    ],
+    "useful_elements": [
+      "提供了针对金融场景的高质量Prompt模板，可直接用于生成数据下载与策略回测脚手架代码",
+      "指出了各模型在处理特定库（如WindPy）和复杂数据结构时常见的易错点"
+    ],
+    "inspirations": [
+      "可将大模型代码生成能力集成入量化研究平台，实现通过自然语言快速生成因子计算与回测代码",
+      "提供详尽的数据结构和计算逻辑描述是提高大模型代码生成正确率的关键"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "构建基于大模型反馈的自动化因子挖掘与回测系统。利用相似逻辑，将自然语言描述的因子逻辑交由大模型生成计算代码，放入回测引擎运行，将报错信息和回测指标反馈给大模型进行迭代修正，形成自动化闭环。",
+        "based_on": "报告中利用大模型生成动量策略代码的逻辑",
+        "expected_gain": "大幅降低因子研发的人力成本，将研究员从底层代码编写中解放，专注于因子逻辑的构思与描述，提升整体研发效率。"
+      }
+    ],
+    "replication_plan": "1. 准备A股日度行情.feather和nav.xlsx测试数据；2. 使用报告中提供的Prompt模板，向GPT4及New Bing请求生成对应Python代码；3. 在本地配置WindPy、pandas等环境，运行生成的代码；4. 检查代码是否正确计算月涨跌幅分10组及输出下月收益均值，验证基金收益指标（年化收益率、波动率、最大回撤、夏普）的准确性。"
+  },
+  "entities": [
+    {
+      "name": "GPT4",
+      "type": "model"
+    },
+    {
+      "name": "GPT3.5",
+      "type": "model"
+    },
+    {
+      "name": "文心一言",
+      "type": "model"
+    },
+    {
+      "name": "讯飞星火",
+      "type": "model"
+    },
+    {
+      "name": "Bard",
+      "type": "model"
+    },
+    {
+      "name": "New Bing",
+      "type": "model"
+    },
+    {
+      "name": "Wind API",
+      "type": "dataset"
+    },
+    {
+      "name": "动量策略",
+      "type": "concept"
+    },
+    {
+      "name": "Transformer",
+      "type": "method"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

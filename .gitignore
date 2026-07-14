@@ -3,10 +3,19 @@ node_modules/
 
 # build output
 dist/
+.astro/
+build/
+
+# generated site data (canonical copies live under data/)
+site/src/content/analyses/*.json
+site/src/data/*.json
 
 # python
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
+.pytest-tmp/
 .venv/
 venv/
 

@@ -1,0 +1,304 @@
+{
+  "schema_version": "1.0",
+  "slug": "8dd4af52329f",
+  "source": {
+    "title": "【方正金工】ChatGPT投资相关插件测试及策略开发——ChatGPT应用探讨系列之四",
+    "institution": "方正",
+    "authors": [
+      "曹春晓 邓璐"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247502475&idx=1&sn=6dea73fab60f7110fdaecde9d6f9d6aa&chksm=ce2aa516f95d2c00e5824fa7b433e55576b828abd41e87e0cdbe638c66145c811659e2d01499&scene=21#wechat_redirect",
+    "local_path": "方正/【方正金工】ChatGPT投资相关插件测试及策略开发——ChatGPT应用探讨系列之四.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习",
+      "基本面"
+    ],
+    "data_frequency": [
+      "日频",
+      "财务(低频)"
+    ],
+    "factor_family": [
+      "质量"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "深度学习"
+    ],
+    "custom_tags": [
+      "ChatGPT插件",
+      "大语言模型",
+      "投研工具"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 3
+  },
+  "concise": {
+    "one_liner": "测试ChatGPT投资相关插件功能，重点使用Noteable插件构建LSTM沪深300择时模型和A股财务造假预测模型",
+    "core_points": [
+      "截至2023年6月13日已上线385个ChatGPT插件，涵盖办公学习、生活应用、专业领域等",
+      "PortfolioPilot在投资相关插件中功能性最完善，但无法提取A股信息；Boolio Invest可获取A股数据",
+      "Noteable插件可在ChatGPT聊天界面内创建、编辑、运行Jupyter笔记本，支持端到端模型开发",
+      "LSTM模型用于沪深300指数择时，通过API接口下载数据训练",
+      "财务造假预测模型采用控制样本匹配法构建样本，准确率较高但精确率/召回率/F值较低，与样本不平衡有关"
+    ],
+    "key_result": "财务造假预测模型准确率较高，但精确率、召回率、F值等指标相对较低，与样本分布不平衡有关"
+  },
+  "detailed": {
+    "core_content": "报告系统测试了ChatGPT投资相关插件（Wolfram、AskYourPDF、WebPilot、PortfolioPilot、Boolio Invest、PortfoliosLab等），并重点使用Noteable插件辅助开发两个模型：基于LSTM的沪深300指数择时模型和基于机器学习的A股财务造假预测模型。财务造假预测模型采用控制样本匹配法构建正负样本，选取审计师意见、前一年度是否亏损、前五大股东占比、应收/预付/其他应收款占流动资产比例等特征，准确率较高但精确率/召回率/F值较低。",
+    "economic_logic": "财务造假识别基于公司造假动机和常见手段：虚增收入往往伴随应收账款异常增长，预付款项/其他应收款常被用于资金占用或虚假交易，审计师意见反映财报可信度，前一年度亏损是ST退市压力下的造假动机，前五大股东占比反映股权集中度与掏空风险。LSTM择时基于指数历史序列的模式识别能力捕捉趋势性涨跌方向。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "沪深300指数日频行情",
+          "frequency": "日频",
+          "source": "API接口（推测yfinance或akshare等）",
+          "preprocessing": "通过Noteable插件直接调用API下载，用于LSTM择时"
+        },
+        {
+          "field": "A股财务造假样本名单",
+          "frequency": "年度",
+          "source": "证监会、沪深交易所公开处罚公告",
+          "preprocessing": "选取2002年后被公开确定为财务造假的上市公司；剔除IPO之前及新股上市当年造假数据；同一公司连续多年造假仅保留首次造假年份"
+        },
+        {
+          "field": "对照样本",
+          "frequency": "年度",
+          "source": "A股同行业上市公司",
+          "preprocessing": "采用控制样本匹配法，选取造假样本当年同行业上市公司（剔除被证监会/交易所处罚的公司）作为对照"
+        },
+        {
+          "field": "审计师意见",
+          "frequency": "年度",
+          "source": "年报审计报告",
+          "preprocessing": "标准/非标意见编码"
+        },
+        {
+          "field": "前一年度是否亏损",
+          "frequency": "年度",
+          "source": "财务报表净利润",
+          "preprocessing": "0/1哑变量"
+        },
+        {
+          "field": "前五大股东占比",
+          "frequency": "年度",
+          "source": "年报股东信息",
+          "preprocessing": "前五大股东持股合计/总股本"
+        },
+        {
+          "field": "应收账款占流动资产比例",
+          "frequency": "年度",
+          "source": "资产负债表",
+          "preprocessing": "应收账款/流动资产"
+        },
+        {
+          "field": "预付款项占流动资产比例",
+          "frequency": "年度",
+          "source": "资产负债表",
+          "preprocessing": "预付款项/流动资产"
+        },
+        {
+          "field": "其他应收款占流动资产比例",
+          "frequency": "年度",
+          "source": "资产负债表",
+          "preprocessing": "其他应收款/流动资产"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未明确",
+        "benchmark": "沪深300指数（择时模型）",
+        "rebalance_freq": "未明确",
+        "cost": "未提及",
+        "grouping": "造假样本 vs 对照样本"
+      },
+      "combination": "报告未提及多模型集成或特征组合方法，直接使用单一分类模型",
+      "parameters": [
+        {
+          "name": "造假样本起始年份",
+          "value": "2002",
+          "meaning": "选取2002年之后被证监会/交易所公开确定为财务造假的A股上市公司"
+        },
+        {
+          "name": "样本匹配方法",
+          "value": "控制样本匹配法",
+          "meaning": "选取造假样本当年同行业上市公司（剔除被处罚公司）作为对照样本"
+        },
+        {
+          "name": "造假样本去重规则",
+          "value": "仅保留首次造假年份",
+          "meaning": "同一公司连续多年造假仅保留首次造假年份，避免重复计数"
+        },
+        {
+          "name": "Noteable文件数上限",
+          "value": "25个",
+          "meaning": "Noteable平台每个项目最多上传25个文件"
+        },
+        {
+          "name": "Noteable单文件大小上限",
+          "value": "100MB",
+          "meaning": "Noteable平台单文件不超过100MB，更大数据需使用S3/GCS/Azure或数据库连接"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [],
+      "model_architecture": "1) LSTM择时模型：使用LSTM网络对沪深300指数日频数据进行序列建模，预测涨跌方向；具体网络层数、隐藏单元数、学习率等超参数报告未明确。2) 财务造假预测模型：机器学习分类模型，输入特征包括审计师意见、前一年度是否亏损、前五大股东占比、应收账款/预付款项/其他应收款占流动资产比例等；具体算法（决策树/随机森林/XGBoost/神经网络等）报告未明确说明。",
+      "inputs": [
+        "审计师意见",
+        "前一年度是否亏损",
+        "前五大股东占比",
+        "应收账款占流动资产比例",
+        "预付款项占流动资产比例",
+        "其他应收款占流动资产比例",
+        "（可能含更多未列示财务特征）"
+      ],
+      "outputs": "财务造假概率（二分类0/1）",
+      "training": "通过Noteable插件在ChatGPT交互界面内创建Jupyter笔记本完成训练；造假样本与对照样本按控制样本匹配法划分；使用上述财务特征训练分类模型；评估指标包括准确率、精确率、召回率、F值；准确率较高但精确率/召回率/F值较低，与样本分布不平衡有关，报告提及可继续交互改进但未展开",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "财务造假预测模型通过识别造假公司可规避踩雷风险，或在造假公告后做空获利；LSTM择时模型通过序列模式识别预测沪深300涨跌方向，择时做多/做空获取超额收益。但报告未给出具体回测收益数据，仅展示模型评估指标。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "准确率",
+          "value": "较高"
+        },
+        {
+          "name": "精确率",
+          "value": "较低"
+        },
+        {
+          "name": "召回率",
+          "value": "较低"
+        },
+        {
+          "name": "F值",
+          "value": "较低"
+        }
+      ],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "通过Noteable插件构建了LSTM模型对沪深300指数择时，并训练了A股财务造假预测模型。财务造假预测模型准确率较高，但精确率、召回率、F值等相对较低。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "报告未讨论子样本稳定性",
+      "style_bias": "报告未讨论风格偏差",
+      "turnover": null,
+      "capacity": null,
+      "summary": "报告未对模型稳健性进行系统分析。财务造假预测模型因正负样本严重不平衡（造假公司远少于正常公司），准确率虽高但精确率/召回率/F值较低，模型对少数类（造假样本）识别能力不足。LSTM择时模型未提供回测收益及稳健性分析。"
+    },
+    "data_dependency": {
+      "data_required": "1) 沪深300指数日频行情数据（API下载）；2) A股2002年后被证监会/交易所公开处罚的财务造假公司名单及首次造假年份；3) 造假样本当年同行业A股上市公司（对照样本）的财务指标：审计师意见、前一年度是否亏损、前五大股东占比、应收账款/预付款项/其他应收款占流动资产比例等",
+      "reproducibility": "medium",
+      "summary": "需ChatGPT Plus订阅及Noteable插件访问权限；财务造假公司名单需从证监会/交易所网站手动整理，特征指标可从Wind/Choice/Tushare获取；Noteable平台文件数≤25、单文件≤100MB限制需注意；模型具体超参数和算法未明确，完全复现有一定难度"
+    },
+    "prior_art": [
+      {
+        "method": "Beneish M-Score模型",
+        "relation": "传统财务造假识别方法，使用8个财务比率手工设定阈值；本报告特征选择思路（应收/预付/其他应收占比）与之类似，但改用机器学习分类替代手工阈值"
+      },
+      {
+        "method": "Dechow et al. (2011) F-Score",
+        "relation": "经典财务造假预测模型，本报告采用类似特征工程思路但应用机器学习方法"
+      },
+      {
+        "method": "LSTM时间序列分类",
+        "relation": "标准深度学习择时方法，本报告将之应用于沪深300择时，方法本身无创新"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "报告核心新意在于将ChatGPT插件生态（特别是Noteable插件）整合到投研工作流中，实现从数据下载、EDA分析、模型训练到评估的端到端交互式开发。模型方法本身（LSTM择时、财务造假分类）无显著创新，主要贡献是工具链整合的实践探索和插件功能对比测试。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "LSTM择时模型缺乏具体网络结构参数（层数、隐藏单元数、序列长度、学习率、训练轮数等），无法复现",
+      "财务造假预测模型未指明具体使用的机器学习算法（随机森林？XGBoost？逻辑回归？），无法复现",
+      "未给出准确率/精确率/召回率/F值的具体数值，仅用'较高'/'较低'定性描述",
+      "未对样本类别不平衡问题进行处理（如SMOTE、class_weight等），这是精确率低的直接原因",
+      "LSTM择时策略未给出回测收益、胜率、最大回撤等性能指标，无法评估实际投资价值",
+      "对照样本匹配方法仅说明'同行业'，未说明是否控制市值、上市年限等因素，匹配精度存疑",
+      "PortfolioPilot、Boolio Invest等插件的定量模型开发细节未公开，结果可信度无法评估",
+      "A股数据无法通过PortfolioPilot/PortfoliosLab获取，限制了国内投研的直接应用",
+      "特征指标清单可能不完整，报告表述为'等一系列指标'，未给出完整特征列表"
+    ],
+    "useful_elements": [
+      "Noteable插件作为ChatGPT代码执行环境的工作流整合思路，可借鉴用于自动化投研流程",
+      "财务造假样本构建方法：剔除IPO前及新股上市当年造假、首次造假年份去重、控制样本匹配法",
+      "财务造假特征指标清单：审计师意见、前一年度是否亏损、前五大股东占比、应收/预付/其他应收款占流动资产比例",
+      "ChatGPT投资相关插件的功能对比矩阵（PortfolioPilot vs Boolio Invest vs PortfoliosLab）",
+      "Noteable平台的数据限制说明（25文件/100MB）及替代方案（S3/GCS/Azure/数据库连接）"
+    ],
+    "inspirations": [
+      "可使用ChatGPT + Noteable插件实现投研工作流的自动化，降低模型开发门槛",
+      "财务造假预测可结合NLP文本特征（年报语调、管理层讨论与分析的异常表述、问询函回复延迟等）增强模型",
+      "ChatGPT插件生态可作为国产大模型应用落地的参考框架，国内可开发类似的投研插件生态",
+      "AskYourPDF插件可自动从年报PDF中提取信息并存储至向量数据库，可用于构建年报知识库",
+      "可利用WebPilot插件自动抓取研报/公告网页内容并结构化提取信息"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "将Beneish M-Score的8个分量（DSRI应收账款指数、GMI毛利率指数、AQI资产质量指数、SGI销售增长指数、DEPI折旧指数、SGAI销售管理费用指数、LVGI杠杆指数、TATA总应计资产比）与报告中的审计师意见、前一年度是否亏损、前五大股东占比等特征合并，训练XGBoost分类器，并使用SMOTE过采样或class_weight='balanced'处理类别不平衡",
+        "based_on": "本报告的财务造假特征选择思路 + 传统Beneish M-Score方法",
+        "expected_gain": "通过更全面的特征集和类别不平衡处理，预期提升精确率和召回率，F值有望从'较低'提升至0.5以上"
+      },
+      {
+        "idea": "在LSTM择时模型基础上引入注意力机制（Attention）并融合宏观经济特征（利率、汇率、PMI、社融等），使用Transformer编码器替代LSTM，序列长度扩展至60日以上",
+        "based_on": "本报告LSTM沪深300择时思路",
+        "expected_gain": "增强长程依赖建模和多源信息融合能力，预期提升择时胜率和超额收益"
+      },
+      {
+        "idea": "构建年报文本特征（管理层讨论与分析的情感得分、语调变化、模糊表述频率、问询函相关特征），与财务特征融合训练造假预测模型",
+        "based_on": "本报告财务造假预测模型的特征工程思路",
+        "expected_gain": "文本特征可捕捉财务数据之外的造假信号，预期显著提升召回率"
+      }
+    ],
+    "replication_plan": "1) 注册ChatGPT Plus并安装Noteable插件；2) 从证监会、沪深交易所网站整理2002年后A股财务造假公司处罚公告，提取首次造假年份，剔除IPO前及新股上市当年造假数据；3) 按控制样本匹配法选取造假样本当年同行业上市公司（剔除被处罚公司）作为对照样本；4) 从Wind/Choice/Tushare获取以下特征：审计师意见、前一年度是否亏损、前五大股东占比、应收账款/预付款项/其他应收款占流动资产比例（建议补充Beneish M-Score 8分量）；5) 使用Noteable插件在ChatGPT内创建Jupyter笔记本，调用API下载沪深300日频数据训练LSTM择时模型（需自行设定超参数）；6) 对财务造假数据使用SMOTE处理类别不平衡后训练XGBoost/LightGBM分类器；7) 评估准确率/精确率/召回率/F值/AUC；8) 注意Noteable平台文件数≤25、单文件≤100MB限制，大数据可上传至S3或连接数据库"
+  },
+  "entities": [
+    {
+      "name": "ChatGPT",
+      "type": "model"
+    },
+    {
+      "name": "Noteable",
+      "type": "concept"
+    },
+    {
+      "name": "PortfolioPilot",
+      "type": "concept"
+    },
+    {
+      "name": "LSTM",
+      "type": "method"
+    },
+    {
+      "name": "曹春晓",
+      "type": "person"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

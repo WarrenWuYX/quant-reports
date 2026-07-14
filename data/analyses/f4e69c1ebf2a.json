@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0",
+  "slug": "f4e69c1ebf2a",
+  "source": {
+    "title": "【方正金工】个人AI助理OpenClaw部署及其在金融投研中的应用研究——AI Agent赋能金融投研应用系列之二",
+    "institution": "方正",
+    "authors": [
+      "曹春晓"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247513163&idx=1&sn=9fa7ccb0ca07130e66cdbb1b0ff3c11a&scene=21&poc_token=HGiKQ2qjvP8ARYB1yYhKJCeF2vhX9c-t_citUxlN",
+    "local_path": "方正/【方正金工】个人AI助理OpenClaw部署及其在金融投研中的应用研究——AI Agent赋能金融投研应用系列之二.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [
+      "价值"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [],
+    "custom_tags": [
+      "AI Agent",
+      "OpenClaw",
+      "工具部署",
+      "智能体"
+    ]
+  },
+  "ratings": {
+    "quality": 3,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "方正金工测试了个人AI助理OpenClaw的云端隔离部署，并验证了其在文件管理、研报复现、条件选股及小盘价值量化策略自动化构建与回测等金融投研场景中的应用能力。",
+    "core_points": [
+      "OpenClaw核心架构包含Gateway、Agent、Skills、Memory，实现从自然语言指令到本地系统执行的闭环。",
+      "采用腾讯云Lighthouse进行一键隔离部署，并配置飞书作为通讯交互Channel，接入GLM 4.7作为大模型底座。",
+      "赋予OpenClaw数据库/API只读权限后，其能自主拆解复杂任务、编写代码并自我调试，完成小盘价值选股策略的回测。"
+    ],
+    "key_result": "在隔离环境与适度数据库访问权限下，OpenClaw展现出强大的任务执行力，能自主完成从策略逻辑理解到代码编写、回测及错误修复的复杂投研工作流，大幅降低量化工具使用门槛。"
+  },
+  "detailed": {
+    "core_content": "本报告详细介绍了开源AI智能体OpenClaw的核心架构与工作原理，通过腾讯云Lighthouse实现一键隔离部署，并配置飞书平台作为消息通道。测试了其在金融投研中的多项应用：基础文件管理、研究报告复现、基于同花顺API的行情监控与条件选股，以及结合高频因子库的小盘价值量化选股策略自动化构建与历史回测。结果显示OpenClaw能自主拆解复杂任务并修复代码错误，体现了较好的完成度。",
+    "economic_logic": "利用大语言模型的推理规划能力结合本地系统的执行能力，将AI从“对话”转变为“做事”，实现投研工作流自动化，降低数据与工具使用门槛，将投研人员从重复性规则工作中解放，聚焦于复杂决策与创新策略研发。",
+    "construction": {
+      "type": "config",
+      "data_inputs": [
+        {
+          "field": "股票历史行情及高频因子数据",
+          "frequency": "日频/高频",
+          "source": "方正金工高频因子数据库（只读）/同花顺API",
+          "preprocessing": "由Agent自主编写Python代码通过SDK或数据库接口直接提取，无人工预处理"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未披露具体回测区间",
+        "benchmark": "未披露",
+        "rebalance_freq": "未披露",
+        "cost": "未披露",
+        "grouping": "未披露"
+      },
+      "combination": "小盘价值选股策略（通过自然语言描述逻辑，由AI Agent自行拆解与代码实现）",
+      "parameters": [
+        {
+          "name": "LLM底座",
+          "value": "GLM 4.7",
+          "meaning": "驱动Agent思考与逻辑推理的大语言模型"
+        },
+        {
+          "name": "Gateway Port",
+          "value": "18789",
+          "meaning": "OpenClaw网关常驻后台守护进程端口"
+        },
+        {
+          "name": "Channel",
+          "value": "飞书",
+          "meaning": "用户与AI交互的通讯平台，需配置App ID和App Secret"
+        }
+      ],
+      "factor_definition": "本报告为AI工具部署测试，未给出具体的量化因子公式。小盘价值选股策略的因子逻辑由自然语言直接输入给AI Agent，由其自行转化为代码实现。",
+      "processing_pipeline": [
+        "1. 云端隔离部署：在腾讯云Lighthouse应用模板中一键安装OpenClaw环境。",
+        "2. 系统配置：执行 `openclaw onboard`，输入智谱GLM 4.7大模型API Key，配置飞书机器人App ID与App Secret完成通道对接。",
+        "3. 权限赋予：在聊天窗口将数据库测试账号或同花顺API秘钥交给OpenClaw，由其自主完成SDK安装与连通性测试。",
+        "4. 复杂任务拆解与执行：发送小盘价值选股策略需求，Agent将其拆解为子任务（选股逻辑实现、代码测试、最新持仓筛选、历史回测）。",
+        "5. 自我纠错与输出：Agent在代码出错时自主排查修复，最终输出策略回测结果。"
+      ],
+      "model_architecture": "系统架构：Gateway(网关/神经中枢) -> Agent(大脑/任务规划) -> Skills(执行模块) -> Memory(多层记忆架构)。Gateway负责路由与调度，Agent接入LLM拆解任务，Skills执行具体操作，Memory存储上下文。",
+      "inputs": [
+        "自然语言指令",
+        "飞书App凭证",
+        "大模型API Key",
+        "数据库只读账号密码/API秘钥"
+      ],
+      "outputs": "文件整理结果、提炼纪要、自动生成的策略代码、历史回测结果图表、盯盘监控预警",
+      "training": "无监督训练过程，直接调用预训练大模型进行零样本推理与执行。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "本报告并未提出新的超额收益模型，而是探索利用AI Agent自动化执行传统小盘价值选股策略回测的可行性，通过降低工具使用门槛来提升投研效率。",
+    "performance": {
+      "metrics": [],
+      "benchmark": "",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "报告主要测试了OpenClaw在基础文件管理、研报复现、行情监控、条件选股及小盘价值选股策略构建等方面的应用能力，但未提供具体的量化绩效指标。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "未涉及",
+      "style_bias": "小盘价值",
+      "turnover": null,
+      "capacity": null,
+      "summary": "大模型存在幻觉效应及生成代码错误的风险，但OpenClaw具备较强的自我调试和错误修复能力；通过部署在隔离环境并仅赋予数据库只读权限，可以较大程度降低安全风险及幻觉带来的影响。"
+    },
+    "data_dependency": {
+      "data_required": "同花顺API权限、方正金工高频因子库只读权限、智谱AI GLM 4.7 API Key",
+      "reproducibility": "medium",
+      "summary": "部署与配置流程描述清晰，可复现性较高；但量化策略部分由于依赖自然语言交互且未公开具体回测参数，精确复现策略绩效存在一定难度。"
+    },
+    "prior_art": [
+      {
+        "method": "方正金工DeepSeek应用系列报告",
+        "relation": "前置研究，此前测试了DeepSeek对研报的理解与代码复现，本文在其基础上升级为具备主动执行能力和本地操作权限的AI Agent。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "将开源AI Agent（OpenClaw）引入金融投研工作流，通过网关+智能体+技能的组合，验证了从数据提取到策略回测的端到端自动化对话式交互范式。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "量化策略部分仅为应用案例展示，未披露小盘价值策略的具体因子构造、参数细节及历史回测的客观绩效指标。",
+      "大模型存在幻觉效应，自动生成的代码可能有隐藏的逻辑漏洞，需人工二次复核以确保回测结果无误。",
+      "将数据库账号密码或API秘钥直接通过聊天窗口交给AI存在一定的安全合规隐患，即便是在测试环境下。"
+    ],
+    "useful_elements": [
+      "腾讯云Lighthouse结合OpenClaw的快速隔离部署方案及飞书接入配置流程，具有极强的实操指导性。",
+      "利用AI Agent拆解复杂量化任务（策略代码编写、回测、调试）的工作流思路，可显著降低主动投研人员使用量化工具的门槛。"
+    ],
+    "inspirations": [
+      "AI Agent可作为连接非技术投研人员与底层数据库/代码库的中间件，将复杂的Wind/同花顺终端操作转化为自然语言交互。",
+      "Agent的自主调试能力可应用于量化研究员日常的代码除错与脚本自动化生成中。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "相似逻辑不同构造：将“小盘价值”选股策略替换为“小盘低波动”或“小盘高质量”策略，并要求OpenClaw不仅完成历史回测，还需自动生成因子IC分析、分层单调性测试及净值归因报告。",
+        "based_on": "Agent具备多步执行和代码自我修复能力，可处理更复杂的量化研究流程。",
+        "expected_gain": "从单纯的策略回测扩展到完整的单因子/多因子检验与归因体系，提升AI辅助量化研究的深度与标准化程度。"
+      }
+    ],
+    "replication_plan": "1. 选购腾讯云Lighthouse服务器，在重装系统页面选择应用模板一键安装OpenClaw；2. 执行 `openclaw onboard` 配置智谱GLM 4.7大模型及飞书机器人通道；3. 配置同花顺API或建立本地测试数据库并分配只读账号交予Agent；4. 在飞书对话框输入小盘价值选股自然语言指令，观察其任务拆解、代码编写、报错修复及回测生成的全过程，评估其执行成功率与结果准确性。"
+  },
+  "entities": [
+    {
+      "name": "OpenClaw",
+      "type": "model"
+    },
+    {
+      "name": "GLM 4.7",
+      "type": "model"
+    },
+    {
+      "name": "小盘价值选股策略",
+      "type": "method"
+    },
+    {
+      "name": "Peter Steinberger",
+      "type": "person"
+    },
+    {
+      "name": "腾讯云Lighthouse",
+      "type": "dataset"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

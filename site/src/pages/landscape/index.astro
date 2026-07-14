@@ -1,21 +1,11 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import HeatmapChart from "../../components/HeatmapChart.tsx";
-import fs from "node:fs";
-import path from "node:path";
+import HeatmapGrid from "../../components/HeatmapGrid.astro";
+import coverage from "../../data/coverage.json";
 
-const dataDir = path.resolve("src/data");
-let dimensions: any[] = [];
-let gaps: any[] = [];
+const dimensions: any[] = coverage.dimensions || [];
+const gaps: any[] = coverage.gaps || [];
 let improvementIdeas: any[] = [];
-try {
-  const raw = fs.readFileSync(path.join(dataDir, "coverage.json"), "utf-8");
-  const data = JSON.parse(raw);
-  dimensions = data.dimensions || [];
-  gaps = data.gaps || [];
-} catch {
-  // coverage.json not yet generated
-}
 
 // Collect improvement ideas from analyses
 import { getCollection } from "astro:content";
@@ -58,7 +48,7 @@ improvementIdeas = ok.flatMap((a: any) =>
       <div class={`dim-panel ${i === 0 ? "" : "hidden"}`} data-dim={i}>
         <div class="panel p-4 mb-6">
           <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider mb-3">{dim.label}</h3>
-          <HeatmapChart dimension={dim} client:load />
+          <HeatmapGrid dimension={dim} />
         </div>
       </div>
     ))}

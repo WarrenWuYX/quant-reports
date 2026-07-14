@@ -1,0 +1,250 @@
+{
+  "schema_version": "1.0",
+  "slug": "72ff07935497",
+  "source": {
+    "title": "ChatGLM的医药行业舆情精选策略——大模型微调指南",
+    "institution": "国金",
+    "authors": [
+      "高智威，王小康"
+    ],
+    "published": "2026-06-11",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=MzkzNTIxNTkzMA==&mid=2247501731&idx=1&sn=78df8a222463a5a3f09921d730e925c1&chksm=c2b3d1f6f5c458e0fb6fe86e980973533e7bf72fdf7706cbf4a3e6286395293ea1b28a6504de&scene=178&cur_album_id=2675772689629904900&search_click_id=#rd",
+    "local_path": "国金/ChatGLM的医药行业舆情精选策略——大模型微调指南.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习",
+      "另类数据"
+    ],
+    "data_frequency": [
+      "日频",
+      "财务(低频)"
+    ],
+    "factor_family": [
+      "情绪"
+    ],
+    "asset_class": [
+      "A股",
+      "行业轮动"
+    ],
+    "method": [
+      "深度学习"
+    ],
+    "custom_tags": [
+      "大模型微调",
+      "医药行业",
+      "舆情精选",
+      "PEFT",
+      "LoRA"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "通过使用ChatGPT3.5对医药新闻的分析结果作为软标签，LoRA微调ChatGLM2构建周度舆情精选策略，实现低成本本地化大模型投研辅助，单边千二手续费下年化超额收益12.17%。",
+    "core_points": [
+      "使用ChatGPT3.5生成的高质量标签微调ChatGLM2-LoRA，解决了文本与收益率直接相关性弱导致模型难以学习的问题",
+      "采用PEFT中的LoRA方法，通过旁路低秩矩阵更新，大幅减少显存和计算消耗",
+      "加入混合精度训练和梯度累积优化大模型训练的资源消耗，降低微调门槛"
+    ],
+    "key_result": "微调后ChatGLM2综合准确率约0.9，构建的周度医药行业舆情精选策略在无手续费下年化超额收益率约30%，经换手率缓冲并在单边千分之二手续费下年化超额收益率达12.17%。"
+  },
+  "detailed": {
+    "core_content": "报告探讨了利用PEFT（特别是LoRA）微调国产开源大模型ChatGLM2以辅助投研决策的方法。直接以超额收益率为标签微调效果极差，改为以ChatGPT3.5的输出作为软标签进行微调，使ChatGLM2学到逻辑推理能力，达到近似ChatGPT3.5的预测效果，并据此构建医药行业周度舆情精选策略。",
+    "economic_logic": "医药行业新闻对公司业绩影响逻辑链条直接，易于大模型学习。通过大模型提取新闻中的情感和预期收益信息，能够对未来股价超额收益产生预测作用，从而产生Alpha。",
+    "construction": {
+      "type": "strategy",
+      "data_inputs": [
+        {
+          "field": "医药行业新闻文本",
+          "frequency": "日频",
+          "source": "未明确",
+          "preprocessing": "数据格式化为JSON[{Input Text, ID, Label}]，tokenize转换为模型可识别token，padding/truncation对齐长度，添加Attention Mask"
+        },
+        {
+          "field": "超额收益率",
+          "frequency": "日频",
+          "source": "未明确",
+          "preprocessing": "用于评估ChatGPT3.5生成标签的有效性"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未明确",
+        "benchmark": "未明确",
+        "rebalance_freq": "周度",
+        "cost": "单边千分之二",
+        "grouping": "未明确"
+      },
+      "combination": "模型输出情感标签作为预测信号，通过换手率缓冲机制降低换手率，构建周度多头精选策略。",
+      "parameters": [
+        {
+          "name": "gradient_accumulation",
+          "value": "未明确具体步数",
+          "meaning": "梯度累积参数，将多次计算梯度累加后一次性更新参数，模拟大batch_size以减少显存消耗"
+        },
+        {
+          "name": "mixed_precision",
+          "value": "FP16/FP32",
+          "meaning": "混合精度训练，权重参数占用显存减半，加快计算效率"
+        },
+        {
+          "name": "r (intrinsic dimension)",
+          "value": "r << d",
+          "meaning": "LoRA低秩矩阵的本征维度，只需训练少量参数即可达到全量微调效果"
+        }
+      ],
+      "factor_definition": "",
+      "processing_pipeline": [
+        "1. 收集医药行业个股新闻文本数据",
+        "2. 设计Prompt调用ChatGPT3.5 API对新闻进行情感分析并预测超额收益率走势，生成预测标签",
+        "3. 将数据集格式化为JSON格式：[{Input Text, ID, Label}]",
+        "4. 对文本进行tokenize，进行padding和truncation长度对齐",
+        "5. 添加Attention Mask以提示模型注意有效部分"
+      ],
+      "model_architecture": "ChatGLM2-6B基座模型 + LoRA旁路。冻结原模型参数，在权重矩阵旁路新增低秩矩阵A和B，A输入维度与原模型一致，输出维度为r(本征维度)，B输入维度为r，输出维度与原模型一致，最终与原模型合并。",
+      "inputs": [
+        "医药行业新闻文本"
+      ],
+      "outputs": "新闻情感及未来股价超额收益率走势预测标签",
+      "training": "1.数据准备：使用ChatGPT3.5分析新闻得到的预测结果作为训练标签；2.训练配置：使用LoRA微调，结合混合精度训练(FP16/FP32)和梯度累积降低显存消耗；3.评估：使用ROUGE-L和BLEU等基于词重叠率的指标评估语义准确性，最终综合准确率达到0.9左右。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "利用微调后的ChatGLM2对医药行业新闻进行情感和逻辑推理，预测未来股价一段时间的超额收益率走势，做多预测正向的标的构建周度组合，获取超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "综合准确率",
+          "value": "0.9左右"
+        },
+        {
+          "name": "年化超额收益率(无手续费)",
+          "value": "30%左右"
+        },
+        {
+          "name": "年化超额收益率(单边千分之二手续费)",
+          "value": "12.17%"
+        }
+      ],
+      "benchmark": "未明确",
+      "backtest_period": "未明确",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "微调后的ChatGLM2-LoRA模型在预测未来股价超额收益率走势上综合准确率达到0.9左右。基于该模型构建的医药行业周度舆情精选策略，在无手续费情况下年化超额收益率达30%左右；经换手率缓冲降低换手后，在单边千分之二手续费下年化超额收益率依然有12.17%。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "研报未对超额收益进行具体的因子归因或风险归因分析。"
+    },
+    "robustness": {
+      "subsample_stability": "未明确",
+      "style_bias": "未明确",
+      "turnover": null,
+      "capacity": null,
+      "summary": "通过加入换手率缓冲机制降低高换手带来的摩擦成本，在单边千分之二的手续费下依然能保持12.17%的年化超额收益，具有一定抗摩擦能力的稳健性。"
+    },
+    "data_dependency": {
+      "data_required": "医药行业个股新闻文本数据、个股量价数据用于计算超额收益",
+      "reproducibility": "medium",
+      "summary": "需要收集医药行业新闻文本及量价数据，同时需调用ChatGPT3.5 API生成训练标签，数据获取和标签生成有一定成本，但模型微调和推理过程在本地开源模型上完成，保护了隐私，整体复现难度中等。"
+    },
+    "prior_art": [
+      {
+        "method": "ChatGPT直接API调用进行情感分析",
+        "relation": "作为基础对比模型及微调标签的生成器（知识蒸馏来源）"
+      },
+      {
+        "method": "FinBERT微调",
+        "relation": "作为对比模型，表现略差于微调后的ChatGLM2"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将ChatGPT3.5的生成结果作为软标签，通过LoRA微调轻量级开源模型ChatGLM2，实现本地化低成本的垂直领域情感预测，兼顾了预测效果与数据隐私安全。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "未明确具体的回测时间区间和基准指数，难以评估策略周期适应性",
+      "策略换手率较高，需依赖换手率缓冲机制，可能削弱部分收益",
+      "LoRA微调的秩r等关键超参数未给出具体数值，难以完全复现训练细节",
+      "高度依赖ChatGPT3.5生成的标签质量，未深入探讨标签本身的偏差或错误传播问题"
+    ],
+    "useful_elements": [
+      "使用强模型(ChatGPT3.5)输出作为弱模型(ChatGLM2)的微调标签，解决直接用收益率微调效果差的问题",
+      "梯度累积和混合精度训练降低大模型微调显存消耗的工程实践",
+      "LoRA低秩矩阵参数高效微调的原理和优势说明"
+    ],
+    "inspirations": [
+      "可以用大模型输出作为标签微调小模型，实现知识蒸馏与本地化部署",
+      "在特定垂直行业(如医药)的新闻文本上，大模型的情感分析能提供显著的Alpha收益",
+      "直接预测收益率难度大，预测中间逻辑变量（如大模型情感标签）再映射到收益率更有效"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "采用多模型集成标签或强化学习反馈(RLHF)替代单一ChatGPT3.5标签，并引入更精细的因子化处理（如将情感极性转化为连续分值而非离散标签）",
+        "based_on": "基于当前使用ChatGPT3.5生成离散标签微调ChatGLM2的逻辑",
+        "expected_gain": "提升标签质量和信息含量，减少离散化带来的信息损失，预期进一步提高策略超额收益和稳健性"
+      }
+    ],
+    "replication_plan": "1. 收集医药行业个股相关新闻文本及对应超额收益率数据；2. 设计Prompt调用ChatGPT3.5对新闻进行情感分析和超额收益率走势预测，生成软标签；3. 将数据集格式化为JSON，进行Tokenize、Padding、Truncation和Attention Mask处理；4. 部署ChatGLM2-6B模型，配置LoRA旁路，设置适当的本征维度r，启用梯度累积和混合精度训练；5. 使用上述数据集微调ChatGLM2，并用ROUGE-L评估语义准确率；6. 将微调后模型应用于样本外医药行业新闻生成预测信号；7. 构建周度调仓的医药行业精选策略，加入换手率缓冲，以单边千分之二手续费进行回测验证。"
+  },
+  "entities": [
+    {
+      "name": "ChatGLM2",
+      "type": "model"
+    },
+    {
+      "name": "ChatGLM",
+      "type": "model"
+    },
+    {
+      "name": "ChatGPT3.5",
+      "type": "model"
+    },
+    {
+      "name": "ChatGPT",
+      "type": "model"
+    },
+    {
+      "name": "FinBERT",
+      "type": "model"
+    },
+    {
+      "name": "LoRA",
+      "type": "method"
+    },
+    {
+      "name": "P-Tuning",
+      "type": "method"
+    },
+    {
+      "name": "Prefix-Tuning",
+      "type": "method"
+    },
+    {
+      "name": "Prompt-Tuning",
+      "type": "method"
+    },
+    {
+      "name": "PEFT",
+      "type": "method"
+    },
+    {
+      "name": "ChatGLM2-LoRA",
+      "type": "model"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "slug": "dc1a59ef78e0",
+  "source": {
+    "title": "MiroFish实测：多智能体宏观与行业趋势推演 | 国联民生金工",
+    "institution": "国联民生",
+    "authors": [
+      "叶尔乐"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=MzkzNzQyMDg5Nw==&mid=2247509235&idx=1&sn=05f0633669a656140a1b8f36f84eefbb&chksm=c28d55fdf5fadceb4f7cc94644b0a905e7f9300acb1f2337fb5aef2791c40ffb79b0700552a3&scene=178&cur_album_id=2741365540920967171&search_click_id=#rd",
+    "local_path": "国联民生/MiroFish实测：多智能体宏观与行业趋势推演  国联民生金工.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "资产配置·风格轮动",
+      "AI·机器学习"
+    ],
+    "data_frequency": [],
+    "factor_family": [],
+    "asset_class": [
+      "多资产"
+    ],
+    "method": [
+      "知识图谱·RAG",
+      "深度学习"
+    ],
+    "custom_tags": [
+      "多智能体系统",
+      "群体智能",
+      "宏观趋势推演",
+      "数字孪生"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 4,
+    "reusability": 3
+  },
+  "concise": {
+    "one_liner": "深度测评开源多智能体预测引擎MiroFish，发现其在宏观与行业趋势推演中具有强叙事性和逻辑闭环，但预测精确性未显著超越联网LLM，更适合作为逻辑推演与查漏补缺的沙盒工具。",
+    "core_points": [
+      "基于时序GraphRAG、多智能体系统与OASIS仿真引擎构建数字孪生社会",
+      "通过种子材料自动生成Agent并在虚拟社交平台并行演化涌现预测",
+      "封闭模拟环境极度依赖种子文件，无法自主修正事实错误，易放大部分假设偏误",
+      "在政策影响分析、产业链传导路径研判等需要反复推敲的宏观研究领域具有独特价值"
+    ],
+    "key_result": "MiroFish生成报告的叙事性和逻辑深度优于联网LLM，但在预测精确性上未显著超越Kimi K2.5。基模型对比中，Claude Opus 4.6在因果推演上更优，Qwen 3.5-plus在数据密度与结论具象化上更具优势。"
+  },
+  "detailed": {
+    "core_content": "介绍MiroFish多智能体预测引擎的工作流与技术架构，并通过黄金走势预测案例及四大金融场景（产业政策、资产配置、地缘冲突、科技路径）测试评估其实际应用价值与局限性。",
+    "economic_logic": "通过构建高保真的数字孪生社会，模拟不同利益相关者（Agent）在虚拟社交平台（X与Reddit）中的群体交互与演化，利用群体涌现效应和复杂网络特征（如舆论极化、意见领袖涌现）生成对未来宏观趋势和行业发展的逻辑推演。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "种子材料",
+          "frequency": "不定期",
+          "source": "用户输入或Claude Opus 4.6生成",
+          "preprocessing": "由图谱构建引擎自动提取实体类型与关系类型，构建时序知识图谱，并注入个体与群体记忆"
+        }
+      ],
+      "backtest_setup": {
+        "period": "NA",
+        "benchmark": "Kimi K2.5联网LLM",
+        "rebalance_freq": "NA",
+        "cost": "Token成本较高",
+        "grouping": "NA"
+      },
+      "combination": "双轨仿真环境（模拟X与Reddit社交平台）并行推演，Agent行为实时回写至Zep图谱更新关系，最终采用ReACT范式调用工具集生成报告",
+      "parameters": [
+        {
+          "name": "Agent数量",
+          "value": "60（黄金案例）/ 14~48（其他场景）",
+          "meaning": "参与仿真的独立人格智能体数量"
+        },
+        {
+          "name": "互动轮次",
+          "value": "72（黄金案例）",
+          "meaning": "Agent在虚拟平台中的交互轮数"
+        },
+        {
+          "name": "基模型",
+          "value": "Claude Opus 4.6 / Qwen 3.5-plus",
+          "meaning": "驱动Agent推理与生成的底层大语言模型"
+        }
+      ],
+      "factor_definition": null,
+      "processing_pipeline": [],
+      "model_architecture": "MiroFish架构由五个核心模块组成：1) 图谱构建引擎（基于时序GraphRAG和Zep Cloud，提取实体与关系并注入记忆）；2) 智能体工厂（将Person节点转化为含年龄、MBTI、立场等属性的Agent，Organization转为大发言人）；3) 双轨仿真环境（模拟X与Reddit平台并行演化，通过zep_graph_memory_updater.py更新关系）；4) 涌现检测器（捕捉群体行为模式、极化、相变临界点等）；5) 报告生成引擎（ReACT范式调用insight_forge、panorama_search、interview_agents工具集生成结构化Markdown报告）。",
+      "inputs": [
+        "种子文件（如黄金走势分析材料，含驱动框架、历史表现等）",
+        "模拟提示词（指定讨论议题和预测问题）",
+        "Agent人设配置（基本信息、人设背景、关联话题）"
+      ],
+      "outputs": "包含事件脉络、关键时间节点、风险预警、策略建议的结构化Markdown预测报告，以及支持对话访谈的交互接口",
+      "training": "无模型训练过程，基于Prompt工程与图谱构建技术直接驱动大模型推理与仿真",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "不适用。作为推演工具，其价值在于通过多视角模拟提供逻辑闭环和查漏补缺，辅助研究人员进行政策影响推演、技术路线排查及假设情景测试，而非直接产生量化超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "预测精确性",
+          "value": "未显著超越联网LLM"
+        },
+        {
+          "name": "叙事性与逻辑深度",
+          "value": "优于联网LLM"
+        }
+      ],
+      "benchmark": "Kimi K2.5联网LLM",
+      "backtest_period": "",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "MiroFish在知识图谱构建与多维度叙事能力上表现优秀，生成报告逻辑深度更高。但在预测精确性上未显著超越Kimi K2.5等联网LLM。基模型对比中，Claude Opus 4.6在因果推演、结构化分析方面表现更优，而Qwen 3.5-plus在数据密度与结论具象化上更具优势。系统极度依赖种子文件准确性，存在封闭环境局限。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "本文为AI多智能体预测引擎MiroFish的工具测评与应用探索，未涉及量化策略的收益归因分析。",
+      "gap": "不适用"
+    },
+    "robustness": {
+      "subsample_stability": "极度依赖种子文件的准确性与完整性，若输入有误会持续放大错误认知形成群体幻觉，且无法自主检索外部信息修正",
+      "style_bias": "偏向于提供宏观叙事和逻辑推演，在具体数值预测上较为谨慎，不愿直接给出明确判断",
+      "turnover": null,
+      "capacity": null,
+      "summary": "系统在封闭环境下运行，鲁棒性受限于种子文件质量、Token成本导致的大规模深度交互限制，以及智能体涌现行为的随机性。"
+    },
+    "data_dependency": {
+      "data_required": "高质量的文本类种子材料（涵盖行业框架、关键事件、机构观点等）",
+      "reproducibility": "medium",
+      "summary": "依赖开源MiroFish引擎、Zep Cloud时序记忆服务及底层大模型，种子材料的生成和设定具有主观性，仿真过程含涌现随机性，但核心流程可复现。"
+    },
+    "prior_art": [
+      {
+        "method": "多智能体系统(MAS)与OASIS仿真引擎",
+        "relation": "MiroFish深度融合了这两项技术用于构建数字孪生社会与虚拟社交平台推演"
+      },
+      {
+        "method": "时序GraphRAG与Zep Cloud",
+        "relation": "使用Zep Cloud实现实体记忆与时序关系动态更新，增强Agent的长期记忆能力"
+      },
+      {
+        "method": "联网LLM (如Kimi K2.5)",
+        "relation": "作为基准对比，MiroFish在预测精确性上未显著超越该基线，但在叙事性和逻辑深度上更强"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "将时序GraphRAG、多智能体系统与OASIS仿真引擎结合，把知识图谱实体转化为数字孪生Agent进行双轨社交平台推演，提供了一种新颖的宏观趋势群体涌现预测工作流。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "封闭模拟环境无法自主检索外部信息验证种子文件准确性，易放大偏差形成事实错误的群体幻觉",
+      "受限于Token成本，难以实现大规模深度交互，Agent细节无法达到真正的数字孪生精细度",
+      "预测精确性未显著超越联网LLM，且在具体数值预测上过于谨慎，不适合高精度预测终端"
+    ],
+    "useful_elements": [
+      "通过时序GraphRAG构建知识图谱并注入个体/群体记忆的架构设计",
+      "基于种子材料自动生成多维度Agent人设（含年龄、MBTI、立场等）的流水线",
+      "双轨仿真环境（X+Reddit）结合涌现检测器与ReACT报告生成工具集的端到端自动化流程"
+    ],
+    "inspirations": [
+      "多智能体仿真可用于宏观研究的逻辑推演与沙盒测试，提供多元视角模拟",
+      "在投资决策中，可结合传统量化模型与多智能体推演交叉验证，查漏补缺",
+      "多智能体系统适用于排查产业链技术路线与价值链中的各种可能性，辅助政策影响分析"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "引入实时数据检索增强生成（Real-time RAG）机制，允许Agent在仿真过程中动态接入最新行情与新闻，修正认知偏差",
+        "based_on": "MiroFish封闭模拟环境导致群体幻觉与无法修正事实错误的缺陷",
+        "expected_gain": "解决系统无法验证种子文件准确性的问题，提升预测的实时性与精确性，使其从纯沙盒推演向高精度预测终端演进"
+      }
+    ],
+    "replication_plan": "1. 获取MiroFish开源代码及依赖（Zep Cloud API、OASIS引擎）；2. 选定基模型（如Claude Opus 4.6或Qwen 3.5-plus）；3. 准备特定金融场景的种子材料与模拟提示词；4. 运行图谱构建与Agent初始化流程；5. 启动双轨仿真至指定轮次；6. 调用报告生成工具集输出预测报告；7. 与联网LLM基线进行多维度对比评估。"
+  },
+  "entities": [
+    {
+      "name": "MiroFish",
+      "type": "model"
+    },
+    {
+      "name": "Zep Cloud",
+      "type": "model"
+    },
+    {
+      "name": "OASIS",
+      "type": "model"
+    },
+    {
+      "name": "Claude Opus 4.6",
+      "type": "model"
+    },
+    {
+      "name": "Qwen 3.5-plus",
+      "type": "model"
+    },
+    {
+      "name": "Kimi K2.5",
+      "type": "model"
+    },
+    {
+      "name": "GraphRAG",
+      "type": "method"
+    },
+    {
+      "name": "多智能体系统",
+      "type": "concept"
+    },
+    {
+      "name": "叶尔乐",
+      "type": "person"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

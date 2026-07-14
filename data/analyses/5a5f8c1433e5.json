@@ -1,0 +1,238 @@
+{
+  "schema_version": "1.0",
+  "slug": "5a5f8c1433e5",
+  "source": {
+    "title": "【东吴金工于明明团队】深度学习系列之四：从人工写因子到AI写因子：LLM-MCTS驱动的可解释因子迭代框架",
+    "institution": "东吴",
+    "authors": [
+      "于明明"
+    ],
+    "published": "2026-06-23",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/7U24BfNWm33vOAeXBOreyw",
+    "local_path": "东吴/【东吴金工于明明团队】深度学习系列之四：从人工写因子到AI写因子：LLM-MCTS驱动的可解释因子迭代框架.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "高频·微观结构",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频",
+      "分钟"
+    ],
+    "factor_family": [
+      "波动率",
+      "反转",
+      "流动性"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "深度学习",
+      "强化学习"
+    ],
+    "custom_tags": [
+      "LLM-MCTS",
+      "因子挖掘",
+      "可解释因子迭代",
+      "AI写因子",
+      "Alpha挖掘"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 5,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "结合大语言模型(LLM)与蒙特卡洛树搜索(MCTS)构建因子迭代框架，通过LLM生成带金融逻辑的候选因子，MCTS进行多维度评测与路径搜索，实现日频及高频因子的自动化挖掘与改造。",
+    "core_points": [
+      "LLM与MCTS分工协作：LLM负责提出带语义约束的因子假说与表达式，MCTS负责搜索树管理、预算分配与路径回传",
+      "多维评价体系mcts_reward_score：综合预测强度、稳定性、覆盖率、换手友好度、候选多样性和过拟合惩罚",
+      "Virtual Expansion机制：通过机会价值比较控制搜索树形状，平衡横向扩宽与纵向挖深",
+      "闭环系统：覆盖日频Seed改造、低频批量挖掘和高频分钟行为挖掘，严格执行样本内外检验"
+    ],
+    "key_result": "高频'高量脉冲次数'因子样本内/外RankIC达0.0839/0.0744，保留率0.89；低频双优候选占比82.7%，且因子间相关性极低(均值0.26)。"
+  },
+  "detailed": {
+    "core_content": "本文构建了LLM-MCTS可解释因子迭代框架。以已有因子为根节点，MCTS在公式搜索树中进行选择、扩展、评测和回传；LLM在扩展阶段生成带有假说、方向、适用场景等要素的候选公式。系统采用mcts_reward_score作为奖励，结合UCT和虚拟扩展机制，决定搜索路径。该框架在日频、低频批量及高频分钟因子挖掘中均展现出有效性，并沉淀了可复用的经验库。",
+    "economic_logic": "传统人工写因子受限于认知边界，遗传规划等自动搜索方法缺乏金融逻辑且易过拟合。本框架利用LLM的常识推理能力将因子生成约束在合理的金融逻辑内（如波动、反转、成交确认），同时利用MCTS解决LLM一次性生成易陷入局部最优且缺乏反馈闭环的问题。通过“提出假说-生成代码-评测回传-迭代优化”的闭环，确保挖掘出的因子既具有经济学解释性，又经过严格的统计验证。",
+    "construction": {
+      "type": "model",
+      "data_inputs": [
+        {
+          "field": "open, high, low, close, volume, amount",
+          "frequency": "日频/分钟",
+          "source": "行情数据",
+          "preprocessing": "对齐未来收益，计算覆盖率、换手"
+        }
+      ],
+      "backtest_setup": {
+        "period": "未提及",
+        "benchmark": "原始Seed因子",
+        "rebalance_freq": "周度",
+        "cost": "考虑换手友好度",
+        "grouping": "未提及"
+      },
+      "combination": "无，单因子评测",
+      "parameters": [
+        {
+          "name": "mcts_reward_score",
+          "value": "综合评分",
+          "meaning": "综合预测强度、稳定性、覆盖率、换手友好度、候选多样性和过拟合惩罚的搜索阶段分数"
+        },
+        {
+          "name": "UCT",
+          "value": "利用项+探索项",
+          "meaning": "在已知高分分支和访问较少分支之间平衡"
+        },
+        {
+          "name": "virtual_score",
+          "value": "best_reward + virtual_expansion_weight/(1+expansions)",
+          "meaning": "当前节点继续横向扩宽的机会价值，与最优子节点的UCT比较，决定搜索树形状"
+        }
+      ],
+      "factor_definition": "N/A",
+      "processing_pipeline": [],
+      "model_architecture": "LLM-MCTS框架：1.初始化：以原始因子为根节点；2.选择：根据UCT和virtual_score选择扩展节点(决定横向扩宽还是向下挖深)；3.扩展：LLM读取父节点公式、评测弱项和历史路径，生成带有假说、方向、适用场景的新公式；4.审查：逻辑审查、公式解析、合法性过滤；5.评测：计算周度RankIC/IR、覆盖率、换手、相关性；6.回传：计算mcts_reward_score并沿父链回传更新访问次数和最优奖励。",
+      "inputs": [
+        "父节点公式",
+        "root逻辑",
+        "当前评测弱项",
+        "历史路径",
+        "可用算子边界"
+      ],
+      "outputs": "新因子公式, 因子逻辑假说, 评测指标",
+      "training": "基于MCTS的强化学习式搜索迭代，无梯度反向传播。奖励来自真实行情数据计算的周度RankIC/IR及换手、覆盖率等多维指标综合而成的mcts_reward_score。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过LLM对已有因子进行逻辑改写和结构增强，提取波动、反转、成交确认等增量结构。高频方面如“高量脉冲次数”通过捕捉分钟级交易行为的微观结构获取超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "双优候选占样本内有效候选比例",
+          "value": "82.7%"
+        },
+        {
+          "name": "双优候选全局绝对相关性均值",
+          "value": "0.2604"
+        },
+        {
+          "name": "双优候选绝对相关性>0.8的比例",
+          "value": "1.88%"
+        },
+        {
+          "name": "高量脉冲次数因子样本内RankIC",
+          "value": "0.0839"
+        },
+        {
+          "name": "高量脉冲次数因子样本外RankIC",
+          "value": "0.0744"
+        },
+        {
+          "name": "高量脉冲次数因子样本内ICIR",
+          "value": "1.140"
+        },
+        {
+          "name": "高量脉冲次数因子样本外ICIR",
+          "value": "0.770"
+        },
+        {
+          "name": "高频代表因子样本外RankIC区间",
+          "value": "0.0627至0.0647"
+        }
+      ],
+      "benchmark": "原始Seed因子",
+      "backtest_period": "未提及",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "框架在日频、低频批量及高频分钟因子挖掘上均表现优异。低频Seed池挖掘中143个因子在样本内外均优于原始Seed，占比达82.7%，且候选因子间全局相关性低，无严重同质化。高频挖掘中高量脉冲次数因子样本外RankIC保留率达0.89。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "严格区分样本内选型和样本外验证，样本外仅用于验证不反选因子。高频“高量脉冲次数”因子样本外RankIC保留率达0.89。",
+      "style_bias": "未明确提及",
+      "turnover": null,
+      "capacity": null,
+      "summary": "通过严格的样本内外划分和过拟合惩罚机制，保证因子泛化能力。低频双优候选占样本内有效候选比例达82.7%，且因子间绝对相关性低(均值0.26)，无同质化坍缩。"
+    },
+    "data_dependency": {
+      "data_required": "低频价量数据(open, high, low, close, volume, amount)，高频分钟行情数据",
+      "reproducibility": "medium",
+      "summary": "基础数据为标准量价数据，获取容易；但框架依赖LLM生成逻辑且评测流程复杂，完整复现MCTS搜索树及LLM提示词工程具有一定挑战。"
+    },
+    "prior_art": [
+      {
+        "method": "Zhao, Lee, Hsu 2023 (LLM as Commonsense Knowledge for Task Planning)",
+        "relation": "提出LLM作为常识世界模型和启发式策略引导MCTS"
+      },
+      {
+        "method": "Shi, Duan, Li 2025 (LLM-Powered MCTS Framework for Formulaic Factor Mining)",
+        "relation": "将因子生成建模为公式搜索树，本文在此基础上进行本地化扩展，面向已有因子的定向改造，并细化了IS/OOS诊断与经验库沉淀"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "将LLM与MCTS结合，LLM不仅作为生成器还作为逻辑审查器；设计了virtual_score控制搜索树形状；构建了包含严格样本内外区分和经验沉淀的闭环工程化框架，有效解决了自动因子挖掘的过拟合和缺乏解释性痛点。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "评测指标以周度RankIC/IR为主，对极端市场环境或特定风格暴露的稳健性验证不足",
+      "高度依赖LLM的能力，不同模型版本或Prompt设计可能显著影响生成质量",
+      "LLM生成代码可能存在理解偏差或实现错误，需独立验证，增加了实际应用成本"
+    ],
+    "useful_elements": [
+      "LLM与MCTS结合的思路，兼顾语义生成与搜索效率",
+      "mcts_reward_score多维度评测指标综合",
+      "virtual_score控制搜索树形状(横向vs纵向)的机制",
+      "严格的样本内选型与样本外验证分离原则"
+    ],
+    "inspirations": [
+      "可以使用大模型对已有失效因子进行逻辑诊断并提出修复假说",
+      "搜索树节点的奖励函数可引入换手率和相关性惩罚，避免同质化",
+      "不仅是生成公式，可以让大模型生成可执行的Python函数以支持复杂逻辑"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "将搜索扩展阶段的LLM由单模型生成改为多智能体辩论机制，引入不同金融视角的Agent(如量价Agent、基本面Agent)提出假说，增强候选因子的多样性",
+        "based_on": "LLM-MCTS的扩展阶段",
+        "expected_gain": "减少单一LLM的认知路径依赖，提升生成因子的逻辑广度和跨维度特征捕捉能力"
+      }
+    ],
+    "replication_plan": "1. 收集A股日频/分钟量价数据；2. 选定基础算子库和初始Seed因子；3. 搭建MCTS搜索框架，实现节点选择、扩展、评测、回传逻辑；4. 接入LLM API，构建Prompt使其读取节点信息并输出带假说的候选公式；5. 实现因子解析器和回测引擎，计算周度RankIC/IR、覆盖率、换手等指标并合成mcts_reward_score；6. 实现virtual_score判断逻辑控制搜索树生长；7. 跑通日频Seed改造和高频因子挖掘流程，对比样本内外表现。"
+  },
+  "entities": [
+    {
+      "name": "LLM-MCTS",
+      "type": "concept"
+    },
+    {
+      "name": "MCTS",
+      "type": "method"
+    },
+    {
+      "name": "LLM",
+      "type": "model"
+    },
+    {
+      "name": "于明明",
+      "type": "person"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

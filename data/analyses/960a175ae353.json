@@ -1,0 +1,298 @@
+{
+  "schema_version": "1.0",
+  "slug": "960a175ae353",
+  "source": {
+    "title": "【方正金工】成交量激增时刻蕴含的alpha信息——多因子选股系列研究之一",
+    "institution": "方正",
+    "authors": [
+      "方正金工"
+    ],
+    "published": "2026-06-30",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=Mzg2MDMyMjU0Ng==&mid=2247496958&idx=1&sn=4dbdd2252459a2dd5ba3aee070134931&chksm=ce2a9b63f95d1275de8bf8d90336dc8a1d2358874d71415f3aa5c27bd13980d49544a0abe2ca&scene=21#wechat_redirect",
+    "local_path": "方正/【方正金工】成交量激增时刻蕴含的alpha信息——多因子选股系列研究之一.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "高频·微观结构"
+    ],
+    "data_frequency": [
+      "分钟"
+    ],
+    "factor_family": [
+      "波动率",
+      "流动性",
+      "反转"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "统计线性"
+    ],
+    "custom_tags": [
+      "成交量激增",
+      "反应过度",
+      "反应不足",
+      "行为金融",
+      "适度冒险"
+    ]
+  },
+  "ratings": {
+    "quality": 5,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "本报告通过提取日内成交量激增时刻的价格波动与收益特征，构建了衡量投资者反应过度或不足程度的“适度冒险”因子，在全A股月频选股中表现出色。",
+    "core_points": [
+      "从分钟频成交量的边际变动定义“激增时刻”，并提取激增后5分钟（耀眼5分钟）的波动率和收益率特征。",
+      "构建“适度日耀眼波动率”和“适度日耀眼收益率”，衡量个股对成交量激增的反应与市场平均水平的距离。",
+      "合成“月耀眼波动率”与“月耀眼收益率”因子，等权得到“适度冒险”因子，因子值越小代表越适度，未来收益越高。",
+      "因子在全A及不同指数成分股中表现优异，剥离风格因子后仍具显著Alpha。"
+    ],
+    "key_result": "适度冒险因子在全A股月频选股中Rank IC为-8.89%，RankICIR为-4.84，多空组合年化收益率达37.46%，信息比4.10，月度胜率87.74%。"
+  },
+  "detailed": {
+    "core_content": "报告认为成交量激增反映市场关注度提升，若此时价格波动或收益过大说明反应过度，过小说明反应不足，适度最佳。通过计算个股日内分钟成交量激增时段（即超过当日均值+1倍标准差）后5分钟的波动率与收益率，并对其偏离市场平均水平的绝对距离进行20日均值与标准差合成，构建出“适度冒险”因子。因子值越小（越适度），未来收益表现越好。",
+    "economic_logic": "基于行为金融学中的反应过度与反应不足理论。当利好信息引发成交量激增时，若价格波动剧烈说明投资者情绪趋同且反应过度，承担了过度风险；若价格无变动则说明信息未被认可。适度承担风险的股票往往未来表现更好，偏离“适度”水平的股票存在均值回归的负向预期。",
+    "construction": {
+      "type": "factor",
+      "data_inputs": [
+        {
+          "field": "分钟频成交量",
+          "frequency": "分钟",
+          "source": "行情数据库",
+          "preprocessing": "剔除开盘和收盘数据，仅保留日内分钟数据"
+        },
+        {
+          "field": "分钟频收盘价",
+          "frequency": "分钟",
+          "source": "行情数据库",
+          "preprocessing": "用于计算分钟收益率及5分钟波动率"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2013年4月至2022年2月",
+        "benchmark": "全A等权",
+        "rebalance_freq": "月频",
+        "cost": "未提及",
+        "grouping": "分10组测试，多空组合为第10组减第1组"
+      },
+      "combination": "等权合成",
+      "parameters": [
+        {
+          "name": "激增阈值",
+          "value": "均值 + 1倍标准差",
+          "meaning": "判定分钟成交量激增的相对阈值"
+        },
+        {
+          "name": "耀眼窗口长度",
+          "value": "5分钟",
+          "meaning": "激增时刻及其随后的4分钟，作为考察投资者反应的窗口"
+        },
+        {
+          "name": "回溯周期",
+          "value": "20个交易日",
+          "meaning": "计算月均和月稳因子的滚动时间窗口"
+        }
+      ],
+      "factor_definition": "Volume_diff(t,i) = Volume(t,i) - Volume(t-1,i)\\nSpike(t,i) = 1 if Volume_diff(t,i) > Mean(Volume_diff(·,i)) + Std(Volume_diff(·,i)) else 0\\nGlorious5(t,i) = [t, t+1, t+2, t+3, t+4] if Spike(t,i)=1\\nGloriousVol(t,i) = Std(Ret(Glorious5(t,i)))\\nGloriousRet(t,i) = Ret(t,i)\\nDailyGloriousVol(i,d) = Mean(GloriousVol(t,i) for t in day d)\\nDailyGloriousRet(i,d) = Mean(GloriousRet(t,i) for t in day d)\\nModerateVol(i,d) = |DailyGloriousVol(i,d) - CrossSectionMean(DailyGloriousVol(·,d))|\\nModerateRet(i,d) = |DailyGloriousRet(i,d) - CrossSectionMean(DailyGloriousRet(·,d))|\\nMonthlyMeanVol(i) = Mean(ModerateVol(i,d) for d in past 20 days)\\nMonthlyStdVol(i) = Std(ModerateVol(i,d) for d in past 20 days)\\nMonthlyMeanRet(i) = Mean(ModerateRet(i,d) for d in past 20 days)\\nMonthlyStdRet(i) = Std(ModerateRet(i,d) for d in past 20 days)\\nMonthlyGloriousVol(i) = 0.5 * MonthlyMeanVol(i) + 0.5 * MonthlyStdVol(i)\\nMonthlyGloriousRet(i) = 0.5 * MonthlyMeanRet(i) + 0.5 * MonthlyStdRet(i)\\nModerateRiskTaking(i) = 0.5 * MonthlyGloriousVol(i) + 0.5 * MonthlyGloriousRet(i)",
+      "processing_pipeline": [
+        "1. 提取日内分钟频量价数据，剔除开盘和收盘数据。",
+        "2. 计算个股每分钟成交量相对于上一分钟的差值（Volume_diff）。",
+        "3. 计算每日每只股票 Volume_diff 的均值和标准差。",
+        "4. 识别激增时刻：Volume_diff > 均值 + 1*标准差 的分钟。",
+        "5. 定义耀眼5分钟：激增时刻及其随后的4分钟。",
+        "6. 计算每分钟收益率（基于分钟收盘价）。",
+        "7. 计算耀眼波动率：每个“耀眼5分钟”窗口内分钟收益率的标准差。",
+        "8. 计算耀眼收益率：“激增时刻”那一分钟的分钟收益率。",
+        "9. 计算日耀眼波动率：日内所有“耀眼波动率”的均值。",
+        "10. 计算日耀眼收益率：日内所有“耀眼收益率”的均值。",
+        "11. 计算适度日耀眼波动率：|日耀眼波动率 - 截面均值(日耀眼波动率)|。",
+        "12. 计算适度日耀眼收益率：|日耀眼收益率 - 截面均值(日耀眼收益率)|。",
+        "13. 计算月均耀眼波动率：过去20个交易日“适度日耀眼波动率”的均值。",
+        "14. 计算月稳耀眼波动率：过去20个交易日“适度日耀眼波动率”的标准差。",
+        "15. 计算月均耀眼收益率：过去20个交易日“适度日耀眼收益率”的均值。",
+        "16. 计算月稳耀眼收益率：过去20个交易日“适度日耀眼收益率”的标准差。",
+        "17. 合成月耀眼波动率因子：月均耀眼波动率与月稳耀眼波动率等权合成。",
+        "18. 合成月耀眼收益率因子：月均耀眼收益率与月稳耀眼收益率等权合成。",
+        "19. 合成适度冒险因子：月耀眼波动率因子与月耀眼收益率因子等权合成。",
+        "20. 因子预处理：进行市值和行业正交化处理后用于选股回测。"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "成交量激增代表市场关注度高，此时若价格波动和收益率偏离市场适度水平（过大或过小），说明存在反应过度或反应不足。这种非理性的极端反应在未来会发生修正，即偏离适度的股票未来收益较差。因此适度冒险因子与未来收益率呈负相关，空头端（反应极端的股票）贡献了主要超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "Rank IC",
+          "value": "-8.89%"
+        },
+        {
+          "name": "Rank ICIR",
+          "value": "-4.84"
+        },
+        {
+          "name": "多空组合年化收益率",
+          "value": "37.46%"
+        },
+        {
+          "name": "信息比",
+          "value": "4.10"
+        },
+        {
+          "name": "因子月度胜率",
+          "value": "87.74%"
+        },
+        {
+          "name": "剥离风格因子后Rank IC",
+          "value": "-3.18%"
+        },
+        {
+          "name": "剥离风格因子后Rank ICIR",
+          "value": "-1.89"
+        },
+        {
+          "name": "剥离风格因子后多空年化收益率",
+          "value": "18.07%"
+        },
+        {
+          "name": "剥离风格因子后信息比率",
+          "value": "2.23"
+        }
+      ],
+      "benchmark": "全A等权",
+      "backtest_period": "2013年4月至2022年2月",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "适度冒险因子在全A股月频选股中表现卓越，Rank IC为-8.89%，RankICIR为-4.84，多空组合年化收益率37.46%，信息比4.10，月度胜率87.74%。剥离10个常用风格因子后仍具较强选股能力。在沪深300、中证500、中证1000不同样本空间均有效，中证500内表现更佳。"
+    },
+    "attribution": {
+      "done": false,
+      "method": "10个常用风格因子正交化处理",
+      "summary": "对适度冒险因子与10个常用风格因子进行正交化处理，得到纯净因子后Rank IC均值-3.18%，RankICIR -1.89，多空年化18.07%，信息比2.23，验证了增量选股能力。同时测试了沪深300、中证500、中证1000不同股票池表现。",
+      "gap": "未进行详细的Brinson或因子归因分解，未分析因子在不同行业、市值区间、市场状态下的细分表现，未与主流高频因子进行横向对比"
+    },
+    "robustness": {
+      "subsample_stability": "在沪深300、中证500、中证1000不同样本空间下均表现出较好的选股能力，中证500内表现更为出色。",
+      "style_bias": "与波动率和换手率有一定的正相关性，与其他风格因子相关系数较低。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子表现稳健，参数敏感性低（耀眼3/4/5分钟均有效），且在剥离10个常用风格因子后依然具有显著增量信息。"
+    },
+    "data_dependency": {
+      "data_required": "全A股日内分钟频成交量和分钟收盘价数据",
+      "reproducibility": "medium",
+      "summary": "数据需求为标准的高频量价数据，无特殊另类数据需求。但分钟数据的清洗、停牌涨跌停处理及激增时刻的高效计算具有一定工程门槛。"
+    },
+    "prior_art": [
+      {
+        "method": "Arnold, Pelster, Subrahmanyam (2022) 关注度触发与投资者风险承担",
+        "relation": "理论依据，提供“吸引注意力的股票易诱发过度风险承担”的学术支撑"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "创新点在于将高频量价微观结构（成交量激增）与行为金融学（反应过度/不足的适度性度量）相结合，通过绝对距离构建月频选股因子。虽使用基础量价数据，但特征提取视角新颖。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "“适度”程度的衡量仅使用截面均值绝对值距离，未考虑不同股票自身历史波动特性的差异，易受横截面极值影响。",
+      "激增时刻的定义相对简单（均值+1倍标准差），未剔除市场系统性放量或板块联动放量的干扰，可能包含非个股特异性信息。",
+      "缺少对涨跌停、大单拆分等高频数据特有异常情况的处理细节说明。",
+      "虽测试了剥离风格因子后的表现，但多空收益可能仍大量来源于空头端，实际多空头寸构建成本未详细评估。"
+    ],
+    "useful_elements": [
+      "成交量激增时刻的识别逻辑（分钟差分 > 均值+1倍标准差）。",
+      "激增后5分钟作为“耀眼窗口”提取波动与收益特征的设计。",
+      "“适度性”概念转化为截面绝对距离的工程化实现。",
+      "因子合成兼顾“均值（水平）”与“标准差（稳定性）”双维度。"
+    ],
+    "inspirations": [
+      "通过量价微观结构的异常变动来捕捉行为金融学现象，可有效转化为月频Alpha因子。",
+      "“偏离适度即存在反转”的逻辑范式可推广至其他高频事件（如大单冲击、资金流入激增等）的反应特征提取中。",
+      "将高频特征降维至月频均值/标准差，是连接高频信号与低频持仓的有效手段。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "引入量价联合分布：不单独考察价格波动，而是计算激增时刻的成交量冲击与价格冲击的回归残差，用残差作为“过度反应”的度量。",
+        "based_on": "原方法将量和价分离处理，且用绝对距离衡量适度性过于扁平。",
+        "expected_gain": "更精确捕捉“单位成交量激增带来的价格反应”，提升因子经济逻辑纯度，降低与单纯波动率因子的共线性。"
+      },
+      {
+        "idea": "使用个股自身时间序列Z-score定义激增与适度：将日频特征减去个股自身过去N日均值除以自身标准差，再取绝对值。",
+        "based_on": "原方法使用截面均值衡量适度，可能高波动股始终被判定为“不适度”。",
+        "expected_gain": "剔除个股固有波动属性的影响，更纯粹地度量当日激增反应的异常程度。"
+      }
+    ],
+    "replication_plan": "1. 获取2013.04-2022.02全A股分钟频量价数据，进行停牌、涨跌停剔除清洗。2. 计算分钟成交量差分，按日计算均值与标准差，筛选差分大于均值+1倍标准差的激增时刻。3. 截取激增时刻及随后4分钟（共5分钟）的分钟收益率，计算标准差作为耀眼波动率；取激增时刻分钟收益率作为耀眼收益率。4. 日内求均值得日频指标，日频指标减去当日全A截面均值取绝对值得适度日频指标。5. 滚动过去20日，求适度日频指标的均值和标准差，等权合成得月耀眼波动率/收益率因子。6. 两因子等权合成适度冒险因子。7. 进行市值行业正交化，分10组回测，验证Rank IC及多空收益表现。"
+  },
+  "entities": [
+    {
+      "name": "适度冒险因子",
+      "type": "factor"
+    },
+    {
+      "name": "月耀眼波动率因子",
+      "type": "factor"
+    },
+    {
+      "name": "月耀眼收益率因子",
+      "type": "factor"
+    },
+    {
+      "name": "月均耀眼波动率因子",
+      "type": "factor"
+    },
+    {
+      "name": "月稳耀眼波动率因子",
+      "type": "factor"
+    },
+    {
+      "name": "月均耀眼收益率因子",
+      "type": "factor"
+    },
+    {
+      "name": "月稳耀眼收益率因子",
+      "type": "factor"
+    },
+    {
+      "name": "成交量激增时刻",
+      "type": "concept"
+    },
+    {
+      "name": "耀眼5分钟",
+      "type": "concept"
+    },
+    {
+      "name": "反应过度与反应不足",
+      "type": "concept"
+    },
+    {
+      "name": "等权合成",
+      "type": "method"
+    },
+    {
+      "name": "市值行业正交化",
+      "type": "method"
+    },
+    {
+      "name": "分钟频成交量数据",
+      "type": "dataset"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

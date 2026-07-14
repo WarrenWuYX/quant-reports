@@ -78,3 +78,4 @@ def test_analyzer_raises_error_after_all_retries_exhausted():
     a = Analyzer(prov, {"research_type": [], "method": []}, model="GLM-5.2")
     with pytest.raises(AnalysisError):
         a.analyze(_doc())
+    assert prov.i == 3

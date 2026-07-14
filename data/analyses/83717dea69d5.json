@@ -1,0 +1,273 @@
+{
+  "schema_version": "1.0",
+  "slug": "83717dea69d5",
+  "source": {
+    "title": "AI因子挖掘的双路径实践与Skill沉淀——从表达式搜索到Agent化研究流程",
+    "institution": "东吴",
+    "authors": [
+      "于明明 周金铭"
+    ],
+    "published": "2026-06-23",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/x2OUEkyZ0JXdGFsASN5JIg",
+    "local_path": "东吴/AI因子挖掘的双路径实践与Skill沉淀——从表达式搜索到Agent化研究流程.md",
+    "ingested_at": "2026-07-12"
+  },
+  "classification": {
+    "research_type": [
+      "技术面(量价)",
+      "AI·机器学习"
+    ],
+    "data_frequency": [
+      "日频",
+      "隔夜"
+    ],
+    "factor_family": [
+      "反转",
+      "波动率",
+      "流动性",
+      "情绪"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "深度学习",
+      "遗传规划·符号回归"
+    ],
+    "custom_tags": [
+      "大语言模型",
+      "Agent",
+      "函数式因子"
+    ]
+  },
+  "ratings": {
+    "quality": 5,
+    "novelty": 5,
+    "reusability": 5
+  },
+  "concise": {
+    "one_liner": "东吴金工提出LLM增强遗传编程和函数式代码生成双路径挖掘量价因子，并将流程封装为可迭代共享的Agent化研究Skill。",
+    "core_points": [
+      "LLM增强遗传编程：提取子表达式基因注入表达式树，结合分岛进化与周期性LLM注入，生成87个表达式因子。",
+      "函数式因子挖掘：LLM直接生成Pandas/Numpy代码，通过路径、状态判断等细粒度刻画交易行为，生成80个因子。",
+      "Skill沉淀：将数据接入、评测、因子生成、反馈吸收封装为可复用的选股因子迭代工作流。"
+    ],
+    "key_result": "GA因子全区间|RankIC|约6.98%，对Alpha158MLP增量IC约2.53%；函数式因子RankIC均值约4.90%，增量IC约1.67%。"
+  },
+  "detailed": {
+    "core_content": "报告设计了双路径AI因子挖掘体系。路径一在表达式空间，由LLM从初始因子提炼“子表达式基因”（如高开阴线、天量异动等），注册至Qlib算子库并结合分岛遗传算法进行带金融逻辑约束的搜索，期间LLM周期性注入新个体；路径二在代码空间，让LLM以Python函数形式直接生成因子，通过分步条件判断刻画更复杂的交易行为。最终将整套流程封装为可复盘、可共享的Agent化因子迭代Skill。",
+    "economic_logic": "量价数据中蕴含交易行为信息。传统遗传算法随机性过强易过拟合且缺乏金融解释；LLM直接生成成本高且难以大规模探索。通过LLM提炼具有明确金融含义的子表达式（如隔夜情绪、日内资金博弈、天量异常），约束并引导遗传算法搜索，兼顾了搜索广度与逻辑深度。同时，通过残差和状态切分刻画资金路径，能捕捉到传统简单公式无法表达的复杂微观交易结构。",
+    "construction": {
+      "type": "factor",
+      "data_inputs": [
+        {
+          "field": "$open, $close, $volume",
+          "frequency": "日频",
+          "source": "行情数据",
+          "preprocessing": "前复权，停牌处理等标准Qlib流程"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2018-01-01至2026-05-11",
+        "benchmark": "Alpha158MLP合成因子",
+        "rebalance_freq": "日频",
+        "cost": "未提及",
+        "grouping": "未提及"
+      },
+      "combination": "LLM提取子表达式基因 + Qlib基础算子组合，通过遗传算法交叉变异生成",
+      "parameters": [
+        {
+          "name": "初始因子集",
+          "value": "29个Alpha158因子",
+          "meaning": "基因提取来源"
+        },
+        {
+          "name": "基础算子",
+          "value": "34个Qlib算子",
+          "meaning": "表达式树构建基础"
+        },
+        {
+          "name": "子表达式基因数",
+          "value": "68个",
+          "meaning": "LLM提取的金融逻辑部件"
+        },
+        {
+          "name": "种群规模",
+          "value": "1800",
+          "meaning": "遗传算法单代个体数量"
+        },
+        {
+          "name": "迭代代数",
+          "value": "20代",
+          "meaning": "进化深度"
+        },
+        {
+          "name": "分岛数",
+          "value": "3个",
+          "meaning": "独立进化增加多样性"
+        },
+        {
+          "name": "LLM注入频率",
+          "value": "每3代注入",
+          "meaning": "周期性补充逻辑新个体"
+        }
+      ],
+      "factor_definition": "报告给出三个代表性子表达式基因（用于遗传编程搜索空间的构建）：\n1. bearish_reversal_flag (刻画高开阴线情绪释放): Greater($open/Ref($close,1)-1, 0) * Greater($open/$close-1, 0)\n2. volume_surge_squared (刻画天量异动非线性强化): Power(Greater($volume/EMA($volume, {period})-1, 0), 2)\n3. overnight_intraday_vol_ratio (刻画隔夜与日内波动来源差异): Std($open/Ref($close,1)-1, {period}) / (Std($close/$open-1, {period}) + 1e-12)\n注：$open, $close, $volume为日频开高低收数据，Ref为N日前数据，EMA为指数移动平均，Std为标准差，Greater为取大于0部分。",
+      "processing_pipeline": [
+        "1. 初始化：读取29个Alpha158因子，使用LLM分析并提取68个具备金融含义的子表达式基因。",
+        "2. 空间注册：将68个子表达式基因与34个Qlib基础算子共同注册到遗传编程表达式树空间。",
+        "3. 分岛进化：设置3个岛屿，种群规模1800，进行20代独立交叉变异，定期迁移优秀个体。",
+        "4. LLM周期注入：每隔3代，LLM分析各岛最优因子结构，为每个岛生成5个新候选因子。",
+        "5. 适应度评价：第一层校验语法、Qlib可计算性和截面区分度；第二层计算训练集RankIC、ICIR，并加入表达式复杂度惩罚。",
+        "6. 竞争替换：LLM生成的新因子仅当表现优于岛屿底部个体时进入种群。",
+        "7. 筛选输出：计算测试集RankIC，进行因子内部及相关传统因子低相关筛选，输出87个最终GA候选因子。"
+      ],
+      "model_architecture": "不适用",
+      "inputs": [],
+      "outputs": "87个GA表达式因子, 80个函数式因子",
+      "training": "以2018-01-01至2022-12-31为训练区间，2023-01-01至2026-05-11为测试区间。适应度基于训练集RankIC、ICIR和复杂度惩罚构建。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过LLM理解量价数据背后的交易行为（如隔夜情绪、日内资金确认、极端量能等），将研究员式逻辑转化为子表达式或代码函数，突破了传统简单线性算子组合的局限。因子提供的超额收益来源于对复杂交易行为的非线性刻画和状态条件切分，这些结构在传统的Alpha158因子组合（即使通过MLP非线性合成）之外仍能提供显著的增量解释力（双残差增量IC显著）。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "GA因子全区间|RankIC|均值",
+          "value": "6.98%"
+        },
+        {
+          "name": "GA因子全区间|ICIR|均值",
+          "value": "0.79"
+        },
+        {
+          "name": "GA因子测试集|RankIC|均值",
+          "value": "6.93%"
+        },
+        {
+          "name": "GA因子相对Alpha158MLP平均增量IC",
+          "value": "2.53%"
+        },
+        {
+          "name": "函数式因子RankIC均值",
+          "value": "4.90%"
+        },
+        {
+          "name": "函数式因子ICIR均值",
+          "value": "0.66"
+        },
+        {
+          "name": "函数式因子相对Alpha158MLP平均增量IC",
+          "value": "1.67%"
+        }
+      ],
+      "benchmark": "Alpha158MLP",
+      "backtest_period": "2018-01-01至2026-05-11",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "报告通过LLM增强遗传编程挖掘出87个表达式因子，全区间|RankIC|均值6.98%，测试集|RankIC|均值6.93%；通过函数式生成挖掘出80个因子，RankIC均值4.90%。两类因子相对Alpha158MLP均具备显著增量信息。"
+    },
+    "attribution": {
+      "done": true,
+      "method": "双残差增量IC检验、相关性分析",
+      "summary": "通过计算与20日反转、波动率、换手率等传统量价因子的相关性，以及对Alpha158MLP合成因子进行双残差回归计算增量IC，检验了新因子的独立解释力与边际信息贡献。",
+      "gap": ""
+    },
+    "robustness": {
+      "subsample_stability": "训练集|RankIC|约7.01%，测试集|RankIC|约6.93%，衰减幅度极小（约0.08个百分点），样本外稳定性良好。",
+      "style_bias": "与传统量价因子具有中等相关性，其中与20日低波因子相关性均值约0.58，与20日反转和低流动性约0.42，既有继承又有增量。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子在样本外表现稳定，内部相关性控制在合理范围（81.6%因子对低于0.7），且对强基准Alpha158MLP具有明显增量信息，整体鲁棒性较强。"
+    },
+    "data_dependency": {
+      "data_required": "日频OHLCV行情数据（$open, $close, $volume）",
+      "reproducibility": "medium",
+      "summary": "依赖标准日频价量数据和Qlib算子库，数据获取容易；但依赖大语言模型进行基因提取和代码生成，且遗传算法搜索存在随机性，完整复现特定因子需要严格的随机种子和LLM版本控制。"
+    },
+    "prior_art": [
+      {
+        "method": "传统遗传规划(GP)因子挖掘",
+        "relation": "改进对象。传统GP随机组合易过拟合，本文通过LLM提供子表达式基因和周期注入增强其金融逻辑性。"
+      },
+      {
+        "method": "Alpha158因子集 + MLP模型",
+        "relation": "对照基准。用于检验新生成因子是否提供增量信息。"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新方法",
+      "summary": "创新性地将LLM的逻辑推理能力与传统遗传算法的高通量搜索能力结合（LLM注入GP），以及直接在代码空间生成函数式因子，形成了双路径的AI因子挖掘范式并沉淀为Agent化研究Skill。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "LLM和遗传算法的随机性导致部分因子结构仍可能存在隐含过拟合，虽然统计上测试集衰减小，但复杂表达式易捕捉特定历史噪音。",
+      "高度依赖LLM的Prompt设计和逻辑推理质量，如果LLM对某些金融行为理解存在偏差，会污染整个基因池。",
+      "报告展示的因子均为低频量价，未涉及基本面逻辑或多源数据验证，Skill的泛化能力在实际多源复杂数据下仍需考验。",
+      "交易成本与实际换手率约束未在回测评测层面具体展开，高复杂度因子可能带来高换手。"
+    ],
+    "useful_elements": [
+      "子表达式基因提取机制：将因子拆解为带有金融含义的中间变量再进行搜索，是兼顾可解释性和搜索广度的优秀范式。",
+      "双残差增量IC检验：将因子和收益分别对Alpha158MLP中性化后再求IC，是验证因子增量信息的严谨方法。",
+      "函数式因子路径：通过代码逻辑实现状态判断（如量能体制）和路径拆分，比纯表达式树具有更强的表达力。"
+    ],
+    "inspirations": [
+      "因子挖掘不必从零开始，可以将已有有效因子拆解为“基因”重组。",
+      "代码空间比表达式空间更适合表达复杂的条件逻辑和路径依赖。",
+      "AI量化研究应当走向Agent化，形成包含记忆、工具库和反馈机制的工作流。"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "引入微观订单簿结构或分钟级高频数据作为函数式因子输入",
+        "based_on": "当前函数式因子仅基于日频OHLCV，难以精细刻画盘中资金博弈",
+        "expected_gain": "相似逻辑下，将日内量价路径拆分细化为分钟级或订单流级别，可捕捉更真实的资金确认与恐慌出清行为，提升因子IC的绝对水平。"
+      }
+    ],
+    "replication_plan": "1. 基于Qlib框架准备日频OHLCV数据及Alpha158因子集。2. 使用GPT-4等LLM，输入Alpha158因子，提取如bearish_reversal_flag等子表达式基因。3. 搭建DEAP框架的遗传编程环境，配置3岛、1800种群规模、20代迭代。4. 自定义适应度函数（基于训练集RankIC/ICIR+复杂度惩罚），并集成Qlib表达式计算器验证语法。5. 实现“每3代调用LLM生成5个新因子”的API逻辑，通过竞争替换注入。6. 跑出候选因子库后，计算测试集IC表现，并进行两两相关性和传统因子相关性筛选。7. 构建Alpha158的2层MLP模型，对最终保留因子进行双残差增量IC检验。"
+  },
+  "entities": [
+    {
+      "name": "于明明",
+      "type": "person"
+    },
+    {
+      "name": "周金铭",
+      "type": "person"
+    },
+    {
+      "name": "LLM增强遗传编程",
+      "type": "method"
+    },
+    {
+      "name": "函数式因子挖掘",
+      "type": "method"
+    },
+    {
+      "name": "选股因子迭代Skill",
+      "type": "method"
+    },
+    {
+      "name": "Alpha158MLP",
+      "type": "model"
+    },
+    {
+      "name": "Alpha158",
+      "type": "dataset"
+    },
+    {
+      "name": "Qlib",
+      "type": "method"
+    },
+    {
+      "name": "子表达式基因",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

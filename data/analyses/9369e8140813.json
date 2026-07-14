@@ -1,0 +1,257 @@
+{
+  "schema_version": "1.0",
+  "slug": "9369e8140813",
+  "source": {
+    "title": "基于BERT-TextCNN的中证1000舆情增强策略",
+    "institution": "国金",
+    "authors": [
+      "高智威，赵妍"
+    ],
+    "published": "2026-06-11",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s?__biz=MzkzNTIxNTkzMA==&mid=2247508122&idx=1&sn=8d09dadfdbc04a9728172fdf54f575d9&chksm=c2b3b6cff5c43fd9674480544a964ac9340911b3e4ea8da4ba5c74b8a4c16ec17dda90f15acf&scene=178&cur_album_id=2675772689629904900&search_click_id=#rd",
+    "local_path": "国金/基于BERT-TextCNN的中证1000舆情增强策略.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "AI·机器学习",
+      "另类数据"
+    ],
+    "data_frequency": [
+      "日频"
+    ],
+    "factor_family": [
+      "情绪"
+    ],
+    "asset_class": [
+      "A股",
+      "指数增强"
+    ],
+    "method": [
+      "深度学习"
+    ],
+    "custom_tags": [
+      "BERT-TextCNN",
+      "大语言模型",
+      "FinGPT",
+      "舆情分析",
+      "中证1000"
+    ]
+  },
+  "ratings": {
+    "quality": 4,
+    "novelty": 3,
+    "reusability": 3
+  },
+  "concise": {
+    "one_liner": "利用大语言模型标注样本训练BERT-TextCNN模型对金融论坛股评进行情感分类，构建多维度周频舆情因子等权合成选股，实现中证1000指数增强。",
+    "core_points": [
+      "数据来源：子长科技提供的中证1000成分股金融论坛主帖数据，总样本超5000万条。",
+      "NLP模型：使用ChatGPT4和FinGPT双大模型结合子长LKM标注2.6万条样本，训练基于albert_chinese_small的TextCNN模型，样本外准确率超85%。",
+      "因子构建：从情绪一致性、关注度、关注度波动、整体情绪、情绪波动五个维度构建等权合成因子，IC达6.13%。",
+      "策略回测：周频调仓选前10%股票，单边千二成本，2018-2023年获得13.95%年化超额收益，信息比率1.56。"
+    ],
+    "key_result": "合成因子IC为6.13%，多空年化收益54.76%；中证1000增强策略年化超额收益13.95%，信息比率1.56，超额最大回撤9.52%。"
+  },
+  "detailed": {
+    "core_content": "报告通过子长科技获取中证1000成分股的金融论坛股民主帖数据，使用大语言模型（ChatGPT4+FinGPT）结合子长LKM标注约2.6万条样本，训练基于albert_chinese_small的TextCNN模型进行情感三分类（积极、消极、中性）。进而构建五个维度的周频因子（情绪一致性、关注度、关注度波动、整体情绪、情绪波动）等权合成，选前10%股票构建指数增强策略。",
+    "economic_logic": "股民情绪影响交易行为进而影响股价。金融论坛舆情数据反映了散户情绪的宣泄和观点。积极情绪一致或关注度极高的股票可能存在过度炒作或反转风险（对应因子IC为负），而整体情绪越积极（积极帖子减消极帖子）则代表基本面或情绪推动的正向预期。结合全局和局部特征的NLP模型能准确提取情感，通过多维度因子将舆情转化为Alpha。",
+    "construction": {
+      "type": "strategy",
+      "data_inputs": [
+        {
+          "field": "中证1000成分股金融论坛主帖文本数据",
+          "frequency": "日频(聚合为周频计算因子)",
+          "source": "子长科技",
+          "preprocessing": "正则表达式删除特定格式文本；将标题与正文内容进行合并"
+        }
+      ],
+      "backtest_setup": {
+        "period": "2018.1.8-2023.12.29",
+        "benchmark": "中证1000指数",
+        "rebalance_freq": "周频(每周第一个交易日)",
+        "cost": "单边千分之二",
+        "grouping": "等权重构建组合，选前10%"
+      },
+      "combination": "五个维度的因子(情绪一致性、关注度、关注度波动、整体情绪、情绪波动)进行等权重合成",
+      "parameters": [
+        {
+          "name": "选股阈值",
+          "value": "前10%",
+          "meaning": "合成因子值从大到小排序选择前10%的股票构建组合"
+        },
+        {
+          "name": "缓冲条件",
+          "value": "前0%与35%内",
+          "meaning": "上期持仓如果当期排名仍在规定区间内则保留，以降低换手率"
+        },
+        {
+          "name": "大模型标注规则",
+          "value": "积极/消极双大模型一致；中性需双大模型+LKM一致",
+          "meaning": "提高各标签样本质量，特别是解决中性情感识别不准的问题"
+        }
+      ],
+      "factor_definition": "1. 情绪一致性：积极帖子占比、消极帖子占比。2. 关注度：主帖数、积极帖子数、消极帖子数。3. 周内关注度波动：关注度因子的周内波动率。4. 整体情绪：积极帖子数 - 消极帖子数。5. 周内情绪波动：整体情绪因子的周内波动率。最终将五个维度的因子进行等权合成得到最终因子值。",
+      "processing_pipeline": [
+        "1. 正则清洗并合并标题与正文",
+        "2. 随机抽取4万条股评，用ChatGPT4与FinGPT进行三分类标注",
+        "3. 结合子长LKM结果过滤标注一致性低的样本，保留26618条有效标注数据",
+        "4. 使用标注数据微调ALBERT (albert_chinese_small) 模型，后接TextCNN提取局部特征，softmax输出三分类",
+        "5. 对超5000万条主帖数据进行模型推理得到情感标签",
+        "6. 按周聚合计算5个维度的因子值，并进行等权合成",
+        "7. 每周第一个交易日按合成因子值排序选前10%构建组合并设置换手率缓冲"
+      ],
+      "model_architecture": "BERT-TextCNN架构。底层为ALBERT (albert_chinese_small) 提取深层次语义和上下文信息输出语义特征F；上层为TextCNN，对特征F经过卷积层、池化层、全连接层和dropout层提取局部特征输出向量H；最后接softmax层输出三分类(积极、消极、中性)结果。",
+      "inputs": [
+        "预处理后的股评文本(标题与正文合并)"
+      ],
+      "outputs": "情感三分类标签(积极、消极、中性)",
+      "training": "使用26618条由双大语言模型(ChatGPT4及FinGPT)与子长科技LKM共同交叉验证标注的样本进行有监督训练。",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "论坛股民关注度越高或情绪一致性越强（积极）的股票往往由于短期过度反应导致未来表现较差（对应因子IC为负）；整体情绪越积极则推动股价上行（IC为正）。合成因子通过等权结合了反转逻辑与动量情绪逻辑，实现与低相关性传统因子的互补，获取超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "样本外准确率",
+          "value": "85%"
+        },
+        {
+          "name": "合成因子IC",
+          "value": "6.13%"
+        },
+        {
+          "name": "风险调整的IC",
+          "value": "0.71"
+        },
+        {
+          "name": "t统计量",
+          "value": "12.4"
+        },
+        {
+          "name": "多空年化收益率",
+          "value": "54.76%"
+        },
+        {
+          "name": "多空组合夏普比率",
+          "value": "4.07"
+        },
+        {
+          "name": "多空组合最大回撤率",
+          "value": "9.02%"
+        },
+        {
+          "name": "top组合年化超额收益率",
+          "value": "12.99%"
+        },
+        {
+          "name": "策略年化收益率",
+          "value": "10.85%"
+        },
+        {
+          "name": "年化超额收益率",
+          "value": "13.95%"
+        },
+        {
+          "name": "信息比率",
+          "value": "1.56"
+        },
+        {
+          "name": "超额净值最大回撤率",
+          "value": "9.52%"
+        }
+      ],
+      "benchmark": "中证1000指数",
+      "backtest_period": "2018.1.8-2023.12.29",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "利用大语言模型标注样本，训练BERT-TextCNN模型对金融论坛股评进行情感分类，构建多维度周频舆情因子。合成因子IC达6.13%，多空年化收益54.76%。基于此构建的中证1000指数增强策略实现了13.95%的年化超额收益率，信息比率1.56。"
+    },
+    "attribution": {
+      "done": false,
+      "method": null,
+      "summary": "",
+      "gap": "报告未进行超额收益的具体归因分析。"
+    },
+    "robustness": {
+      "subsample_stability": "2018-2023年除2019年外，其余各年份均获得了正的超额收益率，具有一定的子样本稳定性。",
+      "style_bias": "合成后的舆情因子与传统选股因子的相关系数均不超过0.3，风格暴露较低。",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子与传统因子相关性低，在大部分年份表现稳健，但2019年未获正超额，说明对特定市场环境有一定依赖。"
+    },
+    "data_dependency": {
+      "data_required": "子长科技提供的金融论坛股民主帖文本数据及LKM情绪标签数据",
+      "reproducibility": "hard",
+      "summary": "高度依赖第三方商业数据源(子长科技)，且大模型标注过程具有一定随机性，普通研究者难以完全复现数据与标注过程。"
+    },
+    "prior_art": [
+      {
+        "method": "FinGPT对论坛评论情感的精准识别——沪深300另类舆情增强因子",
+        "relation": "前序研究，本报告将其方法扩展并应用于中证1000股票池"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "将FinGPT/ChatGPT标注与ALBERT-TextCNN模型结合用于NLP情感分类并非完全首创，但提取多维周频因子（一致性、关注度及波动、情绪等）等权合成并应用于中证1000增强，属于数据和策略层面的新组合。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "数据源高度依赖子长科技的商业数据及LKM标注结果，难以独立复现",
+      "大语言模型对'中性'情感的识别能力有限，可能引入标签噪音",
+      "对'前0%与35%内'缓冲条件的描述疑似笔误，细节缺失影响完美复现",
+      "未进行详细的超额收益归因分析，无法确定超额来源"
+    ],
+    "useful_elements": [
+      "双大模型加第三方标签相互验证的样本标注规则，有效提高了训练集质量",
+      "ALBERT-TextCNN结合全局与局部特征的网络结构设计，平衡了效率与效果",
+      "多维周频因子的构建（关注度和情绪的绝对值及波动率）逻辑清晰，具有实战参考价值"
+    ],
+    "inspirations": [
+      "NLP情感因子与传统量价因子相关性低，可用于多因子模型增量补充",
+      "通过大模型标注小样本+小模型推理全量数据的降本增效范式可推广至其他另类数据处理"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "使用开源金融大模型直接进行Prompt Engineering生成情感连续打分，避免三分类的阈值断裂，或者使用对比学习构造更精细的情感特征，替换TextCNN提取局部特征",
+        "based_on": "相似逻辑 + 不同构造",
+        "expected_gain": "提高情感表达的颗粒度，减少信息丢失，增强因子与未来收益的线性关系，有望提升IC均值。"
+      }
+    ],
+    "replication_plan": "1. 获取股吧/雪球等公开论坛发帖数据；2. 调用GPT-4及开源金融大模型进行三分类标注；3. 构建ALBERT-TextCNN模型并微调；4. 预测全量文本情感；5. 构造积极/消极占比、帖子数、帖子数差及对应波动率等5个周频因子并等权合成；6. 每周初按因子值排序选前10%构建中证1000增强组合并设置换手率缓冲。"
+  },
+  "entities": [
+    {
+      "name": "BERT-TextCNN",
+      "type": "model"
+    },
+    {
+      "name": "FinGPT",
+      "type": "model"
+    },
+    {
+      "name": "ALBERT (albert_chinese_small)",
+      "type": "model"
+    },
+    {
+      "name": "子长科技金融论坛舆情数据",
+      "type": "dataset"
+    },
+    {
+      "name": "中证1000指数增强",
+      "type": "concept"
+    },
+    {
+      "name": "大语言模型",
+      "type": "concept"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}

@@ -1,0 +1,251 @@
+{
+  "schema_version": "1.0",
+  "slug": "6cbe7e4226cf",
+  "source": {
+    "title": "【广发金工】日内高频知情交易因子：海量Level 2数据因子挖掘系列（七）",
+    "institution": "广发",
+    "authors": [
+      "安宁宁"
+    ],
+    "published": "2026-06-04",
+    "source_type": "wechat",
+    "original_url": "https://mp.weixin.qq.com/s/SEni6TaS9BD26nQ6XHR4Wg",
+    "local_path": "广发/【广发金工】日内高频知情交易因子：海量Level 2数据因子挖掘系列（七）.md",
+    "ingested_at": "2026-07-13"
+  },
+  "classification": {
+    "research_type": [
+      "高频·微观结构"
+    ],
+    "data_frequency": [
+      "逐笔(Level-2)",
+      "分钟"
+    ],
+    "factor_family": [
+      "资金流"
+    ],
+    "asset_class": [
+      "A股"
+    ],
+    "method": [
+      "统计线性"
+    ],
+    "custom_tags": [
+      "知情交易概率",
+      "VPIN",
+      "DPIN",
+      "订单流不平衡",
+      "微观结构"
+    ]
+  },
+  "ratings": {
+    "quality": 5,
+    "novelty": 4,
+    "reusability": 4
+  },
+  "concise": {
+    "one_liner": "基于Level-2逐笔订单数据构建VPIN和DPIN两类日内高频知情交易因子，刻画多空订单流不平衡及知情交易行为，实现稳健超额收益。",
+    "core_points": [
+      "VPIN直接度量全天主买/主卖在成交量、成交额、成交笔数上的绝对不平衡程度",
+      "DPIN基于5分钟收益率方向判断主买或主卖行为是否为知情交易，并从行为(3)×时间(4)×统计(3)三维交叉衍生36个因子",
+      "因子与Barra风格及深度学习因子相关性低（<0.5），具有较强独立性"
+    ],
+    "key_result": "VPIN_vol因子多头年化收益16.53%，超额8.72%，RankIC均值10.05%，胜率73.6%；DPIN类因子中部分绩优因子月度RankIC大于8%，胜率近70%。"
+  },
+  "detailed": {
+    "core_content": "利用Level-2逐笔订单数据构建日内高频知情交易因子。VPIN模型通过度量全天主买与主卖（成交量/成交额/成交笔数）的不平衡测度知情交易概率。DPIN模型引入5分钟区间收益率的非预期反转作为知情交易代理，按收益率方向判定主买或主卖行为为知情交易，并从行为（大/小单）、时间（早盘/盘中/尾盘）、统计（均值/标准差/稳定性）三维交叉构建36个细分因子。",
+    "economic_logic": "市场存在信息不对称，知情交易者的单边集中交易会导致买卖订单流显著不平衡。下跌时主买或上涨时主卖代表知情交易者的反转套利或提前布局行为，这种非对称交易行为在高频数据中留下痕迹，捕捉该痕迹可预测未来收益。",
+    "construction": {
+      "type": "factor",
+      "data_inputs": [
+        {
+          "field": "逐笔成交数据(主买/主卖量、额、笔数)",
+          "frequency": "逐笔(Level-2)",
+          "source": "交易所Level-2行情",
+          "preprocessing": "按5分钟切片聚合，区分并统计主买与主卖订单"
+        },
+        {
+          "field": "5分钟区间收益率",
+          "frequency": "5分钟",
+          "source": "5分钟频量价快照数据",
+          "preprocessing": "提取09:30-14:57的5分钟切片收益率"
+        }
+      ],
+      "backtest_setup": {
+        "period": "20190301~20260430",
+        "benchmark": "中证全指",
+        "rebalance_freq": "月度(20日)换仓",
+        "cost": "双边千三计费",
+        "grouping": "十分档"
+      },
+      "combination": "无，单因子测试",
+      "parameters": [
+        {
+          "name": "日内切片频率",
+          "value": "5分钟",
+          "meaning": "将全天逐笔数据聚合为5分钟频数据用于DPIN计算"
+        },
+        {
+          "name": "成交量阈值",
+          "value": "全天5分钟成交量中位数",
+          "meaning": "用于划分大单区间和小单区间的行为特征阈值"
+        },
+        {
+          "name": "时间段划分",
+          "value": "am(09:30-10:00), middle(10:00-14:30), pm(14:30-14:57), total(全天切片)",
+          "meaning": "提取不同时间段的知情交易特征，反映不同交易时段的信息博弈特征"
+        }
+      ],
+      "factor_definition": "1. VPIN因子：计算全天主买与主卖不平衡度，如 VPIN_vol = |主买成交量 - 主卖成交量| / (主买成交量 + 主卖成交量)，同理计算VPIN_amt与VPIN_cnt。\n2. DPIN_base：单日5分钟切片，若区间收益率<0，取该区间主买笔数占比(主买笔数/总成交笔数)；若区间收益率>0，取该区间主卖笔数占比。\n3. 行为拓展：DPIN_big：当该区间成交量>全天5分钟成交量中位数时，DPIN_base值不变，否则取0；DPIN_small：当区间成交量<=全天中位数时，DPIN_base值不变，否则取0。\n4. 统计聚合：对上述3种行为特征序列，在4种时间特征切片内提取均值、标准差以及稳定性(mean/std)，共衍生出 3 × 4 × 3 = 36个DPIN因子。",
+      "processing_pipeline": [
+        "1. 数据获取：提取Level-2逐笔订单与5分钟快照数据",
+        "2. 切片聚合：将全天09:30-14:57划分为5分钟区间，计算每个区间的成交量、主买量/笔数、主卖量/笔数、区间收益率",
+        "3. VPIN计算：汇总全天主买主卖数据，计算绝对值不平衡度",
+        "4. DPIN基础值计算：按收益率方向筛选主买/主卖占比作为知情交易代理值",
+        "5. 行为过滤：根据全天5分钟成交量中位数，将基础值分为大单、小单和基础序列",
+        "6. 时间过滤与统计提取：针对不同行为序列，在各时段提取mean/std/stable(mean/std)",
+        "7. 因子标准化：横截面去极值与标准化处理"
+      ],
+      "model_architecture": "",
+      "inputs": [],
+      "outputs": "",
+      "training": "",
+      "strategy_logic": null,
+      "allocation": null
+    },
+    "excess_return_logic": "通过捕捉多空双方在筹码数量上的失衡程度和特定方向上的反转套利行为，识别出知情资金主导的股票。知情资金的非对称交易行为预示着未来资产价格将向知情者预期方向变动，从而产生超额收益。",
+    "performance": {
+      "metrics": [
+        {
+          "name": "多头组合年化收益率(VPIN_vol)",
+          "value": "16.53%"
+        },
+        {
+          "name": "超额年化收益率(VPIN_vol)",
+          "value": "8.72%"
+        },
+        {
+          "name": "RankIC均值(VPIN_vol)",
+          "value": "10.05%"
+        },
+        {
+          "name": "方向胜率(VPIN_vol)",
+          "value": "73.6%"
+        },
+        {
+          "name": "RankIC均值(DPIN_base_total_std)",
+          "value": ">8%"
+        },
+        {
+          "name": "方向胜率(DPIN类因子)",
+          "value": "接近70%"
+        }
+      ],
+      "benchmark": "中证全指",
+      "backtest_period": "20190301~20260430",
+      "turnover": null,
+      "capacity": null,
+      "ic_decay": null,
+      "summary": "研报基于Level-2逐笔订单数据构建了VPIN和DPIN两类日内高频知情交易因子。VPIN_vol因子表现优异，多头组合年化收益达16.53%，超额8.72%，RankIC均值10.05%。DPIN类因子中部分绩优因子月度RankIC大于8%，方向胜率接近70%。因子与现有Barra风格及深度学习因子相关性低，具有较强独立性。"
+    },
+    "attribution": {
+      "done": true,
+      "method": "相关性分析",
+      "summary": "统计了优选因子与Barra风格因子、深度学习因子及系列前序研究中的大小单、长短单等因子的相关性，发现整体相关系数保持在0.5以内，部分因子具有较强的独立性。",
+      "gap": "未进行详细的收益归因模型分解（如Brinson归因），仅做了横截面因子间的相关性测试。"
+    },
+    "robustness": {
+      "subsample_stability": "回测期长达7年(2019-2026)，期间保持稳定有效",
+      "style_bias": "与Barra风格因子、深度学习因子及系列前序量价因子相关系数保持在0.5以内",
+      "turnover": null,
+      "capacity": null,
+      "summary": "因子具有较强的独立性，风格暴露低，为现有量化体系提供了显著的增量Alpha信息。"
+    },
+    "data_dependency": {
+      "data_required": "Level-2逐笔订单数据（包含准确的主买主卖标签、成交量、成交额、成交笔数）、5分钟频量价快照数据",
+      "reproducibility": "medium",
+      "summary": "依赖Level-2逐笔数据与准确的主买主卖打标，数据量大且处理逻辑复杂，但在具备对应数据底座的量化机构中可实现。"
+    },
+    "prior_art": [
+      {
+        "method": "PIN模型(Easley 1996)",
+        "relation": "传统模型依赖极大似然估计，高频计算困难，本文VPIN为其直接改进"
+      },
+      {
+        "method": "VPIN模型",
+        "relation": "本文VPIN因子直接基于其订单流不平衡思想构建"
+      },
+      {
+        "method": "DPIN模型(Chang 2014)",
+        "relation": "本文DPIN因子基于其日内非预期反转思想，并创新性引入大小单与时间段二维拓展"
+      }
+    ],
+    "novelty_assessment": {
+      "type": "新组合",
+      "summary": "基于经典微观结构知情交易概率理论，创新性地将日内收益率方向作为知情交易判定依据，并在行为（大/小单）、时间（早/中/尾盘）、统计特征三维交叉生成因子矩阵，是对DPIN模型在因子工程上的深度拓展。"
+    }
+  },
+  "critical": {
+    "weaknesses": [
+      "仅使用5分钟收益率方向作为知情交易的代理变量可能存在噪音，未剔除大盘涨跌导致的被动跟随效应",
+      "DPIN_base中使用'主买/主卖笔数占比'，但在DPIN_big/small中直接将其置0，可能损失区间内真实交易分布的连续信息",
+      "未探讨集合竞价阶段（09:25之前）的知情交易行为，而该阶段往往包含极高的隔夜信息"
+    ],
+    "useful_elements": [
+      "基于收益率方向区分主买/主卖知情意图的逻辑十分巧妙，提供了新颖的微观结构视角",
+      "三维（行为×时间×统计）因子衍生框架非常系统化，可复用于其他高频因子的挖掘",
+      "大小单划分采用日内自身成交量中位数，具有截面和时间序列双重自适应性"
+    ],
+    "inspirations": [
+      "可以将收益率方向替换为剔除大盘Beta后的个股异常收益率方向，以过滤系统性噪音",
+      "在统计特征中可引入偏度、峰度或序列自相关性，刻画知情交易行为的持续性与集中度",
+      "主买主卖的定义可进一步细分为主动撤单与成交，将撤单率作为知情交易的干扰或掩护特征纳入考量"
+    ],
+    "improvement_ideas": [
+      {
+        "idea": "基于订单簿失衡(OFI)与DPIN结合的知情交易因子改进",
+        "based_on": "研报中DPIN仅关注主买卖成交笔数，未利用Level-2订单簿深度信息",
+        "expected_gain": "将最优买卖十档的挂单撤单量与成交不平衡结合，构建基于订单簿动态演变的微观知情交易因子，有望更早捕捉知情资金的建仓意图，提升因子前瞻性与RankIC"
+      }
+    ],
+    "replication_plan": "1. 获取全市场Level-2逐笔成交数据，标记主买、主卖属性；2. 将09:30-14:57划分为5分钟切片，统计每切片成交量、主买/主卖量及笔数、区间收益率；3. 按公式计算VPIN各因子；4. 根据收益率方向计算DPIN_base序列，并按全天成交量中位数过滤生成big/small序列；5. 按时段聚合计算mean/std/stable，生成36个因子；6. 在全市场进行月度双十分组回测，双边千三计费，校验RankIC及收益表现。"
+  },
+  "entities": [
+    {
+      "name": "VPIN模型",
+      "type": "method"
+    },
+    {
+      "name": "DPIN模型",
+      "type": "method"
+    },
+    {
+      "name": "Level-2逐笔订单数据",
+      "type": "dataset"
+    },
+    {
+      "name": "知情交易概率",
+      "type": "concept"
+    },
+    {
+      "name": "安宁宁",
+      "type": "person"
+    },
+    {
+      "name": "陈原文",
+      "type": "person"
+    },
+    {
+      "name": "VPIN_vol",
+      "type": "factor"
+    },
+    {
+      "name": "DPIN_base_total_std",
+      "type": "factor"
+    }
+  ],
+  "related_reports": [],
+  "confidence": "high",
+  "model_used": "glm-5-2-260617",
+  "status": "ok"
+}
